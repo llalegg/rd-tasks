@@ -104,7 +104,7 @@ export default function TaskManager() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-5">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <div className="flex-shrink-0">
@@ -121,7 +121,7 @@ export default function TaskManager() {
         </div>
       </header>
       {/* Main Content */}
-      <main className="container mx-auto px-5 py-8 ml-[20px] mr-[20px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
+      <main className="w-full px-5 py-8">
         <Tabs defaultValue="list" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md">
             <TabsTrigger value="list" className="flex items-center gap-2">

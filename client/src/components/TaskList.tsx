@@ -106,7 +106,7 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
     <Card className="w-full">
       <CardContent className="p-0">
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="w-full">
             <TableHeader>
               <TableRow>
                 <TableHead className="min-w-[180px]">
