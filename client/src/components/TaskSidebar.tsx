@@ -69,75 +69,69 @@ export default function TaskSidebar({ task, isOpen, onClose, onStatusUpdate, onE
 
   return (
     <>
-      {/* Backdrop */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-40 transition-opacity duration-300"
-          onClick={onClose}
-        />
-      )}
+      {/* Backdrop - removed to allow interaction with main content */}
 
       {/* Sidebar */}
       <div className={`fixed top-0 right-0 h-full w-[500px] bg-background border-l border-border z-50 transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${getStatusColor(task.status)}`} />
-            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${getStatusColor(task.status)}`} />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               {getStatusLabel(task.status)}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onEdit(task)}
-              className="h-8 w-8 p-0"
+              className="h-7 w-7 p-0"
             >
-              <Edit className="h-4 w-4" />
+              <Edit className="h-3 w-3" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="h-8 w-8 p-0"
+              className="h-7 w-7 p-0"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3 w-3" />
             </Button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto h-full">
+        <div className="p-4 overflow-y-auto h-[calc(100%-4rem)]">
           {/* Task Title */}
-          <div className="mb-6">
-            <h1 className="text-xl font-semibold mb-2">{task.name}</h1>
-            <Badge variant="outline" className="mb-3">
+          <div className="mb-4">
+            <h1 className="text-base font-semibold mb-1">{task.name}</h1>
+            <Badge variant="outline" className="mb-2 text-xs">
               {formatTaskType(task.type)}
             </Badge>
             {task.description && (
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 {task.description}
               </p>
             )}
           </div>
 
           {/* Status Actions */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-              <Target className="h-4 w-4" />
+          <div className="mb-4">
+            <h3 className="text-xs font-medium mb-2 flex items-center gap-2 text-muted-foreground">
+              <Target className="h-3 w-3" />
               Status
             </h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1">
               {['new', 'in_progress', 'pending', 'completed'].map((status) => (
                 <Button
                   key={status}
                   variant={task.status === status ? "default" : "outline"}
                   size="sm"
                   onClick={() => onStatusUpdate(task.id, status as Task['status'])}
-                  className="capitalize"
+                  className="capitalize text-xs h-7"
                 >
                   {getStatusLabel(status as Task['status'])}
                 </Button>
@@ -145,119 +139,105 @@ export default function TaskSidebar({ task, isOpen, onClose, onStatusUpdate, onE
             </div>
           </div>
 
-          <Separator className="my-6" />
+          <Separator className="my-4" />
 
           {/* Task Details */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Assignee */}
             <div>
-              <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <User className="h-4 w-4" />
+              <h3 className="text-xs font-medium mb-2 flex items-center gap-2 text-muted-foreground">
+                <User className="h-3 w-3" />
                 Assigned to
               </h3>
-              <Card>
-                <CardContent className="p-4">
-                  {assignee ? (
-                    <div className="flex items-center gap-3">
-                      <UserAvatar userId={assignee.id} size="md" showTooltip={false} />
-                      <div>
-                        <p className="font-medium">{assignee.name}</p>
-                        <p className="text-sm text-muted-foreground">{assignee.email}</p>
-                      </div>
+              <div className="bg-muted/30 p-3 rounded-md">
+                {assignee ? (
+                  <div className="flex items-center gap-2">
+                    <UserAvatar userId={assignee.id} size="sm" showTooltip={false} />
+                    <div>
+                      <p className="font-medium text-sm">{assignee.name}</p>
+                      <p className="text-xs text-muted-foreground">{assignee.email}</p>
                     </div>
-                  ) : (
-                    <p className="text-muted-foreground">No assignee</p>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No assignee</p>
+                )}
+              </div>
             </div>
 
             {/* Priority */}
             <div>
-              <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <Target className="h-4 w-4" />
+              <h3 className="text-xs font-medium mb-2 flex items-center gap-2 text-muted-foreground">
+                <Target className="h-3 w-3" />
                 Priority
               </h3>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <PriorityIcon priority={task.priority} size="md" />
-                    <span className="capitalize font-medium">{task.priority}</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="bg-muted/30 p-3 rounded-md">
+                <div className="flex items-center gap-2">
+                  <PriorityIcon priority={task.priority} size="sm" />
+                  <span className="capitalize font-medium text-sm">{task.priority}</span>
+                </div>
+              </div>
             </div>
 
             {/* Deadline */}
             {task.deadline && (
               <div>
-                <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
+                <h3 className="text-xs font-medium mb-2 flex items-center gap-2 text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
                   Deadline
                 </h3>
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">{new Date(task.deadline).toLocaleDateString()}</p>
-                        <DeadlineBadge deadline={task.deadline} />
-                      </div>
+                <div className="bg-muted/30 p-3 rounded-md">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium text-sm">{new Date(task.deadline).toLocaleDateString()}</p>
+                      <DeadlineBadge deadline={task.deadline} className="mt-1" />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* Related Athletes */}
             {relatedAthletes.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-                  <User className="h-4 w-4" />
+                <h3 className="text-xs font-medium mb-2 flex items-center gap-2 text-muted-foreground">
+                  <User className="h-3 w-3" />
                   Related Athletes
                 </h3>
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="space-y-2">
-                      {relatedAthletes.map((athlete) => (
-                        <div key={athlete.id} className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-xs font-medium">
-                              {athlete.name.charAt(0)}
-                            </span>
-                          </div>
-                          <span className="font-medium">{athlete.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="bg-muted/30 p-3 rounded-md">
+                  <div className="space-y-2">
+                    {relatedAthletes.map((athlete) => (
+                      <div key={athlete.id} className="flex items-center gap-2">
+                        <UserAvatar userId={athlete.id} size="sm" showTooltip={false} />
+                        <span className="font-medium text-sm">{athlete.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
             {/* Creator */}
             <div>
-              <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <FileText className="h-4 w-4" />
+              <h3 className="text-xs font-medium mb-2 flex items-center gap-2 text-muted-foreground">
+                <FileText className="h-3 w-3" />
                 Created by
               </h3>
-              <Card>
-                <CardContent className="p-4">
-                  {creator ? (
-                    <div className="flex items-center gap-3">
-                      <UserAvatar userId={creator.id} size="md" showTooltip={false} />
-                      <div>
-                        <p className="font-medium">{creator.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(task.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
+              <div className="bg-muted/30 p-3 rounded-md">
+                {creator ? (
+                  <div className="flex items-center gap-2">
+                    <UserAvatar userId={creator.id} size="sm" showTooltip={false} />
+                    <div>
+                      <p className="font-medium text-sm">{creator.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(task.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
-                  ) : (
-                    <p className="text-muted-foreground">Unknown creator</p>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">Unknown creator</p>
+                )}
+              </div>
             </div>
           </div>
         </div>

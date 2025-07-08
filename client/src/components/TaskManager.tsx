@@ -20,10 +20,12 @@ export default function TaskManager() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch tasks from API
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ['/api/tasks'],
     queryFn: () => fetch('/api/tasks').then(res => res.json()),
   });
+
+  console.log('Tasks loading state:', { isLoading, tasksCount: tasks.length, error });
 
   // Fetch users from API
   const { data: users = [] } = useQuery({

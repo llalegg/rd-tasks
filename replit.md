@@ -109,6 +109,10 @@ Changelog:
 - July 08, 2025. Replaced modal with sliding sidebar for task details (500px width)
 - July 08, 2025. Added push-content-left effect when sidebar opens
 - July 08, 2025. Implemented ESC-to-close and enhanced drop zone indicators
+- July 08, 2025. Reordered List View columns - Priority first (icon-only), then Name, Type, Deadline, SINE, Related Athletes, Status
+- July 08, 2025. Made sidebar content more compact with smaller fonts and tighter spacing
+- July 08, 2025. Removed backdrop overlay to allow interaction with main content while sidebar is open (Jira-style)
+- July 08, 2025. Fixed Kanban drag-and-drop status updates to work properly with database persistence
 ```
 
 ## User Preferences

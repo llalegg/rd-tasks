@@ -109,14 +109,13 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="min-w-[180px]">
+                <TableHead className="w-12 text-center">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium" 
-                    onClick={() => handleSort('type')}
+                    onClick={() => handleSort('priority')}
                   >
-                    Type
-                    {getSortIcon('type')}
+                    {getSortIcon('priority')}
                   </Button>
                 </TableHead>
                 <TableHead className="min-w-[200px]">
@@ -127,6 +126,16 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
                   >
                     Name
                     {getSortIcon('name')}
+                  </Button>
+                </TableHead>
+                <TableHead className="min-w-[180px]">
+                  <Button 
+                    variant="ghost" 
+                    className="h-auto p-0 font-medium" 
+                    onClick={() => handleSort('type')}
+                  >
+                    Type
+                    {getSortIcon('type')}
                   </Button>
                 </TableHead>
                 <TableHead className="min-w-[120px]">
@@ -143,19 +152,9 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium" 
-                    onClick={() => handleSort('priority')}
-                  >
-                    Priority
-                    {getSortIcon('priority')}
-                  </Button>
-                </TableHead>
-                <TableHead className="min-w-[80px]">
-                  <Button 
-                    variant="ghost" 
-                    className="h-auto p-0 font-medium" 
                     onClick={() => handleSort('assignee')}
                   >
-                    Assignee
+                    SINE
                     {getSortIcon('assignee')}
                   </Button>
                 </TableHead>
@@ -187,19 +186,19 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => onTaskClick(task)}
                   >
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {formatTaskType(task.type)}
-                      </Badge>
+                    <TableCell className="text-center">
+                      <PriorityIcon priority={task.priority} />
                     </TableCell>
                     <TableCell className="font-medium">
                       {task.name}
                     </TableCell>
                     <TableCell>
-                      <DeadlineBadge deadline={task.deadline} />
+                      <Badge variant="outline" className="text-xs">
+                        {formatTaskType(task.type)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      <PriorityIcon priority={task.priority} />
+                      <DeadlineBadge deadline={task.deadline} />
                     </TableCell>
                     <TableCell>
                       {assignee ? (
