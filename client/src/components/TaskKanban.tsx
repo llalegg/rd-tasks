@@ -147,7 +147,7 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
 
   return (
     <Card ref={setNodeRef} className="h-fit bg-muted/20">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 px-2 pt-2">
         <CardTitle className="flex items-center justify-between text-lg">
           <div className="flex items-center gap-2">
             <div className={`w-3 h-3 rounded-full ${column.color}`} />
@@ -158,7 +158,7 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 min-h-[200px]">
+      <CardContent className="space-y-3 min-h-[200px] px-2 pb-2">
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
             <SortableTaskCard
@@ -252,7 +252,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
           {columns.map((column) => {
             const columnTasks = tasks.filter(task => task.status === column.key);
             const sortedTasks = sortTasks(columnTasks);
