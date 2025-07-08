@@ -18,7 +18,8 @@ import {
   useSensor,
   useSensors,
   useDroppable,
-  closestCorners,
+  closestCenter,
+  rectIntersection,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
@@ -71,8 +72,8 @@ function SortableTaskCard({ task, onTaskClick }: SortableTaskCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-1 ${
-        isDragging ? 'opacity-50' : ''
+      className={`cursor-pointer bg-card hover:bg-accent/50 border border-border shadow-sm hover:shadow-md transition-all duration-200 ${
+        isDragging ? 'opacity-30 rotate-2 scale-105' : 'hover:-translate-y-0.5'
       }`}
       onClick={() => onTaskClick(task)}
     >
@@ -150,23 +151,23 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
   return (
     <Card 
       ref={setNodeRef} 
-      className={`h-fit bg-muted/20 transition-all duration-200 ${
+      className={`flex-shrink-0 w-80 h-fit bg-muted/20 transition-all duration-200 ${
         isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/5' : ''
       }`}
     >
-      <CardHeader className="pb-2 px-2 pt-2">
-        <CardTitle className="flex items-center justify-between text-lg">
+      <CardHeader className="pb-3 px-3 pt-3">
+        <CardTitle className="flex items-center justify-between text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${column.color}`} />
+            <div className={`w-2 h-2 rounded-full ${column.color}`} />
             {column.title}
           </div>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="secondary" className="text-xs font-medium">
             {tasks.length}
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className={`space-y-3 min-h-[300px] px-2 pb-2 relative ${
-        isOver ? 'bg-primary/5' : ''
+      <CardContent className={`space-y-2 min-h-[400px] p-3 relative transition-colors duration-200 ${
+        isOver ? 'bg-primary/10 ring-1 ring-primary/30' : ''
       }`}>
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
@@ -201,7 +202,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 10,
+        distance: 8,
       },
     })
   );
@@ -262,7 +263,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
   const activeTask = activeId ? tasks.find(task => task.id === activeId) : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full bg-gradient-to-br from-background to-muted/30">
       {/* Sort Controls */}
       <div className="flex items-center gap-2 mb-4">
         <label className="text-sm font-medium">Sort by:</label>
@@ -279,12 +280,12 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
 
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={rectIntersection}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
+        <div className="flex gap-4 overflow-x-auto pb-4 min-h-[400px]">
           {columns.map((column) => {
             const columnTasks = tasks.filter(task => task.status === column.key);
             const sortedTasks = sortTasks(columnTasks);
@@ -300,9 +301,9 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
           })}
         </div>
         
-        <DragOverlay>
+        <DragOverlay dropAnimation={null}>
           {activeTask ? (
-            <div className="rotate-3 scale-105">
+            <div className="rotate-6 scale-110 shadow-2xl border-2 border-primary/30">
               <SortableTaskCard
                 task={activeTask}
                 onTaskClick={() => {}}
