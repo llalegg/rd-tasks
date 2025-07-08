@@ -104,6 +104,11 @@ Changelog:
 - July 08, 2025. Added view toggle switch for List/Kanban views
 - July 08, 2025. Removed navigation bar border for cleaner design
 - July 08, 2025. Implemented live search functionality for task filtering
+- July 08, 2025. Redesigned Kanban with dark theme (#1c1c1c columns, #2a2a2a cards)
+- July 08, 2025. Enhanced drag-and-drop with improved visual feedback and smooth animations
+- July 08, 2025. Replaced modal with sliding sidebar for task details (500px width)
+- July 08, 2025. Added push-content-left effect when sidebar opens
+- July 08, 2025. Implemented ESC-to-close and enhanced drop zone indicators
 ```
 
 ## User Preferences

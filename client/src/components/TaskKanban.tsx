@@ -72,8 +72,8 @@ function SortableTaskCard({ task, onTaskClick }: SortableTaskCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`cursor-pointer bg-card hover:bg-accent/50 border border-border shadow-sm hover:shadow-md transition-all duration-200 ${
-        isDragging ? 'opacity-30 rotate-2 scale-105' : 'hover:-translate-y-0.5'
+      className={`cursor-pointer bg-[#2a2a2a] hover:bg-[#333333] border-none shadow-sm hover:shadow-md transition-all duration-200 ${
+        isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg' : 'hover:-translate-y-0.5'
       }`}
       onClick={() => onTaskClick(task)}
     >
@@ -151,8 +151,8 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
   return (
     <Card 
       ref={setNodeRef} 
-      className={`flex-shrink-0 w-80 h-fit bg-muted/20 transition-all duration-200 ${
-        isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/5' : ''
+      className={`flex-shrink-0 w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-200 ${
+        isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/10' : ''
       }`}
     >
       <CardHeader className="pb-3 px-3 pt-3">
@@ -166,8 +166,8 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className={`space-y-2 min-h-[400px] p-3 relative transition-colors duration-200 ${
-        isOver ? 'bg-primary/10 ring-1 ring-primary/30' : ''
+      <CardContent className={`space-y-3 min-h-[400px] p-4 relative transition-all duration-200 ${
+        isOver ? 'bg-primary/10 ring-2 ring-primary/40 ring-inset' : ''
       }`}>
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
@@ -262,6 +262,12 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
 
   const activeTask = activeId ? tasks.find(task => task.id === activeId) : null;
 
+  const formatTaskType = (type: string) => {
+    return type.split('.').map(part => 
+      part.charAt(0).toUpperCase() + part.slice(1)
+    ).join(' ');
+  };
+
   return (
     <div className="space-y-6 h-full bg-gradient-to-br from-background to-muted/30">
       {/* Sort Controls */}
@@ -301,14 +307,27 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
           })}
         </div>
         
-        <DragOverlay dropAnimation={null}>
+        <DragOverlay dropAnimation={{
+          duration: 500,
+          easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+        }}>
           {activeTask ? (
-            <div className="rotate-6 scale-110 shadow-2xl border-2 border-primary/30">
-              <SortableTaskCard
-                task={activeTask}
-                onTaskClick={() => {}}
-              />
-            </div>
+            <Card className="cursor-grabbing bg-[#2a2a2a] border-none shadow-2xl rotate-3 scale-110 opacity-95">
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <h3 className="font-medium text-sm leading-tight pr-2 text-white">{activeTask.name}</h3>
+                    <PriorityIcon priority={activeTask.priority} size="sm" />
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-1">
+                    <Badge variant="outline" className="text-xs px-2 py-0.5 border-white/20 text-white/80">
+                      {formatTaskType(activeTask.type)}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ) : null}
         </DragOverlay>
       </DndContext>

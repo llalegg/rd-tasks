@@ -6,14 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search, Filter, List, Columns } from "lucide-react";
 import TaskList from "./TaskList";
 import TaskKanban from "./TaskKanban";
-import TaskModal from "./TaskModal";
+import TaskSidebar from "./TaskSidebar";
 import TaskForm from "./TaskForm";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function TaskManager() {
   const queryClient = useQueryClient();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
@@ -72,7 +72,7 @@ export default function TaskManager() {
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
-    setIsModalOpen(true);
+    setIsSidebarOpen(true);
   };
 
   const handleStatusUpdate = (taskId: string, newStatus: Task['status']) => {
@@ -89,7 +89,7 @@ export default function TaskManager() {
     setFormMode('edit');
     setSelectedTask(task);
     setIsFormOpen(true);
-    setIsModalOpen(false);
+    setIsSidebarOpen(false);
   };
 
   const handleFormSubmit = (taskData: Partial<Task>) => {
@@ -109,82 +109,89 @@ export default function TaskManager() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-background/95 backdrop-blur-sm sticky top-0 z-40">
-        <div className="w-full px-5">
-          <div className="flex items-center justify-between h-16 gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0">
-                <h1 className="text-xl font-semibold text-foreground">To-Do's</h1>
+    <div className="min-h-screen bg-background flex">
+      {/* Main Content Area */}
+      <div className={`flex-1 transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'mr-[500px]' : ''
+      }`}>
+        {/* Header */}
+        <header className="bg-background/95 backdrop-blur-sm sticky top-0 z-40">
+          <div className="w-full px-5">
+            <div className="flex items-center justify-between h-16 gap-4">
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0">
+                  <h1 className="text-xl font-semibold text-foreground">To-Do's</h1>
+                </div>
               </div>
-            </div>
-            
-            {/* Search and Controls */}
-            <div className="flex items-center space-x-3 flex-1 max-w-2xl">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search tasks..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+              
+              {/* Search and Controls */}
+              <div className="flex items-center space-x-3 flex-1 max-w-2xl">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    placeholder="Search tasks..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button variant="secondary" size="sm">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filters
+                </Button>
               </div>
-              <Button variant="secondary" size="sm">
-                <Filter className="w-4 h-4 mr-2" />
-                Filters
-              </Button>
-            </div>
 
-            {/* View Toggle and Add Button */}
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center bg-muted rounded-lg p-1">
-                <Button
-                  variant={currentView === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setCurrentView('list')}
-                  className="h-8 w-8 p-0"
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={currentView === 'kanban' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setCurrentView('kanban')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Columns className="w-4 h-4" />
+              {/* View Toggle and Add Button */}
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center bg-muted rounded-lg p-1">
+                  <Button
+                    variant={currentView === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setCurrentView('list')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={currentView === 'kanban' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setCurrentView('kanban')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Columns className="w-4 h-4" />
+                  </Button>
+                </div>
+                <Button onClick={handleCreateTask} className="inline-flex items-center">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Task
                 </Button>
               </div>
-              <Button onClick={handleCreateTask} className="inline-flex items-center">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Task
-              </Button>
             </div>
           </div>
-        </div>
-      </header>
-      {/* Main Content */}
-      <main className="w-full px-5 py-8">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
-          </div>
-        ) : currentView === 'list' ? (
-          <TaskList tasks={filteredTasks} onTaskClick={handleTaskClick} />
-        ) : (
-          <TaskKanban tasks={filteredTasks} onTaskClick={handleTaskClick} onTaskStatusChange={handleStatusUpdate} />
-        )}
-      </main>
-      {/* Task Modal */}
-      <TaskModal
+        </header>
+        {/* Main Content */}
+        <main className="w-full px-5 py-8">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
+            </div>
+          ) : currentView === 'list' ? (
+            <TaskList tasks={filteredTasks} onTaskClick={handleTaskClick} />
+          ) : (
+            <TaskKanban tasks={filteredTasks} onTaskClick={handleTaskClick} onTaskStatusChange={handleStatusUpdate} />
+          )}
+        </main>
+      </div>
+
+      {/* Task Sidebar */}
+      <TaskSidebar
         task={selectedTask}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         onStatusUpdate={handleStatusUpdate}
         onEdit={handleEditTask}
       />
+
       {/* Task Form */}
       <TaskForm
         task={selectedTask}
