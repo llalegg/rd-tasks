@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DeadlineBadge from "./DeadlineBadge";
+import UserAvatar from "./UserAvatar";
+import PriorityIcon from "./PriorityIcon";
 
 interface TaskModalProps {
   task: Task | null;
@@ -21,8 +23,10 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
   const assignee = mockUsers.find(u => u.id === task.assigneeId);
   const creator = mockUsers.find(u => u.id === task.creatorId);
   const relatedAthletes = task.relatedAthleteIds ? 
-    task.relatedAthleteIds.map(id => mockAthletes.find(a => a.id === id)?.name).filter(Boolean) : 
-    [];
+    task.relatedAthleteIds.map(id => {
+      const athlete = mockAthletes.find(a => a.id === id);
+      return athlete ? { id: athlete.id, name: athlete.name } : null;
+    }).filter(Boolean) : [];
 
   const formatTaskType = (type: string) => {
     return type.split('.').map(part => 
@@ -30,14 +34,7 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
     ).join(' ');
   };
 
-  const getPriorityVariant = (priority: Task['priority']) => {
-    switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
-    }
-  };
+
 
   const handleStatusChange = (newStatus: string) => {
     onStatusUpdate(task.id, newStatus as Task['status']);
@@ -92,9 +89,7 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
             <div>
               <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
               <div className="mt-1">
-                <Badge variant={getPriorityVariant(task.priority)}>
-                  {task.priority.toUpperCase()}
-                </Badge>
+                <PriorityIcon priority={task.priority} size="md" />
               </div>
             </div>
           </div>
@@ -102,12 +97,32 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Label className="text-sm font-medium text-muted-foreground">Assignee</Label>
-              <p className="text-foreground mt-1">{assignee?.name || 'Unassigned'}</p>
+              <div className="mt-1">
+                {assignee ? (
+                  <UserAvatar
+                    userId={assignee.id}
+                    name={assignee.name}
+                    size="md"
+                  />
+                ) : (
+                  <span className="text-muted-foreground">Unassigned</span>
+                )}
+              </div>
             </div>
             
             <div>
               <Label className="text-sm font-medium text-muted-foreground">Created By</Label>
-              <p className="text-foreground mt-1">{creator?.name || 'Unknown'}</p>
+              <div className="mt-1">
+                {creator ? (
+                  <UserAvatar
+                    userId={creator.id}
+                    name={creator.name}
+                    size="md"
+                  />
+                ) : (
+                  <span className="text-muted-foreground">Unknown</span>
+                )}
+              </div>
             </div>
           </div>
           
@@ -121,9 +136,22 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
             
             <div>
               <Label className="text-sm font-medium text-muted-foreground">Related Athletes</Label>
-              <p className="text-foreground mt-1">
-                {relatedAthletes.length > 0 ? relatedAthletes.join(', ') : 'None'}
-              </p>
+              <div className="mt-1 flex items-center space-x-2">
+                {relatedAthletes.length > 0 ? (
+                  <div className="flex -space-x-1">
+                    {relatedAthletes.map((athlete) => (
+                      <UserAvatar
+                        key={athlete!.id}
+                        userId={athlete!.id}
+                        name={athlete!.name}
+                        size="md"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground">None</span>
+                )}
+              </div>
             </div>
           </div>
           

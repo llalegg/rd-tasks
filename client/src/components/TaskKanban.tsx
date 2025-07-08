@@ -2,8 +2,12 @@ import { Task } from "@shared/schema";
 import { mockUsers, mockAthletes } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Tag, User, Users } from "lucide-react";
 import DeadlineBadge from "./DeadlineBadge";
+import UserAvatar from "./UserAvatar";
+import PriorityIcon from "./PriorityIcon";
 import {
   DndContext,
   DragEndEvent,
@@ -48,22 +52,15 @@ function SortableTaskCard({ task, onTaskClick }: SortableTaskCardProps) {
 
   const assignee = mockUsers.find(u => u.id === task.assigneeId);
   const relatedAthletes = task.relatedAthleteIds ? 
-    task.relatedAthleteIds.map(id => mockAthletes.find(a => a.id === id)?.name).filter(Boolean) : 
-    [];
+    task.relatedAthleteIds.map(id => {
+      const athlete = mockAthletes.find(a => a.id === id);
+      return athlete ? { id: athlete.id, name: athlete.name } : null;
+    }).filter(Boolean) : [];
 
   const formatTaskType = (type: string) => {
     return type.split('.').map(part => 
       part.charAt(0).toUpperCase() + part.slice(1)
     ).join(' ');
-  };
-
-  const getPriorityVariant = (priority: Task['priority']) => {
-    switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
-    }
   };
 
   return (
@@ -82,9 +79,7 @@ function SortableTaskCard({ task, onTaskClick }: SortableTaskCardProps) {
           <h4 className="text-sm font-medium text-foreground line-clamp-2 flex-1">
             {task.name}
           </h4>
-          <Badge variant={getPriorityVariant(task.priority)} className="text-xs ml-2 flex-shrink-0">
-            {task.priority.toUpperCase()}
-          </Badge>
+          <PriorityIcon priority={task.priority} size="sm" />
         </div>
         
         <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
@@ -97,20 +92,39 @@ function SortableTaskCard({ task, onTaskClick }: SortableTaskCardProps) {
             {formatTaskType(task.type)}
           </div>
           
-          <div className="flex items-center text-xs text-muted-foreground">
-            <User className="w-3 h-3 mr-1" />
-            {assignee?.name || 'Unassigned'}
-          </div>
-          
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              {assignee ? (
+                <UserAvatar
+                  userId={assignee.id}
+                  name={assignee.name}
+                  size="sm"
+                />
+              ) : (
+                <span className="text-xs text-muted-foreground">Unassigned</span>
+              )}
+            </div>
             <DeadlineBadge deadline={task.deadline} className="text-xs" />
           </div>
           
           {relatedAthletes.length > 0 && (
-            <div className="flex items-center text-xs text-muted-foreground">
-              <Users className="w-3 h-3 mr-1" />
-              {relatedAthletes.slice(0, 2).join(', ')}
-              {relatedAthletes.length > 2 && ` +${relatedAthletes.length - 2}`}
+            <div className="flex items-center space-x-1">
+              <Users className="w-3 h-3 text-muted-foreground" />
+              <div className="flex -space-x-1">
+                {relatedAthletes.slice(0, 3).map((athlete, index) => (
+                  <UserAvatar
+                    key={athlete!.id}
+                    userId={athlete!.id}
+                    name={athlete!.name}
+                    size="sm"
+                  />
+                ))}
+                {relatedAthletes.length > 3 && (
+                  <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                    +{relatedAthletes.length - 3}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -132,7 +146,7 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
   });
 
   return (
-    <Card ref={setNodeRef} className="h-fit">
+    <Card ref={setNodeRef} className="h-fit bg-muted/20">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-lg">
           <div className="flex items-center gap-2">
@@ -161,6 +175,7 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
 
 export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: TaskKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('priority');
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -175,6 +190,20 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
     { key: 'pending', title: 'Pending', color: 'bg-amber-500' },
     { key: 'completed', title: 'Completed', color: 'bg-emerald-500' }
   ];
+
+  // Sort tasks within each column
+  const sortTasks = (tasks: Task[]) => {
+    return [...tasks].sort((a, b) => {
+      if (sortBy === 'priority') {
+        const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+        return priorityOrder[b.priority] - priorityOrder[a.priority];
+      } else {
+        const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+        const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+        return aDeadline - bDeadline;
+      }
+    });
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -203,34 +232,51 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
   const activeTask = activeId ? tasks.find(task => task.id === activeId) : null;
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {columns.map((column) => {
-          const columnTasks = tasks.filter(task => task.status === column.key);
-          
-          return (
-            <DroppableColumn
-              key={column.key}
-              column={column}
-              tasks={columnTasks}
-              onTaskClick={onTaskClick}
-            />
-          );
-        })}
+    <div className="space-y-6">
+      {/* Sort Controls */}
+      <div className="flex items-center gap-2 mb-4">
+        <label className="text-sm font-medium">Sort by:</label>
+        <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline') => setSortBy(value)}>
+          <SelectTrigger className="w-32">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="priority">Priority</SelectItem>
+            <SelectItem value="deadline">Deadline</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      
-      <DragOverlay>
-        {activeTask ? (
-          <SortableTaskCard
-            task={activeTask}
-            onTaskClick={() => {}}
-          />
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {columns.map((column) => {
+            const columnTasks = tasks.filter(task => task.status === column.key);
+            const sortedTasks = sortTasks(columnTasks);
+            
+            return (
+              <DroppableColumn
+                key={column.key}
+                column={column}
+                tasks={sortedTasks}
+                onTaskClick={onTaskClick}
+              />
+            );
+          })}
+        </div>
+        
+        <DragOverlay>
+          {activeTask ? (
+            <SortableTaskCard
+              task={activeTask}
+              onTaskClick={() => {}}
+            />
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+    </div>
   );
 }

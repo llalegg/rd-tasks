@@ -77,7 +77,7 @@ export default function TaskManager() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="container mx-auto px-5 py-8">
         <Tabs defaultValue="list" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md">
             <TabsTrigger value="list" className="flex items-center gap-2">
