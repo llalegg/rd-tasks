@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import DeadlineBadge from "./DeadlineBadge";
 
 interface TaskModalProps {
   task: Task | null;
@@ -113,9 +114,9 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Label className="text-sm font-medium text-muted-foreground">Deadline</Label>
-              <p className="text-foreground mt-1">
-                {task.deadline ? new Date(task.deadline).toLocaleDateString() : 'No deadline set'}
-              </p>
+              <div className="mt-1">
+                <DeadlineBadge deadline={task.deadline} />
+              </div>
             </div>
             
             <div>

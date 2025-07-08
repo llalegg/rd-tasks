@@ -3,6 +3,7 @@ import { mockUsers, mockAthletes } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Tag, User, Users } from "lucide-react";
+import DeadlineBadge from "./DeadlineBadge";
 import {
   DndContext,
   DragEndEvent,
@@ -101,12 +102,9 @@ function SortableTaskCard({ task, onTaskClick }: SortableTaskCardProps) {
             {assignee?.name || 'Unassigned'}
           </div>
           
-          {task.deadline && (
-            <div className="flex items-center text-xs text-muted-foreground">
-              <Calendar className="w-3 h-3 mr-1" />
-              {new Date(task.deadline).toLocaleDateString()}
-            </div>
-          )}
+          <div className="flex items-center">
+            <DeadlineBadge deadline={task.deadline} className="text-xs" />
+          </div>
           
           {relatedAthletes.length > 0 && (
             <div className="flex items-center text-xs text-muted-foreground">

@@ -17,6 +17,19 @@ export const mockAthletes: Athlete[] = [
   { id: '6', name: 'Riley Garcia' }
 ];
 
+// Generate dates relative to today for testing deadline badges
+const today = new Date();
+const yesterday = new Date(today);
+yesterday.setDate(yesterday.getDate() - 1);
+const tomorrow = new Date(today);
+tomorrow.setDate(tomorrow.getDate() + 1);
+const inTwoDays = new Date(today);
+inTwoDays.setDate(inTwoDays.getDate() + 2);
+const inFiveDays = new Date(today);
+inFiveDays.setDate(inFiveDays.getDate() + 5);
+const threeDaysAgo = new Date(today);
+threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
 export const mockTasks: Task[] = [
   {
     id: '1',
@@ -25,7 +38,7 @@ export const mockTasks: Task[] = [
     type: 'manual.assessment.review',
     assigneeId: '1',
     relatedAthleteIds: ['1', '2'],
-    deadline: '2024-02-15',
+    deadline: today.toISOString().split('T')[0], // Today
     priority: 'high',
     status: 'new',
     createdAt: '2024-01-15T08:00:00Z',
@@ -39,7 +52,7 @@ export const mockTasks: Task[] = [
     type: 'manual.communication.schedule_call',
     assigneeId: '2',
     relatedAthleteIds: ['3'],
-    deadline: '2024-02-10',
+    deadline: yesterday.toISOString().split('T')[0], // Yesterday
     priority: 'medium',
     status: 'in_progress',
     createdAt: '2024-01-12T10:30:00Z',
@@ -53,7 +66,7 @@ export const mockTasks: Task[] = [
     type: 'manual.injury.followup',
     assigneeId: '3',
     relatedAthleteIds: ['4'],
-    deadline: '2024-02-08',
+    deadline: tomorrow.toISOString().split('T')[0], // Tomorrow
     priority: 'high',
     status: 'pending',
     createdAt: '2024-01-10T09:15:00Z',
@@ -67,7 +80,7 @@ export const mockTasks: Task[] = [
     type: 'system.admin.onboarding',
     assigneeId: '4',
     relatedAthleteIds: ['5'],
-    deadline: '2024-02-05',
+    deadline: inTwoDays.toISOString().split('T')[0], // In 2 days
     priority: 'medium',
     status: 'completed',
     createdAt: '2024-01-08T13:00:00Z',
@@ -81,7 +94,7 @@ export const mockTasks: Task[] = [
     type: 'system.payment.failed',
     assigneeId: '5',
     relatedAthleteIds: ['6'],
-    deadline: '2024-02-12',
+    deadline: inFiveDays.toISOString().split('T')[0], // In 5 days
     priority: 'high',
     status: 'new',
     createdAt: '2024-01-14T07:45:00Z',
@@ -95,12 +108,26 @@ export const mockTasks: Task[] = [
     type: 'system.assessment.flagged',
     assigneeId: '1',
     relatedAthleteIds: ['2', '3'],
-    deadline: '2024-02-18',
+    deadline: threeDaysAgo.toISOString().split('T')[0], // 3 days ago (overdue)
     priority: 'medium',
     status: 'in_progress',
     createdAt: '2024-01-16T12:20:00Z',
     updatedAt: '2024-01-17T09:10:00Z',
     creatorId: '4'
+  },
+  {
+    id: '7',
+    name: 'Team Meeting Preparation',
+    description: 'Prepare presentation materials for quarterly team meeting',
+    type: 'manual.communication.schedule_call',
+    assigneeId: '3',
+    relatedAthleteIds: ['1'],
+    deadline: undefined, // No deadline
+    priority: 'low',
+    status: 'new',
+    createdAt: '2024-01-18T08:00:00Z',
+    updatedAt: '2024-01-18T08:00:00Z',
+    creatorId: '2'
   }
 ];
 

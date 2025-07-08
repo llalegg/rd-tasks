@@ -3,6 +3,7 @@ import { mockUsers, mockAthletes } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import DeadlineBadge from "./DeadlineBadge";
 
 interface TaskListProps {
   tasks: Task[];
@@ -69,8 +70,8 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => onTaskClick(task)}
                   >
-                    <TableCell className="text-muted-foreground">
-                      {task.deadline ? new Date(task.deadline).toLocaleDateString() : 'No deadline'}
+                    <TableCell>
+                      <DeadlineBadge deadline={task.deadline} />
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
