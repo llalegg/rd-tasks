@@ -3,17 +3,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Task } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Filter, List, Columns } from "lucide-react";
+import { Plus, Search, Filter, List, Columns, Edit, X } from "lucide-react";
 import TaskList from "./TaskList";
 import TaskKanban from "./TaskKanban";
-import TaskSidebar from "./TaskSidebar";
 import TaskForm from "./TaskForm";
+import TaskPanelContent from "./TaskPanelContent";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function TaskManager() {
   const queryClient = useQueryClient();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
@@ -74,7 +73,6 @@ export default function TaskManager() {
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
-    setIsSidebarOpen(true);
   };
 
   const handleStatusUpdate = (taskId: string, newStatus: Task['status']) => {
@@ -91,7 +89,6 @@ export default function TaskManager() {
     setFormMode('edit');
     setSelectedTask(task);
     setIsFormOpen(true);
-    setIsSidebarOpen(false);
   };
 
   const handleFormSubmit = (taskData: Partial<Task>) => {
@@ -110,11 +107,31 @@ export default function TaskManager() {
     }
   };
 
+  const getStatusColor = (status: Task['status']) => {
+    switch (status) {
+      case 'new': return 'bg-blue-500';
+      case 'in_progress': return 'bg-yellow-500';
+      case 'pending': return 'bg-orange-500';
+      case 'completed': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getStatusLabel = (status: Task['status']) => {
+    switch (status) {
+      case 'new': return 'New';
+      case 'in_progress': return 'In Progress';
+      case 'pending': return 'Pending';
+      case 'completed': return 'Completed';
+      default: return status;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
       {/* Main Content Area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out ${
-        isSidebarOpen ? 'mr-[500px]' : ''
+        selectedTask ? 'pr-[500px]' : ''
       }`}>
         {/* Header */}
         <header className="bg-background/95 backdrop-blur-sm sticky top-0 z-40">
@@ -185,14 +202,46 @@ export default function TaskManager() {
         </main>
       </div>
 
-      {/* Task Sidebar */}
-      <TaskSidebar
-        task={selectedTask}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        onStatusUpdate={handleStatusUpdate}
-        onEdit={handleEditTask}
-      />
+      {/* Task Detail Panel */}
+      {selectedTask && (
+        <div className="fixed top-0 right-0 w-[500px] h-full bg-background border-l border-border z-40 flex flex-col">
+          {/* Panel Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur-sm">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${getStatusColor(selectedTask.status)}`} />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {getStatusLabel(selectedTask.status)}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleEditTask(selectedTask)}
+                className="h-7 w-7 p-0"
+              >
+                <Edit className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedTask(null)}
+                className="h-7 w-7 p-0"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Panel Content */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <TaskPanelContent 
+              task={selectedTask}
+              onStatusUpdate={handleStatusUpdate}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Task Form */}
       <TaskForm
