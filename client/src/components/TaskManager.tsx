@@ -120,9 +120,8 @@ export default function TaskManager() {
           </div>
         </div>
       </header>
-
       {/* Main Content */}
-      <main className="container mx-auto px-5 py-8">
+      <main className="container mx-auto px-5 py-8 ml-[20px] mr-[20px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
         <Tabs defaultValue="list" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md">
             <TabsTrigger value="list" className="flex items-center gap-2">
@@ -156,7 +155,6 @@ export default function TaskManager() {
           </TabsContent>
         </Tabs>
       </main>
-
       {/* Task Modal */}
       <TaskModal
         task={selectedTask}
@@ -165,7 +163,6 @@ export default function TaskManager() {
         onStatusUpdate={handleStatusUpdate}
         onEdit={handleEditTask}
       />
-
       {/* Task Form */}
       <TaskForm
         task={selectedTask}
