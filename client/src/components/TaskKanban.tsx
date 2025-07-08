@@ -11,12 +11,14 @@ import PriorityIcon from "./PriorityIcon";
 import {
   DndContext,
   DragEndEvent,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
   useDroppable,
+  closestCorners,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
@@ -141,12 +143,17 @@ interface DroppableColumnProps {
 }
 
 function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
-  const { setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: column.key,
   });
 
   return (
-    <Card ref={setNodeRef} className="h-fit bg-muted/20">
+    <Card 
+      ref={setNodeRef} 
+      className={`h-fit bg-muted/20 transition-all duration-200 ${
+        isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/5' : ''
+      }`}
+    >
       <CardHeader className="pb-2 px-2 pt-2">
         <CardTitle className="flex items-center justify-between text-lg">
           <div className="flex items-center gap-2">
@@ -158,7 +165,9 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 min-h-[200px] px-2 pb-2">
+      <CardContent className={`space-y-3 min-h-[300px] px-2 pb-2 relative ${
+        isOver ? 'bg-primary/5' : ''
+      }`}>
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
             <SortableTaskCard
@@ -168,6 +177,18 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
             />
           ))}
         </SortableContext>
+        
+        {/* Drop zone indicator for empty columns */}
+        {tasks.length === 0 && (
+          <div className={`absolute inset-0 flex items-center justify-center text-muted-foreground transition-all duration-200 ${
+            isOver ? 'text-primary' : ''
+          }`}>
+            <div className="text-center">
+              <div className="text-2xl mb-2">⬇</div>
+              <p className="text-sm">Drop tasks here</p>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -175,11 +196,12 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
 
 export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: TaskKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('priority');
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 10,
       },
     })
   );
@@ -209,9 +231,17 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
     setActiveId(event.active.id as string);
   };
 
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    setOverId(over?.id as string | null);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    
+    // Reset state
     setActiveId(null);
+    setOverId(null);
 
     if (!over) return;
 
@@ -249,7 +279,9 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
 
       <DndContext
         sensors={sensors}
+        collisionDetection={closestCorners}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
@@ -270,10 +302,12 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
         
         <DragOverlay>
           {activeTask ? (
-            <SortableTaskCard
-              task={activeTask}
-              onTaskClick={() => {}}
-            />
+            <div className="rotate-3 scale-105">
+              <SortableTaskCard
+                task={activeTask}
+                onTaskClick={() => {}}
+              />
+            </div>
           ) : null}
         </DragOverlay>
       </DndContext>
