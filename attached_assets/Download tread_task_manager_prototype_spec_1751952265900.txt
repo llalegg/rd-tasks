@@ -1,0 +1,164 @@
+
+Tread Task Manager Prototype – Replit Specification
+
+This document defines the full requirements for building a frontend-only task manager prototype. The prototype will be used internally at Tread to test and compare List View vs. Kanban View interfaces for managing tasks. This is a UI prototype only – no backend or database integration is required.
+
+---
+
+Tech Stack
+
+- Framework: Next.js
+- Styling: Tailwind CSS
+- UI Library: shadcn/ui (dark mode enabled)
+- Font: Montserrat
+- Data: Static mock data only (in-memory)
+
+---
+
+Layout
+
+The UI must include two views, accessible via tab-based navigation:
+
+- List View: Table of tasks
+- Kanban View: Column layout grouped by task status
+
+Use a visible tab component to toggle between views.
+
+---
+
+Task Data Model
+
+All task data is mocked in a local file (e.g., mockData.ts). Each task object must follow this structure:
+
+type Task = {
+  id: string;
+  name: string;
+  description?: string;
+  attachments?: string[]; // mock only, UI display only
+  type: string; // e.g., "manual.assessment.review"
+  assigneeId: string;
+  relatedAthleteIds?: string[];
+  deadline?: string; // ISO string
+  watcherIds?: string[];
+  creatorId: string;
+  status: "new" | "in_progress" | "pending" | "completed";
+  priority: "low" | "medium" | "high";
+  createdAt: string;
+  updatedAt: string;
+};
+
+You must also mock the following:
+
+type User = {
+  id: string;
+  name: string;
+};
+
+type Athlete = {
+  id: string;
+  name: string;
+};
+
+---
+
+Feature Requirements
+
+1. List View
+
+- Table layout
+- Columns:
+  - Deadline
+  - Type
+  - Name
+  - Assignee
+  - Related Athlete(s)
+  - Status
+- Each row must be clickable
+- Clicking a row opens a Task Modal
+
+2. Kanban View
+
+- Four columns: New, In Progress, Pending, Completed
+- Each column displays task cards based on status
+- Clicking a card opens the Task Modal
+- Drag-and-drop is not required
+
+3. Task Modal (View Mode)
+
+- Opens as a modal window when a task is clicked
+- All fields must be shown in read-only mode, except:
+  - Status — editable via dropdown
+- Status changes must update in-memory state only
+
+4. Task Form – Create (Mock Only)
+
+- Show a functional form for creating a task
+- The form does not actually create or save the task
+- Inputs must reflect real schema, but are non-functional
+- Include fields:
+  - Name (text input)
+  - Description (multi-line)
+  - Type (dropdown)
+  - Assignee (user select)
+  - Related Athlete(s) (multi-select)
+  - Deadline (calendar picker)
+  - Priority (dropdown: low, medium, high)
+  - Attachments (file upload UI only — no upload logic)
+
+5. Task Form – Edit (Mock Only)
+
+- Opens with pre-filled values for a mock task
+- Fields must match the creation form
+- No update or save action is needed
+- Simulate editable interaction only
+
+6. UI/UX Interaction Rules
+
+- No actual task creation, update, or deletion
+- No API calls or backend logic
+- All data should remain in memory
+- Component structure should include:
+  - TaskList – for the table view
+  - TaskKanban – for the kanban layout
+  - TaskModal – for viewing task details
+  - TaskForm – for Add/Edit forms
+
+---
+
+UI Design Constraints
+
+- Use Montserrat as the application font
+- Enable dark mode via shadcn/ui
+- Layout must be responsive and clean
+- Every task field must be represented in both views
+- Forms must show proper required/optional logic visually
+
+---
+
+Task Type Field Structure
+
+Use a single flat type string with structured naming:
+
+Format:
+<source>.<category>.<subtype>
+
+Examples:
+- manual.assessment.review
+- manual.communication.schedule_call
+- manual.injury.followup
+- system.admin.onboarding
+- system.payment.failed
+- system.assessment.flagged
+
+This format encodes:
+- source: manual or system
+- category: functional domain (e.g., assessment, communication)
+- subtype: specific type of task (e.g., review, schedule_call)
+
+This allows UI and logic to extract hierarchy without requiring multiple database fields.
+
+---
+
+Objective
+
+The goal of this prototype is to test which task layout view — list or kanban — is more effective and intuitive for internal Tread staff. It is a non-persistent, interaction-focused prototype. All views must reflect accurate task structure and visual behavior, but no real data handling or saving is required.
