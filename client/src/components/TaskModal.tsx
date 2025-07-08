@@ -1,6 +1,6 @@
 import { Task } from "@shared/schema";
 import { mockUsers, mockAthletes } from "@/data/mockData";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -47,6 +47,9 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Task Details</DialogTitle>
+          <DialogDescription>
+            View and edit task information. You can update the task status using the dropdown below.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">

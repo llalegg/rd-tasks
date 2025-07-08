@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Task } from "@shared/schema";
 import { mockUsers, mockAthletes, taskTypes } from "@/data/mockData";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -78,6 +78,11 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
           <DialogTitle>
             {mode === 'create' ? 'Create Task' : 'Edit Task'}
           </DialogTitle>
+          <DialogDescription>
+            {mode === 'create' 
+              ? 'Fill in the details below to create a new task.' 
+              : 'Update the task information below.'}
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">

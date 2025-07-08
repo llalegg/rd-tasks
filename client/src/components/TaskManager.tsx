@@ -63,7 +63,7 @@ export default function TaskManager() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <div className="flex-shrink-0">
-                <h1 className="text-xl font-semibold text-foreground">Tread Task Manager</h1>
+                <h1 className="text-xl font-semibold text-foreground">To-Do's</h1>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -95,7 +95,7 @@ export default function TaskManager() {
           </TabsContent>
 
           <TabsContent value="kanban" className="mt-8">
-            <TaskKanban tasks={tasks} onTaskClick={handleTaskClick} />
+            <TaskKanban tasks={tasks} onTaskClick={handleTaskClick} onTaskStatusChange={handleStatusUpdate} />
           </TabsContent>
         </Tabs>
       </main>

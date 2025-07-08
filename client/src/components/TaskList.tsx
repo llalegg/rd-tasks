@@ -42,59 +42,61 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
   };
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Deadline</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Assignee</TableHead>
-              <TableHead>Related Athlete</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tasks.map((task) => {
-              const assignee = mockUsers.find(u => u.id === task.assigneeId);
-              const relatedAthletes = task.relatedAthleteIds ? 
-                task.relatedAthleteIds.map(id => mockAthletes.find(a => a.id === id)?.name).filter(Boolean).join(', ') : 
-                'None';
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="min-w-[120px]">Deadline</TableHead>
+                <TableHead className="min-w-[180px]">Type</TableHead>
+                <TableHead className="min-w-[200px]">Name</TableHead>
+                <TableHead className="min-w-[150px]">Assignee</TableHead>
+                <TableHead className="min-w-[150px]">Related Athlete</TableHead>
+                <TableHead className="min-w-[120px]">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tasks.map((task) => {
+                const assignee = mockUsers.find(u => u.id === task.assigneeId);
+                const relatedAthletes = task.relatedAthleteIds ? 
+                  task.relatedAthleteIds.map(id => mockAthletes.find(a => a.id === id)?.name).filter(Boolean).join(', ') : 
+                  'None';
 
-              return (
-                <TableRow 
-                  key={task.id} 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => onTaskClick(task)}
-                >
-                  <TableCell className="text-muted-foreground">
-                    {task.deadline ? new Date(task.deadline).toLocaleDateString() : 'No deadline'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      {formatTaskType(task.type)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {task.name}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {assignee?.name || 'Unassigned'}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {relatedAthletes}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(task.status)}>
-                      {formatStatus(task.status)}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                return (
+                  <TableRow 
+                    key={task.id} 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => onTaskClick(task)}
+                  >
+                    <TableCell className="text-muted-foreground">
+                      {task.deadline ? new Date(task.deadline).toLocaleDateString() : 'No deadline'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {formatTaskType(task.type)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {task.name}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {assignee?.name || 'Unassigned'}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {relatedAthletes}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(task.status)}>
+                        {formatStatus(task.status)}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
