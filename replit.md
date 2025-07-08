@@ -99,6 +99,11 @@ This is a full-stack web application built as a prototype for Tread's task manag
 ```
 Changelog:
 - July 08, 2025. Initial setup
+- July 08, 2025. Replaced user avatars with realistic Unsplash profile images
+- July 08, 2025. Enhanced navigation bar with search field and filters button
+- July 08, 2025. Added view toggle switch for List/Kanban views
+- July 08, 2025. Removed navigation bar border for cleaner design
+- July 08, 2025. Implemented live search functionality for task filtering
 ```
 
 ## User Preferences

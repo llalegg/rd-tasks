@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Task } from "@shared/schema";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Plus, List, Columns } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, Filter, List, Columns } from "lucide-react";
 import TaskList from "./TaskList";
 import TaskKanban from "./TaskKanban";
 import TaskModal from "./TaskModal";
@@ -16,6 +16,8 @@ export default function TaskManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading } = useQuery({
@@ -34,6 +36,12 @@ export default function TaskManager() {
     queryKey: ['/api/athletes'],
     queryFn: () => fetch('/api/athletes').then(res => res.json()),
   });
+
+  // Filter tasks based on search query
+  const filteredTasks = tasks.filter(task =>
+    task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Update task status mutation
   const updateTaskMutation = useMutation({
@@ -103,15 +111,52 @@ export default function TaskManager() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-40">
+      <header className="bg-background/95 backdrop-blur-sm sticky top-0 z-40">
         <div className="w-full px-5">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 gap-4">
             <div className="flex items-center space-x-4">
               <div className="flex-shrink-0">
                 <h1 className="text-xl font-semibold text-foreground">To-Do's</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Search and Controls */}
+            <div className="flex items-center space-x-3 flex-1 max-w-2xl">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Search tasks..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button variant="secondary" size="sm">
+                <Filter className="w-4 h-4 mr-2" />
+                Filters
+              </Button>
+            </div>
+
+            {/* View Toggle and Add Button */}
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center bg-muted rounded-lg p-1">
+                <Button
+                  variant={currentView === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setCurrentView('list')}
+                  className="h-8 w-8 p-0"
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={currentView === 'kanban' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setCurrentView('kanban')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Columns className="w-4 h-4" />
+                </Button>
+              </div>
               <Button onClick={handleCreateTask} className="inline-flex items-center">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Task
@@ -122,38 +167,15 @@ export default function TaskManager() {
       </header>
       {/* Main Content */}
       <main className="w-full px-5 py-8">
-        <Tabs defaultValue="list" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="list" className="flex items-center gap-2">
-              <List className="w-4 h-4" />
-              List View
-            </TabsTrigger>
-            <TabsTrigger value="kanban" className="flex items-center gap-2">
-              <Columns className="w-4 h-4" />
-              Kanban View
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="list" className="mt-8">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
-              </div>
-            ) : (
-              <TaskList tasks={tasks} onTaskClick={handleTaskClick} />
-            )}
-          </TabsContent>
-
-          <TabsContent value="kanban" className="mt-8">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
-              </div>
-            ) : (
-              <TaskKanban tasks={tasks} onTaskClick={handleTaskClick} onTaskStatusChange={handleStatusUpdate} />
-            )}
-          </TabsContent>
-        </Tabs>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
+          </div>
+        ) : currentView === 'list' ? (
+          <TaskList tasks={filteredTasks} onTaskClick={handleTaskClick} />
+        ) : (
+          <TaskKanban tasks={filteredTasks} onTaskClick={handleTaskClick} onTaskStatusChange={handleStatusUpdate} />
+        )}
       </main>
       {/* Task Modal */}
       <TaskModal
