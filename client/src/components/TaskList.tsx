@@ -154,7 +154,7 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
                     className="h-auto p-0 font-medium" 
                     onClick={() => handleSort('assignee')}
                   >
-                    SINE
+                    Assignee
                     {getSortIcon('assignee')}
                   </Button>
                 </TableHead>
