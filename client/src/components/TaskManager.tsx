@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Task } from "@shared/schema";
-import { mockTasks } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus, List, Columns } from "lucide-react";
@@ -8,13 +8,59 @@ import TaskList from "./TaskList";
 import TaskKanban from "./TaskKanban";
 import TaskModal from "./TaskModal";
 import TaskForm from "./TaskForm";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function TaskManager() {
-  const [tasks, setTasks] = useState<Task[]>(mockTasks);
+  const queryClient = useQueryClient();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+
+  // Fetch tasks from API
+  const { data: tasks = [], isLoading } = useQuery({
+    queryKey: ['/api/tasks'],
+    queryFn: () => fetch('/api/tasks').then(res => res.json()),
+  });
+
+  // Fetch users from API
+  const { data: users = [] } = useQuery({
+    queryKey: ['/api/users'],
+    queryFn: () => fetch('/api/users').then(res => res.json()),
+  });
+
+  // Fetch athletes from API
+  const { data: athletes = [] } = useQuery({
+    queryKey: ['/api/athletes'],
+    queryFn: () => fetch('/api/athletes').then(res => res.json()),
+  });
+
+  // Update task status mutation
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ taskId, status }: { taskId: string; status: Task['status'] }) => {
+      return apiRequest(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        body: { status },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+    },
+  });
+
+  // Create task mutation
+  const createTaskMutation = useMutation({
+    mutationFn: async (taskData: Partial<Task>) => {
+      return apiRequest('/api/tasks', {
+        method: 'POST',
+        body: taskData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      setIsFormOpen(false);
+    },
+  });
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -22,13 +68,7 @@ export default function TaskManager() {
   };
 
   const handleStatusUpdate = (taskId: string, newStatus: Task['status']) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === taskId
-          ? { ...task, status: newStatus, updatedAt: new Date().toISOString() }
-          : task
-      )
-    );
+    updateTaskMutation.mutate({ taskId, status: newStatus });
   };
 
   const handleCreateTask = () => {
@@ -46,13 +86,18 @@ export default function TaskManager() {
 
   const handleFormSubmit = (taskData: Partial<Task>) => {
     if (formMode === 'create') {
-      // Mock task creation - just log the data
-      console.log('Creating task:', taskData);
-    } else {
-      // Mock task update - just log the data
-      console.log('Updating task:', taskData);
+      createTaskMutation.mutate({
+        ...taskData,
+        status: 'new' as Task['status'],
+        creatorId: '1', // Default creator ID
+      });
+    } else if (formMode === 'edit' && selectedTask) {
+      updateTaskMutation.mutate({ 
+        taskId: selectedTask.id, 
+        status: taskData.status || selectedTask.status 
+      });
+      setIsFormOpen(false);
     }
-    setIsFormOpen(false);
   };
 
   return (
@@ -91,11 +136,23 @@ export default function TaskManager() {
           </TabsList>
 
           <TabsContent value="list" className="mt-8">
-            <TaskList tasks={tasks} onTaskClick={handleTaskClick} />
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
+              </div>
+            ) : (
+              <TaskList tasks={tasks} onTaskClick={handleTaskClick} />
+            )}
           </TabsContent>
 
           <TabsContent value="kanban" className="mt-8">
-            <TaskKanban tasks={tasks} onTaskClick={handleTaskClick} onTaskStatusChange={handleStatusUpdate} />
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
+              </div>
+            ) : (
+              <TaskKanban tasks={tasks} onTaskClick={handleTaskClick} onTaskStatusChange={handleStatusUpdate} />
+            )}
           </TabsContent>
         </Tabs>
       </main>

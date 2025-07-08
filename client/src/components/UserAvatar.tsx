@@ -1,15 +1,24 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { User, MapPin, Calendar } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { User as UserType } from "@shared/schema";
 
 interface UserAvatarProps {
   userId: string;
-  name: string;
+  name?: string;
   size?: "sm" | "md" | "lg";
   showTooltip?: boolean;
 }
 
 export default function UserAvatar({ userId, name, size = "sm", showTooltip = true }: UserAvatarProps) {
+  // Fetch user data from API
+  const { data: user } = useQuery({
+    queryKey: ['/api/users', userId],
+    queryFn: () => fetch(`/api/users/${userId}`).then(res => res.json()),
+    enabled: !!userId,
+  });
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -25,34 +34,16 @@ export default function UserAvatar({ userId, name, size = "sm", showTooltip = tr
     lg: "h-10 w-10 text-base"
   };
 
-  // Mock user roles and locations for demonstration
-  const getUserRole = (userId: string) => {
-    const roles = {
-      '1': 'Performance Analyst',
-      '2': 'Sports Therapist', 
-      '3': 'Head Coach',
-      '4': 'Team Manager',
-      '5': 'Nutrition Specialist'
-    };
-    return roles[userId as keyof typeof roles] || 'Team Member';
-  };
-
-  const getUserLocation = (userId: string) => {
-    const locations = {
-      '1': 'San Francisco, CA',
-      '2': 'New York, NY',
-      '3': 'Los Angeles, CA', 
-      '4': 'Chicago, IL',
-      '5': 'Austin, TX'
-    };
-    return locations[userId as keyof typeof locations] || 'Remote';
-  };
+  // Use provided name or fallback to user data
+  const displayName = name || user?.name || 'Unknown User';
+  const userRole = user?.role || 'Team Member';
+  const userLocation = user?.location || 'Location not set';
 
   const avatar = (
     <Avatar className={sizeClasses[size]}>
-      <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${name}`} />
+      <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${displayName}`} />
       <AvatarFallback className="bg-primary/10 text-primary font-medium">
-        {getInitials(name)}
+        {getInitials(displayName)}
       </AvatarFallback>
     </Avatar>
   );
@@ -71,20 +62,20 @@ export default function UserAvatar({ userId, name, size = "sm", showTooltip = tr
       <HoverCardContent className="w-80" side="top">
         <div className="flex justify-between space-x-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${name}`} />
+            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${displayName}`} />
             <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
-              {getInitials(name)}
+              {getInitials(displayName)}
             </AvatarFallback>
           </Avatar>
           <div className="space-y-1 flex-1">
-            <h4 className="text-sm font-semibold">{name}</h4>
+            <h4 className="text-sm font-semibold">{displayName}</h4>
             <p className="text-sm text-muted-foreground flex items-center">
               <User className="w-3 h-3 mr-1" />
-              {getUserRole(userId)}
+              {userRole}
             </p>
             <p className="text-sm text-muted-foreground flex items-center">
               <MapPin className="w-3 h-3 mr-1" />
-              {getUserLocation(userId)}
+              {userLocation}
             </p>
             <p className="text-xs text-muted-foreground flex items-center">
               <Calendar className="w-3 h-3 mr-1" />
