@@ -313,13 +313,16 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
 
     // Check if we're dropping over a column
     const columnStatuses = columns.map(col => col.key);
+    console.log('Column statuses:', columnStatuses);
     
     if (columnStatuses.includes(overId)) {
       // Dropping over a column - change status
       if (overId !== draggedTask.status) {
         console.log('Changing status from', draggedTask.status, 'to', overId);
         console.log('onTaskStatusChange function exists:', !!onTaskStatusChange);
-        onTaskStatusChange?.(activeId, overId as Task['status']);
+        if (onTaskStatusChange) {
+          onTaskStatusChange(activeId, overId as Task['status']);
+        }
       }
       return;
     }
@@ -329,7 +332,9 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
     if (overTask && draggedTask.status !== overTask.status) {
       console.log('Changing status from', draggedTask.status, 'to', overTask.status);
       console.log('onTaskStatusChange function exists:', !!onTaskStatusChange);
-      onTaskStatusChange?.(activeId, overTask.status);
+      if (onTaskStatusChange) {
+        onTaskStatusChange(activeId, overTask.status);
+      }
     }
   };
 

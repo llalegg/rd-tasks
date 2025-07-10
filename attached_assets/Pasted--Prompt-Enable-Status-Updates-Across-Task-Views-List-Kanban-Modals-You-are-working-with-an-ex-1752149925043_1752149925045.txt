@@ -1,0 +1,87 @@
+# Prompt: Enable Status Updates Across Task Views (List, Kanban, Modals)
+
+You are working with an existing frontend-only task manager prototype built in React (Next.js), using Tailwind CSS and shadcn/ui with Montserrat font and dark mode enabled.
+
+The prototype already includes:
+- A modal to **add tasks**
+- A modal to **edit tasks**
+- A **list view** of tasks (table)
+- A **kanban view** with columns based on status
+
+Currently, **no status change functionality is implemented**.
+
+## Goal
+
+Update the prototype to support **changing the task status**, and only the status. All other fields (title, description, assignee, etc.) should remain **read-only or static**.
+
+---
+
+## Required Functionality
+
+### 1. Status Change in Add Task Modal
+
+- When the user opens the **Add Task** modal:
+  - Show a status dropdown (default value: `"new"`)
+  - Allow selecting one of:
+    - `new`
+    - `in_progress`
+    - `pending`
+    - `completed`
+  - The selected status must be applied to the new task on creation
+
+### 2. Status Change in Edit Task Modal
+
+- When the user opens the **Edit Task** modal:
+  - All fields must be displayed but disabled/read-only
+  - Only the **status field** should be editable
+  - Updating status and clicking "Save" must update task in memory or database
+
+### 3. Status Change in List View
+
+- Add a status dropdown to each row in the **List View** table
+- Allow user to change status directly from the table
+- Update task state on change
+- Show success toast on update or error toast on failure
+
+### 4. Drag-and-Drop Status Change in Kanban View
+
+- Enable drag-and-drop of task cards between Kanban columns:
+  - Columns: `new`, `in_progress`, `pending`, `completed`
+- When a task is dropped into a different column:
+  - Update its `status` field
+  - Re-render task in the new column
+- Show a success toast when status is changed
+- If an error occurs during the update, revert the card to its previous column and show an error toast
+
+---
+
+## Toast Notifications
+
+Use shadcn/ui or a compatible library to show toasts for all status-related actions:
+
+- On success:
+  - Message: `"Task status updated"`
+- On error:
+  - Message: `"Failed to update task status"`
+
+Toast should appear in the top-right and auto-dismiss after a few seconds.
+
+---
+
+## Constraints
+
+- Only the `status` field is editable in any view
+- All other fields (title, description, etc.) must remain static and uneditable
+- You may use in-memory state or mocked backend depending on project setup
+
+---
+
+## Summary
+
+Implement Trello-style status updating in four places:
+1. Add Task Modal (select initial status)
+2. Edit Task Modal (status only editable)
+3. List View (inline dropdown)
+4. Kanban View (drag-and-drop across columns)
+
+All updates should show toast notifications and persist in app state or database.
