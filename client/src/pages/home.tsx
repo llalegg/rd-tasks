@@ -1,5 +1,10 @@
 import TaskManager from "@/components/TaskManager";
+import { PageTransition } from "@/components/PageTransition";
 
 export default function Home() {
-  return <TaskManager />;
+  return (
+    <PageTransition>
+      <TaskManager />
+    </PageTransition>
+  );
 }

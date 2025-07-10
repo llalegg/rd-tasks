@@ -156,7 +156,7 @@ export default function TaskManager() {
   };
 
   return (
-    <div className="min-h-screen flex md:ml-[80px]" style={{ backgroundColor: '#0D0D0C' }}>
+    <div className="min-h-screen bg-background flex md:ml-[80px]">
       {/* Main Content Area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out ${
         selectedTask ? 'pr-[500px]' : ''
