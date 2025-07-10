@@ -1,0 +1,80 @@
+# Improve Task View Modal – Interaction, Visual Grouping, and UX Feedback
+
+You are working with a modal that displays detailed task information. The current version includes: task title, description, tags, status buttons, assignee, priority, deadline, and creator info.
+
+The layout is clean, but it lacks clear interaction feedback and visual clarity in some areas. Please implement the following improvements:
+
+---
+
+## 1. Enable Status Change Feedback
+
+- When a user selects a new status (e.g. In Progress, Completed):
+  - Show a success toast or checkmark indicator
+  - Add a temporary loading indicator (spinner or disabled state) while saving
+  - Visually highlight the selected status (e.g. filled button, color change)
+
+---
+
+## 2. Enhance Priority Visibility
+
+- Move "Priority" closer to the Deadline section (since both relate to urgency)
+- Style the priority value using a **color-coded badge**:
+  - Low → green
+  - Medium → yellow
+  - High → red
+- Optional: use icons or arrows to reinforce meaning
+
+---
+
+## 3. Improve Visual Grouping of Sections
+
+- Add clear section dividers or background containers to separate:
+  - Content area (title, description, tags)
+  - Metadata (assignee, creator, deadline)
+  - Status controls
+- Use consistent vertical spacing and muted section labels
+
+---
+
+## 4. Improve Top-Right Action Icons
+
+- The pencil (edit) icon in the top-right is hard to understand
+  - Add a tooltip: `Edit task`
+  - Optional: move edit into a sticky footer as a button ("Edit Task")
+
+- Keep the Close (`X`) icon, but test making it slightly larger or placing it inside the modal header
+
+---
+
+## 5. Tag Support (Optional)
+
+- Allow tasks to support multiple tags (currently shows only one)
+- Display multiple tags horizontally with pill-style badges
+- Optional: add icon per tag category (e.g., 💆 for Recovery, 🏋️ for Strength)
+
+---
+
+## 6. Improve Date Readability
+
+- Format dates like `Jul 11, 2025` instead of `7/11/2025` for clarity
+- For “Created by,” move timestamp to tooltip or display in muted color
+
+---
+
+## 7. Enable Scroll for Long Tasks
+
+- If task content grows vertically, allow scrolling inside the modal
+- Fix the task title + status row so it stays visible while scrolling
+
+---
+
+## Summary
+
+You must improve the Task Modal to:
+- Provide **feedback** when changing status
+- Visually **group sections** more clearly
+- Make priority and urgency more **prominent**
+- Clarify and improve **action buttons**
+- Handle longer content cleanly with scroll
+
+All of this should follow existing UI style (shadcn/ui, dark mode, Montserrat font).

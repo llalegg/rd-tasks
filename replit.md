@@ -115,6 +115,14 @@ Changelog:
 - July 08, 2025. Fixed Kanban drag-and-drop status updates to work properly with database persistence
 - July 08, 2025. Implemented persistent panel layout for task details - shifts main content left, no overlay
 - July 08, 2025. Fixed column header text from "SINE" to "Assignee" in List View
+- July 10, 2025. Added inline status change functionality to Kanban cards with dropdown menus
+- July 10, 2025. Implemented comprehensive Task Modal improvements with enhanced UX and visual feedback
+- July 10, 2025. Added status change feedback with loading states, success toasts, and visual indicators
+- July 10, 2025. Improved priority visibility with color-coded badges (green/yellow/red) and enhanced urgency grouping
+- July 10, 2025. Implemented visual section grouping with background containers and clear separators
+- July 10, 2025. Enhanced action buttons with tooltips ("Edit task") and proper icon sizing
+- July 10, 2025. Improved date formatting (Jul 11, 2025) and added hover tooltips for timestamps
+- July 10, 2025. Added scroll support for long content with fixed header and sticky footer
 ```
 
 ## User Preferences
