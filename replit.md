@@ -123,6 +123,9 @@ Changelog:
 - July 10, 2025. Enhanced action buttons with tooltips ("Edit task") and proper icon sizing
 - July 10, 2025. Improved date formatting (Jul 11, 2025) and added hover tooltips for timestamps
 - July 10, 2025. Added scroll support for long content with fixed header and sticky footer
+- July 10, 2025. Replaced status buttons with elegant dropdown selects in Task Modal and Task Panel
+- July 10, 2025. Enhanced status dropdowns with icons, loading states, and better visual feedback
+- July 10, 2025. Completed comprehensive mobile optimization with responsive layout and touch interactions
 ```
 
 ## User Preferences

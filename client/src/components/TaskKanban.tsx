@@ -109,7 +109,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
       style={style}
       {...attributes}
       {...listeners}
-      className={`cursor-pointer bg-[#2a2a2a] hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 group ${
+      className={`cursor-pointer bg-[#2a2a2a] hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 group card-hover ${
         isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg z-50' : 'hover:-translate-y-0.5 hover:border-primary/30'
       } ${isOver ? 'ring-2 ring-primary/50 bg-primary/10' : ''}`}
       onClick={() => onTaskClick(task)}

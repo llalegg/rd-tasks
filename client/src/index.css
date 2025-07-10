@@ -95,3 +95,68 @@
     font-family: 'Montserrat', sans-serif !important;
   }
 }
+
+@layer components {
+  /* Enhanced button hover states */
+  .button-enhanced:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Card hover animations */
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px hsl(var(--foreground) / 0.15);
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Glass morphism effects for modals */
+  .glass-effect {
+    background: hsl(var(--background) / 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  /* Smooth status indicators */
+  .status-indicator {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .status-indicator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
+    transition: left 0.6s;
+  }
+  
+  .status-indicator:hover::before {
+    left: 100%;
+  }
+
+  /* Enhanced focus states */
+  .focus-enhanced:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring));
+  }
+
+  /* Improved loading animations */
+  @keyframes pulse-enhanced {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  .animate-pulse-enhanced {
+    animation: pulse-enhanced 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Subtle gradient backgrounds */
+  .gradient-bg {
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.3) 100%);
+  }
+}

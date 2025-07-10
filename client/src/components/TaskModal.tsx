@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Edit, X, Check, Loader2, Calendar, User, Target, Clock, FileText, Circle, AlertCircle, CheckCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Edit, X, Check, Loader2, Calendar, User, Target, Clock, FileText, Circle, AlertCircle, CheckCircle, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
@@ -111,7 +112,7 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
   return (
     <TooltipProvider>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+        <DialogContent className="max-w-3xl max-h-[90vh] p-0 glass-effect">
           {/* Fixed Header */}
           <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-background z-10">
             <DialogHeader className="flex-1">
@@ -167,33 +168,44 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
                   <Target className="h-4 w-4" />
                   Status
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {['new', 'in_progress', 'blocked', 'completed'].map((status) => {
-                    const StatusIcon = getStatusIcon(status as Task['status']);
-                    const isSelected = task.status === status;
-                    const isUpdating = isUpdatingStatus && selectedStatus === status;
-                    
-                    return (
-                      <Button
-                        key={status}
-                        variant={isSelected ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleStatusChange(status as Task['status'])}
-                        disabled={isUpdatingStatus}
-                        className={`h-8 ${isSelected ? 'bg-primary/20 border-primary' : ''}`}
-                      >
-                        {isUpdating ? (
-                          <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                <div className="flex items-center gap-3">
+                  <Select 
+                    value={task.status} 
+                    onValueChange={(value) => handleStatusChange(value as Task['status'])}
+                    disabled={isUpdatingStatus}
+                  >
+                    <SelectTrigger className="w-48 h-10">
+                      <div className="flex items-center gap-2">
+                        {isUpdatingStatus ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          <StatusIcon className="h-3 w-3 mr-2" />
+                          (() => {
+                            const StatusIcon = getStatusIcon(task.status);
+                            return <StatusIcon className="h-4 w-4" />;
+                          })()
                         )}
-                        {getStatusLabel(status as Task['status'])}
-                        {isSelected && !isUpdating && (
-                          <Check className="h-3 w-3 ml-2" />
-                        )}
-                      </Button>
-                    );
-                  })}
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {['new', 'in_progress', 'blocked', 'completed'].map((status) => {
+                        const StatusIcon = getStatusIcon(status as Task['status']);
+                        return (
+                          <SelectItem key={status} value={status}>
+                            <div className="flex items-center gap-2">
+                              <StatusIcon className="h-4 w-4" />
+                              {getStatusLabel(status as Task['status'])}
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  {isUpdatingStatus && (
+                    <Badge variant="secondary" className="text-xs">
+                      Updating...
+                    </Badge>
+                  )}
                 </div>
               </div>
 

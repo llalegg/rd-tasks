@@ -228,7 +228,7 @@ export default function TaskManager() {
                     <Columns className="w-4 h-4" />
                   </Button>
                 </div>
-                <Button onClick={handleCreateTask} className="inline-flex items-center">
+                <Button onClick={handleCreateTask} className="inline-flex items-center button-enhanced">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Task
                 </Button>
@@ -236,7 +236,7 @@ export default function TaskManager() {
               
               {/* Mobile Add Button */}
               <div className="md:hidden w-full">
-                <Button onClick={handleCreateTask} className="w-full inline-flex items-center justify-center">
+                <Button onClick={handleCreateTask} className="w-full inline-flex items-center justify-center button-enhanced">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Task
                 </Button>

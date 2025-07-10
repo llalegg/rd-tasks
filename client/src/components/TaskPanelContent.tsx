@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Target, User as UserIcon, Calendar, Clock, FileText } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Target, User as UserIcon, Calendar, Clock, FileText, Circle, AlertCircle, CheckCircle } from "lucide-react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
 import PriorityIcon from "./PriorityIcon";
@@ -48,6 +49,16 @@ export default function TaskPanelContent({ task, onStatusUpdate }: TaskPanelCont
     }
   };
 
+  const getStatusIcon = (status: Task['status']) => {
+    switch (status) {
+      case 'new': return Circle;
+      case 'in_progress': return Clock;
+      case 'blocked': return AlertCircle;
+      case 'completed': return CheckCircle;
+      default: return Circle;
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Task Title */}
@@ -69,19 +80,33 @@ export default function TaskPanelContent({ task, onStatusUpdate }: TaskPanelCont
           <Target className="h-3 w-3" />
           Status
         </h3>
-        <div className="flex flex-wrap gap-1">
-          {['new', 'in_progress', 'blocked', 'completed'].map((status) => (
-            <Button
-              key={status}
-              variant={task.status === status ? "default" : "outline"}
-              size="sm"
-              onClick={() => onStatusUpdate(task.id, status as Task['status'])}
-              className="capitalize text-xs h-7"
-            >
-              {getStatusLabel(status as Task['status'])}
-            </Button>
-          ))}
-        </div>
+        <Select 
+          value={task.status} 
+          onValueChange={(value) => onStatusUpdate(task.id, value as Task['status'])}
+        >
+          <SelectTrigger className="w-full h-8">
+            <div className="flex items-center gap-2">
+              {(() => {
+                const StatusIcon = getStatusIcon(task.status);
+                return <StatusIcon className="h-3 w-3" />;
+              })()}
+              <SelectValue />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            {['new', 'in_progress', 'blocked', 'completed'].map((status) => {
+              const StatusIcon = getStatusIcon(status as Task['status']);
+              return (
+                <SelectItem key={status} value={status}>
+                  <div className="flex items-center gap-2">
+                    <StatusIcon className="h-3 w-3" />
+                    {getStatusLabel(status as Task['status'])}
+                  </div>
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
       </div>
 
       <Separator className="my-4" />
