@@ -20,7 +20,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="dark min-h-screen bg-background text-foreground font-sans">
+        <div className="dark min-h-screen text-foreground font-montserrat" style={{ backgroundColor: '#0D0D0C' }}>
           <Toaster />
           <MinimalSidebar />
           <Router />

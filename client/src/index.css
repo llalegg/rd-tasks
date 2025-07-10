@@ -6,14 +6,14 @@
 
 @layer base {
   :root {
-    --background: 220 13% 9%;
+    --background: 0 0% 5.1%;
     --foreground: 220 13% 91%;
-    --card: 220 13% 9%;
+    --card: 0 0% 5.1%;
     --card-foreground: 220 13% 91%;
-    --popover: 220 13% 9%;
+    --popover: 0 0% 5.1%;
     --popover-foreground: 220 13% 91%;
     --primary: 220 13% 91%;
-    --primary-foreground: 220 13% 9%;
+    --primary-foreground: 0 0% 5.1%;
     --secondary: 220 1.6% 25%;
     --secondary-foreground: 220 13% 91%;
     --muted: 220 1.6% 25%;
@@ -26,10 +26,10 @@
     --input: 220 1.6% 25%;
     --ring: 220 13% 91%;
     --radius: 0.5rem;
-    --sidebar-background: 220 13% 9%;
+    --sidebar-background: 0 0% 5.1%;
     --sidebar-foreground: 220 13% 91%;
     --sidebar-primary: 220 13% 91%;
-    --sidebar-primary-foreground: 220 13% 9%;
+    --sidebar-primary-foreground: 0 0% 5.1%;
     --sidebar-accent: 220 1.6% 25%;
     --sidebar-accent-foreground: 220 13% 91%;
     --sidebar-border: 220 1.6% 25%;
@@ -38,10 +38,12 @@
 
   * {
     @apply border-border;
+    font-family: 'Montserrat', sans-serif;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: #0D0D0C;
     font-family: 'Montserrat', sans-serif;
   }
 }
