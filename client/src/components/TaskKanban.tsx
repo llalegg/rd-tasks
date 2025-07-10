@@ -188,12 +188,14 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask 
 
   return (
     <Card 
-      ref={setNodeRef} 
       className={`flex-shrink-0 w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-200 ${
         isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/10' : ''
       }`}
     >
-      <CardHeader className="pb-3 px-3 pt-3">
+      <CardHeader 
+        className="pb-3 px-3 pt-3"
+        ref={setNodeRef}
+      >
         <CardTitle className="flex items-center justify-between text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${column.color}`} />
@@ -281,11 +283,13 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   };
 
   const handleDragStart = (event: DragStartEvent) => {
+    console.log('Drag start:', event.active.id);
     setActiveId(event.active.id as string);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
+    console.log('Drag over:', over?.id);
     setOverId(over?.id as string | null);
   };
 
@@ -319,12 +323,9 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
       return;
     }
 
-    // Dropping over another task
+    // Dropping over another task - check which column it belongs to
     const overTask = tasks.find(task => task.id === overId);
-    if (!overTask) return;
-    
-    // If different columns, change status
-    if (draggedTask.status !== overTask.status) {
+    if (overTask && draggedTask.status !== overTask.status) {
       console.log('Changing status from', draggedTask.status, 'to', overTask.status);
       onTaskStatusChange?.(activeId, overTask.status);
     }
