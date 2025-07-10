@@ -22,6 +22,8 @@ import {
   useDroppable,
   closestCorners,
   rectIntersection,
+  DragMoveEvent,
+  pointerWithin,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
@@ -53,11 +55,18 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask }: Sorta
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+    isOver,
+  } = useSortable({ 
+    id: task.id,
+    transition: {
+      duration: 150,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: transition || 'transform 150ms cubic-bezier(0.25, 1, 0.5, 1)',
   };
 
   const assignee = mockUsers.find(u => u.id === task.assigneeId);
@@ -80,8 +89,8 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask }: Sorta
       {...attributes}
       {...listeners}
       className={`cursor-pointer bg-[#2a2a2a] hover:bg-[#333333] border-none shadow-sm hover:shadow-md transition-all duration-200 ${
-        isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg' : 'hover:-translate-y-0.5'
-      }`}
+        isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg z-50' : 'hover:-translate-y-0.5'
+      } ${isOver ? 'ring-2 ring-primary/50 bg-primary/10' : ''}`}
       onClick={() => onTaskClick(task)}
     >
       <CardContent className="p-4">
@@ -179,9 +188,11 @@ interface DroppableColumnProps {
   onTaskClick: (task: Task) => void;
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (taskId: string) => void;
+  activeTaskId?: string | null;
+  dragOverTaskId?: string | null;
 }
 
-function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask }: DroppableColumnProps) {
+function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask, activeTaskId, dragOverTaskId }: DroppableColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.key,
   });
@@ -210,15 +221,34 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask 
         isOver ? 'bg-primary/10 ring-2 ring-primary/40 ring-inset' : ''
       }`}>
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
-          {tasks.map((task) => (
-            <SortableTaskCard
-              key={task.id}
-              task={task}
-              onTaskClick={onTaskClick}
-              onEditTask={onEditTask}
-              onDeleteTask={onDeleteTask}
-            />
+          {tasks.map((task, index) => (
+            <div key={task.id} className="relative">
+              {/* Insertion placeholder - shows when dragging over a position */}
+              {activeTaskId && dragOverTaskId === task.id && (
+                <div className="h-4 mb-3 bg-primary/30 border-2 border-dashed border-primary rounded-lg flex items-center justify-center transition-all duration-300 ease-out scale-105 shadow-lg">
+                  <div className="text-xs text-primary font-bold animate-pulse">Drop here</div>
+                </div>
+              )}
+              
+              <div className={`transition-all duration-300 ease-out ${
+                activeTaskId && dragOverTaskId === task.id ? 'translate-y-2' : ''
+              }`}>
+                <SortableTaskCard
+                  task={task}
+                  onTaskClick={onTaskClick}
+                  onEditTask={onEditTask}
+                  onDeleteTask={onDeleteTask}
+                />
+              </div>
+            </div>
           ))}
+          
+          {/* Bottom drop zone for empty space at end of column */}
+          {activeTaskId && isOver && dragOverColumnId === column.key && !dragOverTaskId && (
+            <div className="h-4 bg-primary/30 border-2 border-dashed border-primary rounded-lg flex items-center justify-center transition-all duration-300 ease-out scale-105 shadow-lg">
+              <div className="text-xs text-primary font-bold animate-pulse">Drop at end</div>
+            </div>
+          )}
         </SortableContext>
         
         {/* Drop zone indicator for empty columns */}
@@ -248,7 +278,9 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask 
 
 export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onTaskReorder, onEditTask, onDeleteTask }: TaskKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [overId, setOverId] = useState<string | null>(null);
+  const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
+  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
+
   const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('priority');
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -288,9 +320,31 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    const { over } = event;
+    const { over, active } = event;
     console.log('Drag over:', over?.id);
-    setOverId(over?.id as string | null);
+    
+    if (!over || !active) {
+      setDragOverTaskId(null);
+      setDragOverColumnId(null);
+      return;
+    }
+    
+    const overId = over.id as string;
+    const activeId = active.id as string;
+    
+    // Check if we're over a task
+    const overTask = tasks.find(task => task.id === overId);
+    if (overTask) {
+      setDragOverTaskId(overId);
+      setDragOverColumnId(overTask.status);
+    } else {
+      // Check if we're over a column
+      const columnStatuses = columns.map(col => col.key);
+      if (columnStatuses.includes(overId)) {
+        setDragOverColumnId(overId);
+        setDragOverTaskId(null);
+      }
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -298,7 +352,8 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
     
     // Reset state
     setActiveId(null);
-    setOverId(null);
+    setDragOverTaskId(null);
+    setDragOverColumnId(null);
 
     if (!over) return;
 
@@ -364,7 +419,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
 
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={rectIntersection}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
@@ -382,6 +437,8 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                 onTaskClick={onTaskClick}
                 onEditTask={onEditTask}
                 onDeleteTask={onDeleteTask}
+                activeTaskId={activeId}
+                dragOverTaskId={dragOverTaskId}
               />
             );
           })}

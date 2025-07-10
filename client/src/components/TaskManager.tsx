@@ -212,9 +212,7 @@ export default function TaskManager() {
                   <Plus className="w-4 h-4 mr-2" />
                   Add Task
                 </Button>
-                <Button onClick={() => handleStatusUpdate('11', 'in_progress')} variant="outline" size="sm">
-                  Test Status
-                </Button>
+
               </div>
             </div>
           </div>
