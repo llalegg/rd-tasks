@@ -1,0 +1,108 @@
+# Improve Kanban Board UI and UX – Full Task Board Redesign Prompt
+
+You are working with a Kanban task board UI. The current version displays tasks across columns like `New`, `In Progress`, `Blocked`, and `Completed`. It includes task cards, avatars, deadlines, filters, sorting, and basic drag-and-drop functionality.
+
+However, the current version is missing several critical UX elements and polish details. Please implement the following **exact improvements**:
+
+---
+
+## 1. Enable Drag Feedback & Animation (Highest Priority)
+
+- When dragging a task over a column, existing tasks should **shift downward to make space** for the incoming card.
+- Show a **placeholder gap** between cards during drag.
+- Animate task movement smoothly.
+- Add **visual highlighting** (e.g., subtle border or background tint) on the column being hovered.
+- Use `@dnd-kit/sortable` or `react-beautiful-dnd` with smooth spring animation for interactions.
+
+---
+
+## 2. Improve Column Width & Layout
+
+- Ensure columns have a **minimum width** (e.g. `min-w-[260px]`) for visual readability.
+- Allow horizontal scrolling when there are more columns than fit in the viewport.
+- Make sure cards are fully visible on all screen sizes.
+
+---
+
+## 3. Improve Column Headers (Labels & Count)
+
+- Move task count to the right of the column title like this:  
+  `New (3)` instead of just `3` in a separate bubble.
+- Reduce visual weight of the count (e.g., gray-400).
+- Make sure column headers are clearly readable at a glance.
+
+---
+
+## 4. Enhance Card Hover Interaction
+
+- When hovering a card:
+  - Elevate it slightly (`hover:shadow-md`)
+  - Optionally show quick actions or drag handle
+- Add a clear hover state for the card container itself (border, background, or opacity change).
+
+---
+
+## 5. Improve "+ Add Task" Button
+
+- Current button is visually weak and looks like a secondary control.
+- Style it as a **primary button** using shadcn/ui’s `variant="default"`.
+- Add icon + text:  
+  `+ Add Task`
+
+---
+
+## 6. Improve Sort/Filter Interactions
+
+- When filters are applied, show a **badge indicator** next to the Filter button (e.g. "Filters ●").
+- Save sort/filter state to localStorage or URL params so the user doesn't lose it on reload.
+- Consider animating dropdown open/close for Filter and Sort controls.
+
+---
+
+## 7. Avatar Stack Improvement
+
+- Limit visible avatars to 2 per card.
+- If more than 2 assignees/watchers are present, show a grouped `+N` avatar (e.g. `+2`).
+- Tooltip should show names on hover.
+
+---
+
+## 8. Mobile Responsiveness
+
+- Ensure the board layout is responsive:
+  - Columns should scroll horizontally (`overflow-x-auto`)
+  - Filters and sort should collapse into a dropdown menu on small viewports
+- Test drag behavior on touch devices (if library supports it)
+
+---
+
+## 9. Inline Status Change (Optional, Bonus)
+
+- Allow status dropdown directly on each card (e.g. inside `...` menu).
+- Update task status in memory immediately.
+- Show success or error toast based on update result.
+
+---
+
+## 10. Toast Messages for Status Updates
+
+- On successful drag, status dropdown, or modal update:
+  - Show success toast: `"Task status updated"`
+- On failure:
+  - Show error toast: `"Failed to update task status"`
+- Use top-right positioning and auto-dismiss after 3 seconds
+
+---
+
+## Final Notes
+
+- Stick to **Montserrat font** and **dark mode** using shadcn/ui
+- Keep consistent spacing and visual rhythm across the board
+- Make sure everything updates in real-time in memory (no database persistence needed)
+
+You are not done until:
+- Tasks shift down during drag
+- Columns are readable and responsive
+- Status can be changed via drag or dropdown
+- Cards give feedback on hover
+- Toast messages are working

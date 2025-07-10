@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2, CheckCircle, Clock, AlertCircle, Circle } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
 import PriorityIcon from "./PriorityIcon";
@@ -45,9 +45,10 @@ interface SortableTaskCardProps {
   onTaskClick: (task: Task) => void;
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (taskId: string) => void;
+  onStatusChange?: (taskId: string, newStatus: Task['status']) => void;
 }
 
-function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask }: SortableTaskCardProps) {
+function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatusChange }: SortableTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -82,14 +83,34 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask }: Sorta
     ).join(' ');
   };
 
+  const getStatusIcon = (status: Task['status']) => {
+    switch (status) {
+      case 'new': return Circle;
+      case 'in_progress': return Clock;
+      case 'blocked': return AlertCircle;
+      case 'completed': return CheckCircle;
+      default: return Circle;
+    }
+  };
+
+  const getStatusLabel = (status: Task['status']) => {
+    switch (status) {
+      case 'new': return 'New';
+      case 'in_progress': return 'In Progress';
+      case 'blocked': return 'Blocked';
+      case 'completed': return 'Completed';
+      default: return status;
+    }
+  };
+
   return (
     <Card 
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      className={`cursor-pointer bg-[#2a2a2a] hover:bg-[#333333] border-none shadow-sm hover:shadow-md transition-all duration-200 ${
-        isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg z-50' : 'hover:-translate-y-0.5'
+      className={`cursor-pointer bg-[#2a2a2a] hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 group ${
+        isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg z-50' : 'hover:-translate-y-0.5 hover:border-primary/30'
       } ${isOver ? 'ring-2 ring-primary/50 bg-primary/10' : ''}`}
       onClick={() => onTaskClick(task)}
     >
@@ -118,6 +139,24 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask }: Sorta
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {['new', 'in_progress', 'blocked', 'completed'].map((status) => {
+                  const StatusIcon = getStatusIcon(status as Task['status']);
+                  return (
+                    <DropdownMenuItem 
+                      key={status}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onStatusChange?.(task.id, status as Task['status']);
+                      }}
+                      className={task.status === status ? 'bg-primary/20' : ''}
+                    >
+                      <StatusIcon className="mr-2 h-4 w-4" />
+                      {getStatusLabel(status as Task['status'])}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={(e) => {
                   e.stopPropagation();
                   onDeleteTask?.(task.id);
@@ -200,7 +239,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
 
   return (
     <Card 
-      className={`flex-shrink-0 w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-300 ${
+      className={`flex-shrink-0 min-w-[280px] w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-300 kanban-column ${
         isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/10 shadow-lg scale-[1.02]' : ''
       } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}
     >
@@ -208,14 +247,9 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
         className="pb-3 px-3 pt-3"
         ref={setNodeRef}
       >
-        <CardTitle className="flex items-center justify-between text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${column.color}`} />
-            {column.title}
-          </div>
-          <Badge variant="secondary" className="text-xs font-medium">
-            {tasks.length}
-          </Badge>
+        <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
+          <span className="text-white/90">{column.title}</span>
+          <span className="text-white/50 text-xs font-normal">({tasks.length})</span>
         </CardTitle>
       </CardHeader>
       <CardContent className={`space-y-3 min-h-[400px] p-4 relative transition-all duration-300 ${
@@ -256,6 +290,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
                     onTaskClick={onTaskClick}
                     onEditTask={onEditTask}
                     onDeleteTask={onDeleteTask}
+                    onStatusChange={onTaskStatusChange}
                   />
                 </div>
               </div>
@@ -435,7 +470,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   };
 
   return (
-    <div className="space-y-6 h-full bg-gradient-to-br from-background to-muted/30">
+    <div className="space-y-6 h-full bg-gradient-to-br from-background to-muted/30 kanban-container">
       {/* Sort Controls */}
       <div className="flex items-center gap-2 mb-4">
         <label className="text-sm font-medium">Sort by:</label>
@@ -457,7 +492,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4 min-h-[400px]">
+        <div className="flex gap-4 overflow-x-auto pb-4 min-h-[400px] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           {columns.map((column) => {
             const columnTasks = tasks.filter(task => task.status === column.key);
             const sortedTasks = sortTasks(columnTasks);
