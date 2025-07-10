@@ -9,9 +9,11 @@ import TaskKanban from "./TaskKanban";
 import TaskForm from "./TaskForm";
 import TaskPanelContent from "./TaskPanelContent";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function TaskManager() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
@@ -58,9 +60,18 @@ export default function TaskManager() {
     onSuccess: () => {
       console.log('updateTaskMutation success - invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      toast({
+        title: "Success",
+        description: "Task status updated successfully",
+      });
     },
     onError: (error) => {
       console.error('updateTaskMutation error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update task status",
+        variant: "destructive",
+      });
     },
   });
 
@@ -208,6 +219,9 @@ export default function TaskManager() {
                 <Button onClick={handleCreateTask} className="inline-flex items-center">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Task
+                </Button>
+                <Button onClick={() => handleStatusUpdate('11', 'in_progress')} variant="outline" size="sm">
+                  Test Status
                 </Button>
               </div>
             </div>
