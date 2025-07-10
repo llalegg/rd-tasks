@@ -5,7 +5,7 @@ import { relations } from "drizzle-orm";
 
 // Enums
 export const taskTypeEnum = pgEnum('task_type', ['training.strength', 'training.endurance', 'training.speed', 'recovery.massage', 'recovery.rest', 'competition.match', 'competition.tournament', 'analysis.performance', 'analysis.video']);
-export const taskStatusEnum = pgEnum('task_status', ['new', 'in_progress', 'pending', 'completed']);
+export const taskStatusEnum = pgEnum('task_status', ['new', 'in_progress', 'blocked', 'completed']);
 export const taskPriorityEnum = pgEnum('task_priority', ['low', 'medium', 'high']);
 export const userRoleEnum = pgEnum('user_role', ['admin', 'coach', 'analyst', 'therapist']);
 

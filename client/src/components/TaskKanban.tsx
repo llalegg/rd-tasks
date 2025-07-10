@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Tag, User, Users } from "lucide-react";
+import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
 import PriorityIcon from "./PriorityIcon";
@@ -30,15 +31,19 @@ interface TaskKanbanProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
   onTaskStatusChange?: (taskId: string, newStatus: Task['status']) => void;
+  onEditTask?: (task: Task) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
 // Sortable Task Card Component
 interface SortableTaskCardProps {
   task: Task;
   onTaskClick: (task: Task) => void;
+  onEditTask?: (task: Task) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
-function SortableTaskCard({ task, onTaskClick }: SortableTaskCardProps) {
+function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask }: SortableTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -82,7 +87,36 @@ function SortableTaskCard({ task, onTaskClick }: SortableTaskCardProps) {
           <h4 className="text-sm font-medium text-foreground line-clamp-2 flex-1">
             {task.name}
           </h4>
-          <PriorityIcon priority={task.priority} size="sm" />
+          <div className="flex items-center gap-1">
+            <PriorityIcon priority={task.priority} size="sm" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  onEditTask?.(task);
+                }}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteTask?.(task.id);
+                }}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         
         <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
@@ -141,9 +175,11 @@ interface DroppableColumnProps {
   column: { key: string; title: string; color: string };
   tasks: Task[];
   onTaskClick: (task: Task) => void;
+  onEditTask?: (task: Task) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
-function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
+function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask }: DroppableColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.key,
   });
@@ -175,6 +211,8 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
               key={task.id}
               task={task}
               onTaskClick={onTaskClick}
+              onEditTask={onEditTask}
+              onDeleteTask={onDeleteTask}
             />
           ))}
         </SortableContext>
@@ -195,7 +233,7 @@ function DroppableColumn({ column, tasks, onTaskClick }: DroppableColumnProps) {
   );
 }
 
-export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: TaskKanbanProps) {
+export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onEditTask, onDeleteTask }: TaskKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('priority');
@@ -208,10 +246,10 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
   );
 
   const columns = [
-    { key: 'new', title: 'New', color: 'bg-slate-500' },
-    { key: 'in_progress', title: 'In Progress', color: 'bg-blue-500' },
-    { key: 'pending', title: 'Pending', color: 'bg-amber-500' },
-    { key: 'completed', title: 'Completed', color: 'bg-emerald-500' }
+    { key: 'new', title: 'New', color: 'bg-transparent' },
+    { key: 'in_progress', title: 'In Progress', color: 'bg-transparent' },
+    { key: 'blocked', title: 'Blocked', color: 'bg-transparent' },
+    { key: 'completed', title: 'Completed', color: 'bg-transparent' }
   ];
 
   // Sort tasks within each column
@@ -302,6 +340,8 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange }: T
                 column={column}
                 tasks={sortedTasks}
                 onTaskClick={onTaskClick}
+                onEditTask={onEditTask}
+                onDeleteTask={onDeleteTask}
               />
             );
           })}

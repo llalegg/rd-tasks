@@ -19,19 +19,19 @@ export default function PriorityIcon({ priority, size = "sm" }: PriorityIconProp
     case 'high':
       return (
         <div className="flex items-center" title="High Priority">
-          <AlertTriangle className={`${iconSize} text-red-500`} />
+          <AlertTriangle className={`${iconSize} text-white`} />
         </div>
       );
     case 'medium':
       return (
         <div className="flex items-center" title="Medium Priority">
-          <ArrowUp className={`${iconSize} text-yellow-500`} />
+          <ArrowUp className={`${iconSize} text-white`} />
         </div>
       );
     case 'low':
       return (
         <div className="flex items-center" title="Low Priority">
-          <Minus className={`${iconSize} text-green-500`} />
+          <Minus className={`${iconSize} text-white`} />
         </div>
       );
     default:

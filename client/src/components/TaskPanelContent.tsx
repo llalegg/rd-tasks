@@ -42,7 +42,7 @@ export default function TaskPanelContent({ task, onStatusUpdate }: TaskPanelCont
     switch (status) {
       case 'new': return 'New';
       case 'in_progress': return 'In Progress';
-      case 'pending': return 'Pending';
+      case 'blocked': return 'Blocked';
       case 'completed': return 'Completed';
       default: return status;
     }
@@ -70,7 +70,7 @@ export default function TaskPanelContent({ task, onStatusUpdate }: TaskPanelCont
           Status
         </h3>
         <div className="flex flex-wrap gap-1">
-          {['new', 'in_progress', 'pending', 'completed'].map((status) => (
+          {['new', 'in_progress', 'blocked', 'completed'].map((status) => (
             <Button
               key={status}
               variant={task.status === status ? "default" : "outline"}

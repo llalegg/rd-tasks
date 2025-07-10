@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
@@ -13,12 +15,15 @@ import PriorityIcon from "./PriorityIcon";
 interface TaskListProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
+  onStatusUpdate?: (taskId: string, newStatus: Task['status']) => void;
+  onEditTask?: (task: Task) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
 type SortField = 'deadline' | 'type' | 'name' | 'assignee' | 'priority' | 'status';
 type SortDirection = 'asc' | 'desc';
 
-export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
+export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTask, onDeleteTask }: TaskListProps) {
   const [sortField, setSortField] = useState<SortField>('deadline');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
@@ -38,7 +43,7 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
     switch (status) {
       case 'new': return 'secondary';
       case 'in_progress': return 'default';
-      case 'pending': return 'outline';
+      case 'blocked': return 'outline';
       case 'completed': return 'secondary';
       default: return 'secondary';
     }
@@ -169,6 +174,7 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
                     {getSortIcon('status')}
                   </Button>
                 </TableHead>
+                <TableHead className="w-16">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -232,9 +238,46 @@ export default function TaskList({ tasks, onTaskClick }: TaskListProps) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(task.status)}>
-                        {formatStatus(task.status)}
-                      </Badge>
+                      <Select
+                        value={task.status}
+                        onValueChange={(value) => onStatusUpdate?.(task.id, value as Task['status'])}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="new">New</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="blocked">Blocked</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            onEditTask?.(task);
+                          }}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteTask?.(task.id);
+                          }}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );

@@ -71,6 +71,19 @@ export default function TaskManager() {
     },
   });
 
+  // Delete task mutation
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      return apiRequest(`/api/tasks/${taskId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      setSelectedTask(null);
+    },
+  });
+
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
   };
@@ -89,6 +102,10 @@ export default function TaskManager() {
     setFormMode('edit');
     setSelectedTask(task);
     setIsFormOpen(true);
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    deleteTaskMutation.mutate(taskId);
   };
 
   const handleFormSubmit = (taskData: Partial<Task>) => {
@@ -111,7 +128,7 @@ export default function TaskManager() {
     switch (status) {
       case 'new': return 'bg-blue-500';
       case 'in_progress': return 'bg-yellow-500';
-      case 'pending': return 'bg-orange-500';
+      case 'blocked': return 'bg-orange-500';
       case 'completed': return 'bg-green-500';
       default: return 'bg-gray-500';
     }
@@ -121,7 +138,7 @@ export default function TaskManager() {
     switch (status) {
       case 'new': return 'New';
       case 'in_progress': return 'In Progress';
-      case 'pending': return 'Pending';
+      case 'blocked': return 'Blocked';
       case 'completed': return 'Completed';
       default: return status;
     }
@@ -195,9 +212,21 @@ export default function TaskManager() {
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
             </div>
           ) : currentView === 'list' ? (
-            <TaskList tasks={filteredTasks} onTaskClick={handleTaskClick} />
+            <TaskList 
+              tasks={filteredTasks} 
+              onTaskClick={handleTaskClick}
+              onStatusUpdate={handleStatusUpdate}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+            />
           ) : (
-            <TaskKanban tasks={filteredTasks} onTaskClick={handleTaskClick} onTaskStatusChange={handleStatusUpdate} />
+            <TaskKanban 
+              tasks={filteredTasks} 
+              onTaskClick={handleTaskClick}
+              onTaskStatusChange={handleStatusUpdate}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+            />
           )}
         </main>
       </div>

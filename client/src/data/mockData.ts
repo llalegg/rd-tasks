@@ -68,7 +68,7 @@ export const mockTasks: Task[] = [
     relatedAthleteIds: ['4'],
     deadline: tomorrow.toISOString().split('T')[0], // Tomorrow
     priority: 'high',
-    status: 'pending',
+    status: 'blocked',
     createdAt: '2024-01-10T09:15:00Z',
     updatedAt: '2024-01-17T11:45:00Z',
     creatorId: '2'
