@@ -114,21 +114,21 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
       } ${isOver ? 'ring-2 ring-primary/50 bg-primary/10' : ''}`}
       onClick={() => onTaskClick(task)}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-3 md:p-4 touch-manipulation">
         <div className="flex items-start justify-between mb-2">
-          <h4 className="text-sm font-medium text-foreground line-clamp-2 flex-1">
+          <h4 className="text-sm font-medium text-foreground line-clamp-2 flex-1 pr-2">
             {task.name}
           </h4>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <PriorityIcon priority={task.priority} size="sm" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                  className="h-8 w-8 md:h-6 md:w-6 p-0 opacity-70 hover:opacity-100 touch-manipulation"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreHorizontal className="h-3 w-3" />
+                  <MoreHorizontal className="h-4 w-4 md:h-3 md:w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -227,32 +227,33 @@ interface DroppableColumnProps {
   onTaskClick: (task: Task) => void;
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (taskId: string) => void;
+  onStatusChange?: (taskId: string, newStatus: Task['status']) => void;
   activeTaskId?: string | null;
   dragOverTaskId?: string | null;
   dragOverColumnId?: string | null;
 }
 
-function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask, activeTaskId, dragOverTaskId, dragOverColumnId }: DroppableColumnProps) {
+function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask, onStatusChange, activeTaskId, dragOverTaskId, dragOverColumnId }: DroppableColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.key,
   });
 
   return (
     <Card 
-      className={`flex-shrink-0 min-w-[280px] w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-300 kanban-column ${
-        isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/10 shadow-lg scale-[1.02]' : ''
+      className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-300 kanban-column ${
+        isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/10 shadow-lg md:scale-[1.02]' : ''
       } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}
     >
       <CardHeader 
-        className="pb-3 px-3 pt-3"
+        className="pb-2 md:pb-3 px-3 pt-3"
         ref={setNodeRef}
       >
-        <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
+        <CardTitle className="text-white text-sm md:text-sm font-medium flex items-center gap-2">
           <span className="text-white/90">{column.title}</span>
           <span className="text-white/50 text-xs font-normal">({tasks.length})</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className={`space-y-3 min-h-[400px] p-4 relative transition-all duration-300 ${
+      <CardContent className={`space-y-2 md:space-y-3 min-h-[200px] md:min-h-[400px] p-3 md:p-4 relative transition-all duration-300 ${
         isOver ? 'bg-primary/10 ring-2 ring-primary/40 ring-inset' : ''
       } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}>
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
@@ -290,7 +291,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
                     onTaskClick={onTaskClick}
                     onEditTask={onEditTask}
                     onDeleteTask={onDeleteTask}
-                    onStatusChange={onTaskStatusChange}
+                    onStatusChange={onStatusChange}
                   />
                 </div>
               </div>
@@ -470,12 +471,12 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   };
 
   return (
-    <div className="space-y-6 h-full bg-gradient-to-br from-background to-muted/30 kanban-container">
+    <div className="space-y-4 md:space-y-6 h-full bg-gradient-to-br from-background to-muted/30 kanban-container">
       {/* Sort Controls */}
-      <div className="flex items-center gap-2 mb-4">
-        <label className="text-sm font-medium">Sort by:</label>
+      <div className="flex items-center gap-2 mb-2 md:mb-4">
+        <label className="text-xs md:text-sm font-medium">Sort by:</label>
         <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline') => setSortBy(value)}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="w-28 md:w-32 text-xs md:text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -492,7 +493,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4 min-h-[400px] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:overflow-x-auto pb-4 min-h-[400px] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           {columns.map((column) => {
             const columnTasks = tasks.filter(task => task.status === column.key);
             const sortedTasks = sortTasks(columnTasks);
@@ -505,6 +506,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                 onTaskClick={onTaskClick}
                 onEditTask={onEditTask}
                 onDeleteTask={onDeleteTask}
+                onStatusChange={onTaskStatusChange}
                 activeTaskId={activeId}
                 dragOverTaskId={dragOverTaskId}
                 dragOverColumnId={dragOverColumnId}

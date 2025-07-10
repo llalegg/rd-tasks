@@ -68,35 +68,31 @@ export function MinimalSidebar() {
         </div>
 
         {/* Libraries */}
-        <Link href="/">
-          <a className={`flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg cursor-pointer ${
-            isLibrariesSection
-              ? 'bg-[rgba(255,255,255,0.04)] text-[#F7F6F2]' 
-              : 'text-[#585856] hover:bg-[rgba(255,255,255,0.04)]'
-          } transition-colors`}>
-            <Books className="w-6 h-6" weight="regular" />
-            <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
-              Libraries
-            </span>
-          </a>
+        <Link href="/" className={`flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg cursor-pointer ${
+          isLibrariesSection
+            ? 'bg-[rgba(255,255,255,0.04)] text-[#F7F6F2]' 
+            : 'text-[#585856] hover:bg-[rgba(255,255,255,0.04)]'
+        } transition-colors`}>
+          <Books className="w-6 h-6" weight="regular" />
+          <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
+            Libraries
+          </span>
         </Link>
         
         {/* Athlete View */}
-        <Link href="/athlete-view">
-          <a className={`flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg cursor-pointer ${
-            isAthleteView
-              ? 'bg-[rgba(255,255,255,0.04)] text-[#F7F6F2]' 
-              : 'text-[#585856] hover:bg-[rgba(255,255,255,0.04)]'
-          } transition-colors`}>
-            <DeviceMobile 
-              className="w-6 h-6" 
-              weight="regular" 
-              color={isAthleteView ? "#F7F6F2" : "#585856"} 
-            />
-            <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
-              Athlete View
-            </span>
-          </a>
+        <Link href="/athlete-view" className={`flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg cursor-pointer ${
+          isAthleteView
+            ? 'bg-[rgba(255,255,255,0.04)] text-[#F7F6F2]' 
+            : 'text-[#585856] hover:bg-[rgba(255,255,255,0.04)]'
+        } transition-colors`}>
+          <DeviceMobile 
+            className="w-6 h-6" 
+            weight="regular" 
+            color={isAthleteView ? "#F7F6F2" : "#585856"} 
+          />
+          <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
+            Athlete View
+          </span>
         </Link>
       </div>
 

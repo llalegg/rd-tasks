@@ -156,40 +156,60 @@ export default function TaskManager() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex md:ml-[80px]">
+    <div className="min-h-screen bg-background flex md:ml-[80px] pb-[64px] md:pb-0">
       {/* Main Content Area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out ${
-        selectedTask ? 'pr-[500px]' : ''
+        selectedTask ? 'md:pr-[500px]' : ''
       }`}>
         {/* Header */}
         <header className="bg-background/95 backdrop-blur-sm sticky top-0 z-40">
-          <div className="w-full px-5">
-            <div className="flex items-center justify-between h-16 gap-4">
-              <div className="flex items-center space-x-4">
+          <div className="w-full px-3 md:px-5">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-3 md:py-0 md:h-16 gap-3 md:gap-4">
+              <div className="flex items-center justify-between w-full md:w-auto">
                 <div className="flex-shrink-0">
-                  <h1 className="text-xl font-semibold text-foreground">To-Do's</h1>
+                  <h1 className="text-lg md:text-xl font-semibold text-foreground">To-Do's</h1>
+                </div>
+                
+                {/* Mobile View Toggle */}
+                <div className="flex md:hidden items-center bg-muted rounded-lg p-1">
+                  <Button
+                    variant={currentView === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setCurrentView('list')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={currentView === 'kanban' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setCurrentView('kanban')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Columns className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
               
               {/* Search and Controls */}
-              <div className="flex items-center space-x-3 flex-1 max-w-2xl">
+              <div className="flex items-center space-x-2 md:space-x-3 flex-1 w-full md:max-w-2xl">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     placeholder="Search tasks..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
-                <Button variant="secondary" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filters
+                <Button variant="secondary" size="sm" className="px-2 md:px-3">
+                  <Filter className="w-4 h-4 mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">Filters</span>
                 </Button>
               </div>
 
-              {/* View Toggle and Add Button */}
-              <div className="flex items-center space-x-3">
+              {/* Desktop View Toggle and Add Button */}
+              <div className="hidden md:flex items-center space-x-3">
                 <div className="flex items-center bg-muted rounded-lg p-1">
                   <Button
                     variant={currentView === 'list' ? 'default' : 'ghost'}
@@ -212,13 +232,20 @@ export default function TaskManager() {
                   <Plus className="w-4 h-4 mr-2" />
                   Add Task
                 </Button>
-
+              </div>
+              
+              {/* Mobile Add Button */}
+              <div className="md:hidden w-full">
+                <Button onClick={handleCreateTask} className="w-full inline-flex items-center justify-center">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Task
+                </Button>
               </div>
             </div>
           </div>
         </header>
         {/* Main Content */}
-        <main className="w-full px-5 py-8">
+        <main className="w-full px-3 md:px-5 py-4 md:py-8">
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
@@ -245,7 +272,7 @@ export default function TaskManager() {
 
       {/* Task Detail Panel */}
       {selectedTask && (
-        <div className="fixed top-0 right-0 w-[500px] h-full bg-background border-l border-border z-40 flex flex-col">
+        <div className="fixed top-0 right-0 w-full md:w-[500px] h-full bg-background border-l border-border z-40 flex flex-col">
           {/* Panel Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-2">
