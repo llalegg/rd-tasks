@@ -1,0 +1,62 @@
+Drag-and-Drop Interactions for Kanban Board (Trello/Jira-style)
+
+Implement full **drag-and-drop functionality** for a Kanban-style task board using React. The layout has multiple columns (status lanes), and users must be able to drag task cards between and within these columns.
+
+This prompt focuses **exclusively on the interaction logic and behavior** of drag and drop. No backend, no persistence. All interactions must be fully reflected in local state.
+
+---
+
+## General Requirements
+
+- Use a robust drag-and-drop library such as:
+  - `@dnd-kit/core` + `@dnd-kit/sortable`
+  - or `react-beautiful-dnd` (legacy but still valid)
+
+- Use a **column-based Kanban layout**:
+  - Each column represents a task status: `new`, `in_progress`, `pending`, `completed`
+  - Each column contains **vertically stacked task cards**
+
+---
+
+## Required Behaviors
+
+### 1. Drag Within a Column
+- The user can drag a task **up or down within the same column**
+- The position/order of tasks must update immediately in the UI
+- The updated task order must be reflected in in-memory state
+
+### 2. Drag Between Columns
+- The user can drag a task from one column to another
+- When dropped:
+  - The task's `status` must update to the target column
+  - The task should appear at the **end of the list** or **drop position** in the new column
+  - If dropped between tasks, it must insert at that position
+
+### 3. Visual Feedback
+- Show a **drag shadow/clone** of the task card during drag
+- Highlight the drop target column or placeholder with a **subtle active border or background**
+- Animate card movement (entering, exiting) to match modern UX patterns
+
+### 4. Column Behavior
+- Columns must act as **valid drop zones**
+- If a column is empty, still allow it to be a valid drop target
+- When dragging over an empty column, show a placeholder position or “Drop here” prompt
+
+### 5. Keyboard Support (if supported by library)
+- Use `Tab` or `Arrow keys` to navigate between drop zones
+- Use `Space` to pick up/drop a card
+- Focus outlines should follow accessibility best practices
+
+### 6. Animation & Transition
+- Cards should animate into place when dropped
+- Optional: smooth “return to origin” animation if drop is cancelled
+
+---
+
+## State Management
+
+- All drag actions must result in updates to **React component state**
+- Do **not** persist data to localStorage, backend, or browser session
+- Use a single `tasks` array and group them into columns based on `status` field
+- After drop:
+  - Update both the `status` and the task’s position inside the new group

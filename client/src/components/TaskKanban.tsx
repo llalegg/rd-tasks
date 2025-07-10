@@ -16,13 +16,14 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  KeyboardSensor,
   useSensor,
   useSensors,
   useDroppable,
   closestCenter,
   rectIntersection,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy, arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
@@ -31,6 +32,7 @@ interface TaskKanbanProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
   onTaskStatusChange?: (taskId: string, newStatus: Task['status']) => void;
+  onTaskReorder?: (reorderedTasks: Task[]) => void;
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (taskId: string) => void;
 }
@@ -220,11 +222,20 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask 
         {/* Drop zone indicator for empty columns */}
         {tasks.length === 0 && (
           <div className={`absolute inset-0 flex items-center justify-center text-muted-foreground transition-all duration-200 ${
-            isOver ? 'text-primary' : ''
+            isOver ? 'text-primary bg-primary/10 border-2 border-dashed border-primary rounded-lg' : 'border-2 border-dashed border-transparent'
           }`}>
             <div className="text-center">
               <div className="text-2xl mb-2">⬇</div>
-              <p className="text-sm">Drop tasks here</p>
+              <p className="text-sm font-medium">Drop tasks here</p>
+            </div>
+          </div>
+        )}
+        
+        {/* Drop zone indicator for populated columns */}
+        {tasks.length > 0 && isOver && (
+          <div className="absolute inset-0 bg-primary/5 border-2 border-dashed border-primary rounded-lg pointer-events-none transition-all duration-200">
+            <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-medium">
+              Drop here
             </div>
           </div>
         )}
@@ -233,7 +244,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask 
   );
 }
 
-export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onEditTask, onDeleteTask }: TaskKanbanProps) {
+export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onTaskReorder, onEditTask, onDeleteTask }: TaskKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('priority');
@@ -242,6 +253,9 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onE
       activationConstraint: {
         distance: 8,
       },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
@@ -291,10 +305,28 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onE
     const draggedTask = tasks.find(task => task.id === activeId);
     if (!draggedTask) return;
 
-    // Check if we're dropping over a column (different from current status)
+    console.log('Drag end:', { activeId, overId, draggedTaskStatus: draggedTask.status });
+
+    // Check if we're dropping over a column
     const columnStatuses = columns.map(col => col.key);
-    if (columnStatuses.includes(overId) && overId !== draggedTask.status) {
-      onTaskStatusChange?.(activeId, overId as Task['status']);
+    
+    if (columnStatuses.includes(overId)) {
+      // Dropping over a column - change status
+      if (overId !== draggedTask.status) {
+        console.log('Changing status from', draggedTask.status, 'to', overId);
+        onTaskStatusChange?.(activeId, overId as Task['status']);
+      }
+      return;
+    }
+
+    // Dropping over another task
+    const overTask = tasks.find(task => task.id === overId);
+    if (!overTask) return;
+    
+    // If different columns, change status
+    if (draggedTask.status !== overTask.status) {
+      console.log('Changing status from', draggedTask.status, 'to', overTask.status);
+      onTaskStatusChange?.(activeId, overTask.status);
     }
   };
 
@@ -324,7 +356,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onE
 
       <DndContext
         sensors={sensors}
-        collisionDetection={rectIntersection}
+        collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
