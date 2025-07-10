@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { MinimalSidebar } from "@/components/MinimalSidebar";
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
 
@@ -21,6 +22,7 @@ function App() {
       <TooltipProvider>
         <div className="dark min-h-screen bg-background text-foreground font-sans">
           <Toaster />
+          <MinimalSidebar />
           <Router />
         </div>
       </TooltipProvider>
