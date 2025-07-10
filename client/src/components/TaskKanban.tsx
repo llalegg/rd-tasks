@@ -20,7 +20,7 @@ import {
   useSensor,
   useSensors,
   useDroppable,
-  closestCenter,
+  closestCorners,
   rectIntersection,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
@@ -253,7 +253,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 3,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -318,6 +318,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
       // Dropping over a column - change status
       if (overId !== draggedTask.status) {
         console.log('Changing status from', draggedTask.status, 'to', overId);
+        console.log('onTaskStatusChange function exists:', !!onTaskStatusChange);
         onTaskStatusChange?.(activeId, overId as Task['status']);
       }
       return;
@@ -327,6 +328,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
     const overTask = tasks.find(task => task.id === overId);
     if (overTask && draggedTask.status !== overTask.status) {
       console.log('Changing status from', draggedTask.status, 'to', overTask.status);
+      console.log('onTaskStatusChange function exists:', !!onTaskStatusChange);
       onTaskStatusChange?.(activeId, overTask.status);
     }
   };
@@ -357,7 +359,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
 
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}

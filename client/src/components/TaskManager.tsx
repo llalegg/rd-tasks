@@ -47,13 +47,20 @@ export default function TaskManager() {
   // Update task status mutation
   const updateTaskMutation = useMutation({
     mutationFn: async ({ taskId, status }: { taskId: string; status: Task['status'] }) => {
-      return apiRequest(`/api/tasks/${taskId}`, {
+      console.log('updateTaskMutation called with:', { taskId, status });
+      const result = await apiRequest(`/api/tasks/${taskId}`, {
         method: 'PUT',
         body: { status },
       });
+      console.log('updateTaskMutation result:', result);
+      return result;
     },
     onSuccess: () => {
+      console.log('updateTaskMutation success - invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+    },
+    onError: (error) => {
+      console.error('updateTaskMutation error:', error);
     },
   });
 
@@ -89,6 +96,7 @@ export default function TaskManager() {
   };
 
   const handleStatusUpdate = (taskId: string, newStatus: Task['status']) => {
+    console.log('TaskManager handleStatusUpdate called:', { taskId, newStatus });
     updateTaskMutation.mutate({ taskId, status: newStatus });
   };
 
