@@ -190,18 +190,19 @@ interface DroppableColumnProps {
   onDeleteTask?: (taskId: string) => void;
   activeTaskId?: string | null;
   dragOverTaskId?: string | null;
+  dragOverColumnId?: string | null;
 }
 
-function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask, activeTaskId, dragOverTaskId }: DroppableColumnProps) {
+function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask, activeTaskId, dragOverTaskId, dragOverColumnId }: DroppableColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.key,
   });
 
   return (
     <Card 
-      className={`flex-shrink-0 w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-200 ${
-        isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/10' : ''
-      }`}
+      className={`flex-shrink-0 w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-300 ${
+        isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/10 shadow-lg scale-[1.02]' : ''
+      } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}
     >
       <CardHeader 
         className="pb-3 px-3 pt-3"
@@ -217,36 +218,56 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className={`space-y-3 min-h-[400px] p-4 relative transition-all duration-200 ${
+      <CardContent className={`space-y-3 min-h-[400px] p-4 relative transition-all duration-300 ${
         isOver ? 'bg-primary/10 ring-2 ring-primary/40 ring-inset' : ''
-      }`}>
+      } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}>
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
-          {tasks.map((task, index) => (
-            <div key={task.id} className="relative">
-              {/* Insertion placeholder - shows when dragging over a position */}
-              {activeTaskId && dragOverTaskId === task.id && (
-                <div className="h-4 mb-3 bg-primary/30 border-2 border-dashed border-primary rounded-lg flex items-center justify-center transition-all duration-300 ease-out scale-105 shadow-lg">
-                  <div className="text-xs text-primary font-bold animate-pulse">Drop here</div>
+          {tasks.map((task, index) => {
+            const isHoveringAbove = activeTaskId && dragOverTaskId === task.id;
+            const draggedTaskIndex = activeTaskId ? tasks.findIndex(t => t.id === activeTaskId) : -1;
+            const currentTaskIndex = index;
+            const dragOverIndex = dragOverTaskId ? tasks.findIndex(t => t.id === dragOverTaskId) : -1;
+            
+            // Tasks that should be pushed down are those after the drop position
+            const shouldPushDown = activeTaskId && dragOverTaskId && 
+              dragOverIndex >= 0 && 
+              currentTaskIndex >= dragOverIndex &&
+              dragOverTaskId !== task.id &&
+              activeTaskId !== task.id;
+            
+            return (
+              <div key={task.id} className="relative">
+                {/* Insertion placeholder - shows when dragging over a position */}
+                {isHoveringAbove && (
+                  <div className="h-5 mb-3 bg-gradient-to-r from-primary/20 to-primary/40 border-2 border-dashed border-primary rounded-lg flex items-center justify-center transition-all duration-300 ease-out scale-105 shadow-lg animate-pulse">
+                    <div className="text-xs text-primary font-bold">
+                      ⬇ Drop here ⬇
+                    </div>
+                  </div>
+                )}
+                
+                <div className={`transition-all duration-300 ease-out ${
+                  shouldPushDown ? 'translate-y-6 opacity-90' : ''
+                } ${isHoveringAbove ? 'translate-y-1 opacity-95' : ''} ${
+                  activeTaskId === task.id ? 'opacity-40 scale-95' : ''
+                }`}>
+                  <SortableTaskCard
+                    task={task}
+                    onTaskClick={onTaskClick}
+                    onEditTask={onEditTask}
+                    onDeleteTask={onDeleteTask}
+                  />
                 </div>
-              )}
-              
-              <div className={`transition-all duration-300 ease-out ${
-                activeTaskId && dragOverTaskId === task.id ? 'translate-y-2' : ''
-              }`}>
-                <SortableTaskCard
-                  task={task}
-                  onTaskClick={onTaskClick}
-                  onEditTask={onEditTask}
-                  onDeleteTask={onDeleteTask}
-                />
               </div>
-            </div>
-          ))}
+            );
+          })}
           
           {/* Bottom drop zone for empty space at end of column */}
           {activeTaskId && isOver && dragOverColumnId === column.key && !dragOverTaskId && (
-            <div className="h-4 bg-primary/30 border-2 border-dashed border-primary rounded-lg flex items-center justify-center transition-all duration-300 ease-out scale-105 shadow-lg">
-              <div className="text-xs text-primary font-bold animate-pulse">Drop at end</div>
+            <div className="h-5 bg-gradient-to-r from-primary/20 to-primary/40 border-2 border-dashed border-primary rounded-lg flex items-center justify-center transition-all duration-300 ease-out scale-105 shadow-lg animate-pulse">
+              <div className="text-xs text-primary font-bold">
+                ⬇ Drop at end ⬇
+              </div>
             </div>
           )}
         </SortableContext>
@@ -321,7 +342,6 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
 
   const handleDragOver = (event: DragOverEvent) => {
     const { over, active } = event;
-    console.log('Drag over:', over?.id);
     
     if (!over || !active) {
       setDragOverTaskId(null);
@@ -332,19 +352,32 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
     const overId = over.id as string;
     const activeId = active.id as string;
     
+    // Prevent dropping on self
+    if (overId === activeId) {
+      setDragOverTaskId(null);
+      setDragOverColumnId(null);
+      return;
+    }
+    
     // Check if we're over a task
     const overTask = tasks.find(task => task.id === overId);
     if (overTask) {
       setDragOverTaskId(overId);
       setDragOverColumnId(overTask.status);
-    } else {
-      // Check if we're over a column
-      const columnStatuses = columns.map(col => col.key);
-      if (columnStatuses.includes(overId)) {
-        setDragOverColumnId(overId);
-        setDragOverTaskId(null);
-      }
+      return;
     }
+    
+    // Check if we're over a column
+    const columnStatuses = columns.map(col => col.key);
+    if (columnStatuses.includes(overId)) {
+      setDragOverColumnId(overId);
+      setDragOverTaskId(null);
+      return;
+    }
+    
+    // Reset if not over anything relevant
+    setDragOverTaskId(null);
+    setDragOverColumnId(null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -439,6 +472,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                 onDeleteTask={onDeleteTask}
                 activeTaskId={activeId}
                 dragOverTaskId={dragOverTaskId}
+                dragOverColumnId={dragOverColumnId}
               />
             );
           })}
