@@ -236,8 +236,8 @@ export default function TaskManager() {
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#292928] border-none">
-                      <SelectItem value="priority" className="text-[12px] hover:bg-muted/50">Priority</SelectItem>
-                      <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50">Deadline</SelectItem>
+                      <SelectItem value="priority" className="text-[12px] hover:bg-muted/50">Sort by priority</SelectItem>
+                      <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50">Sort by deadline</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
