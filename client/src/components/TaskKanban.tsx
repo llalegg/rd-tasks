@@ -480,19 +480,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
 
   return (
     <div className="space-y-4 md:space-y-6 h-full bg-gradient-to-br from-background to-muted/30 kanban-container">
-      {/* Sort Controls */}
-      <div className="flex items-center gap-2 mb-2 md:mb-4">
-        <label className="text-xs md:text-sm font-medium">Sort by:</label>
-        <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline') => setSortBy(value)}>
-          <SelectTrigger className="w-28 md:w-32 text-xs md:text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="priority">Priority</SelectItem>
-            <SelectItem value="deadline">Deadline</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      
 
       <DndContext
         sensors={sensors}
