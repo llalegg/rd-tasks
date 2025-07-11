@@ -188,6 +188,8 @@ Changelog:
 - July 11, 2025. Made table header fixed position and reduced space between table and navigation
 - July 11, 2025. Updated sidebar styling to match modal window (background #1C1C1B, border #292928)
 - July 11, 2025. Replaced TaskPanelContent with shared TaskDetails component in sidebar for consistency
+- July 11, 2025. Removed sort controls from Kanban board component (moved to top navigation)
+- July 11, 2025. Fixed search input spacing by increasing paddingLeft from 22px to 32px for proper icon clearance
 ```
 
 ## User Preferences

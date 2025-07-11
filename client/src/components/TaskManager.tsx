@@ -221,7 +221,7 @@ export default function TaskManager() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="text-sm h-8 px-3 py-2 rounded-lg bg-[#292928] border-[#292928] w-full"
-                    style={{ paddingLeft: '22px' }}
+                    style={{ paddingLeft: '32px' }}
                   />
                 </div>
                 
