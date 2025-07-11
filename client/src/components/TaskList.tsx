@@ -117,7 +117,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
               <TableHead className="w-12 text-center overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
-                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
+                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
                     onClick={() => handleSort('priority')}
                   >
                     {getSortIcon('priority')}
@@ -126,7 +126,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                 <TableHead className="w-1/4 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
-                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
+                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
                     onClick={() => handleSort('name')}
                   >
                     Name
@@ -136,7 +136,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                 <TableHead className="w-1/6 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
-                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
+                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
                     onClick={() => handleSort('type')}
                   >
                     Type
@@ -146,7 +146,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                 <TableHead className="w-1/6 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
-                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
+                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
                     onClick={() => handleSort('deadline')}
                   >
                     Deadline
@@ -156,7 +156,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                 <TableHead className="w-16 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
-                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
+                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
                     onClick={() => handleSort('assignee')}
                   >
                     Assignee
@@ -220,7 +220,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center -space-x-2">
                         {relatedAthletes.map((athlete) => (
                           <UserAvatar
                             key={athlete.id}
