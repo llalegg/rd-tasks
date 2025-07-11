@@ -175,9 +175,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
           </div>
         </div>
         
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-          {task.description || 'No description'}
-        </p>
+
         
         <div className="space-y-2">
           <div className="flex items-center text-xs text-muted-foreground">
@@ -187,14 +185,12 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
           
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {assignee ? (
+              {assignee && (
                 <UserAvatar
                   userId={assignee.id}
                   name={assignee.name}
-                  size="sm"
+                  size="xs"
                 />
-              ) : (
-                <span className="text-xs text-muted-foreground">Unassigned</span>
               )}
             </div>
             <DeadlineBadge deadline={task.deadline} className="text-xs" />
@@ -209,11 +205,11 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
                     key={athlete!.id}
                     userId={athlete!.id}
                     name={athlete!.name}
-                    size="sm"
+                    size="xs"
                   />
                 ))}
                 {relatedAthletes.length > 3 && (
-                  <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                  <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium border-2 border-white/20">
                     +{relatedAthletes.length - 3}
                   </div>
                 )}

@@ -7,7 +7,7 @@ import { User as UserType } from "@shared/schema";
 interface UserAvatarProps {
   userId: string;
   name?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   showTooltip?: boolean;
 }
 
@@ -29,6 +29,7 @@ export default function UserAvatar({ userId, name, size = "sm", showTooltip = tr
   };
 
   const sizeClasses = {
+    xs: "h-6 w-6 text-xs",
     sm: "h-8 w-8 text-xs",
     md: "h-10 w-10 text-sm", 
     lg: "h-12 w-12 text-base"
@@ -52,7 +53,7 @@ export default function UserAvatar({ userId, name, size = "sm", showTooltip = tr
   };
 
   const avatar = (
-    <Avatar className={sizeClasses[size]}>
+    <Avatar className={`${sizeClasses[size]} border-2 border-white/20`}>
       <AvatarImage 
         src={getProfileImage(userId)} 
         alt={displayName}
