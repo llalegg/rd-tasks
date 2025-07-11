@@ -38,13 +38,46 @@ export default function DeadlineBadge({ deadline, className = "" }: DeadlineBadg
         };
       case 'yellow':
         return {
-          style: {},
-          className: 'bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600'
+          style: {
+            display: 'flex',
+            padding: 'var(--2) var(--8-tags)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 'var(--4-icon-text)',
+            borderRadius: 'var(--rounded-full-button)',
+            background: 'var(--fill-badge-yellow-muted)',
+            color: 'var(--yellow-500)',
+            textAlign: 'center' as const,
+            fontFamily: 'Montserrat',
+            fontSize: '12px',
+            fontStyle: 'normal',
+            fontWeight: '500',
+            lineHeight: '132%',
+            border: 'none'
+          },
+          className: ''
         };
       case 'green':
         return {
-          style: {},
-          className: 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+          style: {
+            display: 'flex',
+            padding: 'var(--2) var(--8-tags)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 'var(--4-icon-text)',
+            borderRadius: 'var(--rounded-full-button)',
+            background: 'var(--alpha-2a-press-selected)',
+            backdropFilter: 'blur(20px)',
+            color: 'var(--text-base-secondary)',
+            textAlign: 'center' as const,
+            fontFamily: 'Montserrat',
+            fontSize: '12px',
+            fontStyle: 'normal',
+            fontWeight: '500',
+            lineHeight: '132%',
+            border: 'none'
+          },
+          className: ''
         };
       default:
         return { style: {}, className: '' };

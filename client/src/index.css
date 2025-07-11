@@ -70,6 +70,10 @@
   --rounded-full-button: 9999px;
   --fill-badge-red-muted: #321A1A;
   --text-error-default: #F87171;
+  --fill-badge-yellow-muted: #302608;
+  --yellow-500: #EAB308;
+  --alpha-2a-press-selected: rgba(255, 255, 255, 0.08);
+  --text-base-secondary: #979795;
 }
 
 .dark {

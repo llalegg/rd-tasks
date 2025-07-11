@@ -155,6 +155,8 @@ Changelog:
 - July 11, 2025. Restructured header layout to group search input and filters on the right with view toggle and add task button
 - July 11, 2025. Updated Add Task button font size to 12px and adjusted search input padding for 6px spacing between icon and text
 - July 11, 2025. Updated red deadline badge styling with custom background (#321A1A), text color (#F87171), and Montserrat typography
+- July 11, 2025. Updated yellow badge styling with custom background (#302608) and text color (#EAB308)
+- July 11, 2025. Changed green badge to grey badge with transparent background, backdrop blur, and secondary text color (#979795)
 ```
 
 ## User Preferences
