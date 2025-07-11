@@ -9,6 +9,7 @@ import { DotsThreeVertical, PencilSimple, Trash } from "@phosphor-icons/react";
 import MoreDotsIcon from "./MoreDotsIcon";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState } from "react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
@@ -194,7 +195,18 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     onClick={() => onTaskClick(task)}
                   >
                     <TableCell className="text-center w-12">
-                      <PriorityIcon priority={task.priority} />
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex justify-center">
+                              <PriorityIcon priority={task.priority} />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="capitalize">{task.priority}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell className="overflow-hidden text-ellipsis text-[#F7F6F2] font-montserrat text-[14px] font-medium leading-[146%] pl-2">
                       {task.name}

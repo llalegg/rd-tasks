@@ -20,7 +20,7 @@ export default function TaskManager() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'priority' | 'deadline' | 'none'>('none');
+  const [sortBy, setSortBy] = useState<'priority' | 'deadline' | 'none'>('deadline');
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -225,17 +225,18 @@ export default function TaskManager() {
                   />
                 </div>
                 
-                {/* Sort Dropdown */}
-                <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline' | 'none') => setSortBy(value)}>
-                  <SelectTrigger className="w-32 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px]">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#292928] border-none">
-                    <SelectItem value="none" className="text-[12px] hover:bg-muted/50">No Sort</SelectItem>
-                    <SelectItem value="priority" className="text-[12px] hover:bg-muted/50">Priority</SelectItem>
-                    <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50">Deadline</SelectItem>
-                  </SelectContent>
-                </Select>
+                {/* Sort Dropdown - Only show in Kanban view */}
+                {currentView === 'kanban' && (
+                  <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline' | 'none') => setSortBy(value)}>
+                    <SelectTrigger className="w-32 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px]">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#292928] border-none">
+                      <SelectItem value="priority" className="text-[12px] hover:bg-muted/50">Priority</SelectItem>
+                      <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50">Deadline</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
 
                 {/* Filters Button */}
                 <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">

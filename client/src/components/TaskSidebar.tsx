@@ -58,30 +58,15 @@ export default function TaskSidebar({ task, isOpen, onClose, onStatusUpdate, onE
       }`}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#292928]">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${getStatusColor(task.status)}`} />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {getStatusLabel(task.status)}
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(task)}
-              className="h-7 w-7 p-0"
-            >
-              <Edit className="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-7 w-7 p-0"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
+          <h2 className="text-lg font-semibold text-white">Task Details</h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-7 w-7 p-0 text-white hover:bg-[#292928]"
+          >
+            <X className="h-3 w-3" />
+          </Button>
         </div>
 
         {/* Content */}

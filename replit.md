@@ -190,6 +190,10 @@ Changelog:
 - July 11, 2025. Replaced TaskPanelContent with shared TaskDetails component in sidebar for consistency
 - July 11, 2025. Removed sort controls from Kanban board component (moved to top navigation)
 - July 11, 2025. Fixed search input spacing by increasing paddingLeft from 22px to 32px for proper icon clearance
+- July 11, 2025. Removed "no sort" option from dropdown, changed default sort to "deadline"
+- July 11, 2025. Made sort dropdown only visible in Kanban view with Priority and Deadline options only
+- July 11, 2025. Added tooltips to priority column in List view showing priority level names
+- July 11, 2025. Updated TaskSidebar header to match modal styling with simplified close button
 ```
 
 ## User Preferences
