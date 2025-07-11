@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Task } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, Filter, List, Columns, Edit, X } from "lucide-react";
 import TaskList from "./TaskList";
 import TaskKanban from "./TaskKanban";
@@ -19,6 +20,7 @@ export default function TaskManager() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
   const [searchQuery, setSearchQuery] = useState('');
+  const [prioritySort, setPrioritySort] = useState<'all' | 'high' | 'medium' | 'low'>('all');
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -40,11 +42,13 @@ export default function TaskManager() {
     queryFn: () => fetch('/api/athletes').then(res => res.json()),
   });
 
-  // Filter tasks based on search query
-  const filteredTasks = tasks.filter(task =>
-    task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    task.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter tasks based on search query and priority
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPriority = prioritySort === 'all' || task.priority === prioritySort;
+    return matchesSearch && matchesPriority;
+  });
 
   // Update task status mutation
   const updateTaskMutation = useMutation({
@@ -212,6 +216,21 @@ export default function TaskManager() {
                   />
                 </div>
                 
+                {/* Priority Sort Dropdown (only show on Kanban view) */}
+                {currentView === 'kanban' && (
+                  <Select value={prioritySort} onValueChange={(value: 'all' | 'high' | 'medium' | 'low') => setPrioritySort(value)}>
+                    <SelectTrigger className="w-32 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#292928] border-none">
+                      <SelectItem value="all" className="text-[12px] hover:bg-muted/50">All Priority</SelectItem>
+                      <SelectItem value="high" className="text-[12px] hover:bg-muted/50">High Priority</SelectItem>
+                      <SelectItem value="medium" className="text-[12px] hover:bg-muted/50">Medium Priority</SelectItem>
+                      <SelectItem value="low" className="text-[12px] hover:bg-muted/50">Low Priority</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+
                 {/* Filters Button */}
                 <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
                   <Filter className="w-4 h-4" style={{ marginRight: '6px' }} />
@@ -239,7 +258,6 @@ export default function TaskManager() {
                     </Button>
                   </div>
                   <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
-                    <Plus className="w-4 h-4" style={{ marginRight: '6px' }} />
                     Add Task
                   </Button>
                 </div>
@@ -248,7 +266,6 @@ export default function TaskManager() {
               {/* Mobile Add Button */}
               <div className="md:hidden w-full">
                 <Button onClick={handleCreateTask} className="w-full flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
-                  <Plus className="w-4 h-4" style={{ marginRight: '6px' }} />
                   Add Task
                 </Button>
               </div>

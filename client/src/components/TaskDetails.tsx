@@ -141,7 +141,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
           <div className="mb-1">
             <span className="text-xs font-medium text-muted-foreground">Description</span>
           </div>
-          <p className="text-sm leading-relaxed">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             {task.description}
           </p>
         </div>

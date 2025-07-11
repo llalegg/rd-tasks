@@ -180,6 +180,10 @@ Changelog:
 - July 11, 2025. Made modal layout more compact with reduced spacing (space-y-2) and smaller text labels
 - July 11, 2025. Moved Edit button under task type badge and removed X close button from modal
 - July 11, 2025. Reduced grid gaps and label text size for denser information display
+- July 11, 2025. Added green checkmark icon to success toast messages and moved toast position to bottom left
+- July 11, 2025. Made description text secondary color (text-muted-foreground) for better visual hierarchy
+- July 11, 2025. Added priority sort dropdown to top navigation bar (only visible on Kanban view)
+- July 11, 2025. Removed Plus icons from Add Task buttons for cleaner button appearance
 ```
 
 ## User Preferences
