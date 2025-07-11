@@ -20,7 +20,7 @@ export default function TaskManager() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
   const [searchQuery, setSearchQuery] = useState('');
-  const [prioritySort, setPrioritySort] = useState<'all' | 'high' | 'medium' | 'low'>('all');
+  const [sortBy, setSortBy] = useState<'priority' | 'deadline' | 'none'>('none');
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -42,12 +42,21 @@ export default function TaskManager() {
     queryFn: () => fetch('/api/athletes').then(res => res.json()),
   });
 
-  // Filter tasks based on search query and priority
-  const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPriority = prioritySort === 'all' || task.priority === prioritySort;
-    return matchesSearch && matchesPriority;
+  // Filter and sort tasks based on search query and sort option
+  const filteredTasks = tasks.filter(task => 
+    task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  ).sort((a, b) => {
+    if (sortBy === 'priority') {
+      const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    } else if (sortBy === 'deadline') {
+      if (!a.deadline && !b.deadline) return 0;
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+    }
+    return 0;
   });
 
   // Update task status mutation
@@ -216,20 +225,17 @@ export default function TaskManager() {
                   />
                 </div>
                 
-                {/* Priority Sort Dropdown (only show on Kanban view) */}
-                {currentView === 'kanban' && (
-                  <Select value={prioritySort} onValueChange={(value: 'all' | 'high' | 'medium' | 'low') => setPrioritySort(value)}>
-                    <SelectTrigger className="w-32 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#292928] border-none">
-                      <SelectItem value="all" className="text-[12px] hover:bg-muted/50">All Priority</SelectItem>
-                      <SelectItem value="high" className="text-[12px] hover:bg-muted/50">High Priority</SelectItem>
-                      <SelectItem value="medium" className="text-[12px] hover:bg-muted/50">Medium Priority</SelectItem>
-                      <SelectItem value="low" className="text-[12px] hover:bg-muted/50">Low Priority</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+                {/* Sort Dropdown */}
+                <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline' | 'none') => setSortBy(value)}>
+                  <SelectTrigger className="w-32 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px]">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#292928] border-none">
+                    <SelectItem value="none" className="text-[12px] hover:bg-muted/50">No Sort</SelectItem>
+                    <SelectItem value="priority" className="text-[12px] hover:bg-muted/50">Priority</SelectItem>
+                    <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50">Deadline</SelectItem>
+                  </SelectContent>
+                </Select>
 
                 {/* Filters Button */}
                 <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
@@ -273,7 +279,7 @@ export default function TaskManager() {
           </div>
         </header>
         {/* Main Content */}
-        <main className="w-full px-3 md:px-5 py-4 md:py-8 pt-20 md:pt-24">
+        <main className="w-full px-3 md:px-5 py-4 md:py-8 pt-16 md:pt-20">
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>

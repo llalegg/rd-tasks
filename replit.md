@@ -184,6 +184,10 @@ Changelog:
 - July 11, 2025. Made description text secondary color (text-muted-foreground) for better visual hierarchy
 - July 11, 2025. Added priority sort dropdown to top navigation bar (only visible on Kanban view)
 - July 11, 2025. Removed Plus icons from Add Task buttons for cleaner button appearance
+- July 11, 2025. Added sort by priority/deadline dropdown to top navigation (replaced priority filter)
+- July 11, 2025. Made table header fixed position and reduced space between table and navigation
+- July 11, 2025. Updated sidebar styling to match modal window (background #1C1C1B, border #292928)
+- July 11, 2025. Replaced TaskPanelContent with shared TaskDetails component in sidebar for consistency
 ```
 
 ## User Preferences
