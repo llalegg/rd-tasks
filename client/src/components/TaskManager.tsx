@@ -21,7 +21,7 @@ export default function TaskManager() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'priority' | 'deadline' | 'none'>('deadline');
+  const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('deadline');
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -231,7 +231,7 @@ export default function TaskManager() {
                 
                 {/* Sort Dropdown - Only show in Kanban view */}
                 {currentView === 'kanban' && (
-                  <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline' | 'none') => setSortBy(value)}>
+                  <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline') => setSortBy(value)}>
                     <SelectTrigger className="w-32 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px]">
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
