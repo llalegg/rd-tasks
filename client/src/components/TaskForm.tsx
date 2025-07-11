@@ -219,10 +219,10 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
           </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-border">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} className="h-8 px-3 rounded-[9999px] bg-transparent border-[#F7F6F2] text-[#F7F6F2] hover:bg-[#1C1C1B] text-[14px] font-medium">
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" className="h-8 px-3 rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
               {mode === 'create' ? 'Create Task' : 'Update Task'}
             </Button>
           </div>

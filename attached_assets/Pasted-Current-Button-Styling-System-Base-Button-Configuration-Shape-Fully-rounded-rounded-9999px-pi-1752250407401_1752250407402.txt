@@ -1,0 +1,66 @@
+Current Button Styling System
+Base Button Configuration
+Shape: Fully rounded (rounded-[9999px]) - pill-shaped buttons
+Typography: 14px font size, semibold weight, 146% line height
+Spacing: 8px internal gap between elements
+Transitions: Color transitions with focus states and accessibility rings
+Button Variants
+1. Default (Primary) Button
+Background: Light beige bg-[#E5E4E1]
+Text: Black text-[#000000]
+Hover: Darker beige hover:bg-[#CFCECA]
+Font: Montserrat, 14px, medium weight
+Height: 32px (h-8)
+Usage: Form submissions, primary actions
+2. Secondary Button
+Background: Transparent bg-transparent
+Border: White border-[#F7F6F2]
+Text: White text-[#F7F6F2]
+Hover: Dark background hover:bg-[#1C1C1B]
+Focus: Golden border focus:border-[#C4AF6C] with 2px width
+Usage: Cancel actions, secondary forms
+3. Tertiary Button
+Background: Dark gray bg-[#292928]
+Text: Light gray text-[#F7F6F2]
+Hover: Slightly lighter hover:bg-[#3D3D3C]
+Font: Montserrat, 12px, medium weight
+Height: 32px (h-8)
+Usage: Filters, utility actions (like "Filters" button in tables)
+4. Ghost Button
+Background: Transparent
+Hover: Accent background and text
+Usage: Sort buttons in table headers, subtle actions
+5. Outline Button
+Background: Transparent
+Border: Input border color
+Hover: Accent background
+Usage: Cancel buttons in dialogs
+6. Destructive Button
+Background: Destructive color
+Text: Destructive foreground
+Hover: 90% opacity
+Usage: Delete actions (available but not heavily used)
+Button Sizes
+Default: 32px height, 12px horizontal padding
+Small: 36px height, 12px horizontal padding
+Large: 44px height, 32px horizontal padding
+Icon: 32px × 32px square
+Common Usage Patterns
+Form Buttons
+Submit: Default variant (Add Exercise, Save Changes)
+Cancel: Secondary or outline variant
+Add/Plus Actions: Default variant with Plus icon
+Table Actions
+Sort: Ghost variant for table headers
+Filters: Tertiary variant
+View Toggle: ToggleGroup components (not standard buttons)
+Dialog Actions
+Confirm: Default variant
+Cancel: Outline variant
+Delete: Destructive variant
+Key Styling Features
+Consistent Font: Montserrat across all button variants
+Accessibility: Focus rings and proper contrast ratios
+Icon Integration: Proper spacing and sizing for icons
+Disabled States: Reduced opacity and pointer events disabled
+Responsive: Consistent sizing across devices

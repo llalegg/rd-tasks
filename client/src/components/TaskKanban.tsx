@@ -125,10 +125,10 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="h-8 w-8 md:h-6 md:w-6 p-0 opacity-70 hover:opacity-100 touch-manipulation"
+                  className="h-8 w-8 md:h-6 md:w-6 p-0 opacity-70 hover:opacity-100 touch-manipulation rounded-[9999px] hover:bg-accent hover:text-accent-foreground"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreHorizontal className="h-4 w-4 md:h-3 md:w-3" />
+                  <DotsThreeVertical className="h-4 w-4 md:h-3 md:w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -136,7 +136,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
                   e.stopPropagation();
                   onEditTask?.(task);
                 }}>
-                  <Edit className="mr-2 h-4 w-4" />
+                  <PencilSimple className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -161,7 +161,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
                   e.stopPropagation();
                   onDeleteTask?.(task.id);
                 }}>
-                  <Trash2 className="mr-2 h-4 w-4" />
+                  <Trash className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -128,7 +128,7 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
                     variant="ghost"
                     size="sm"
                     onClick={() => onEdit(task)}
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 rounded-[9999px] hover:bg-accent hover:text-accent-foreground"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -139,7 +139,7 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 rounded-[9999px] hover:bg-accent hover:text-accent-foreground"
               >
                 <X className="h-4 w-4" />
               </Button>

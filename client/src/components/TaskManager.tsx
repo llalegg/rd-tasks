@@ -202,8 +202,8 @@ export default function TaskManager() {
                     className="pl-10 text-sm"
                   />
                 </div>
-                <Button variant="secondary" size="sm" className="px-2 md:px-3">
-                  <Filter className="w-4 h-4 mr-1 md:mr-2" />
+                <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium">
+                  <Filter className="w-4 h-4 mr-2" />
                   <span className="hidden sm:inline">Filters</span>
                 </Button>
               </div>
@@ -228,7 +228,7 @@ export default function TaskManager() {
                     <Columns className="w-4 h-4" />
                   </Button>
                 </div>
-                <Button onClick={handleCreateTask} className="inline-flex items-center button-enhanced">
+                <Button onClick={handleCreateTask} className="inline-flex items-center h-8 px-3 rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Task
                 </Button>
@@ -236,7 +236,7 @@ export default function TaskManager() {
               
               {/* Mobile Add Button */}
               <div className="md:hidden w-full">
-                <Button onClick={handleCreateTask} className="w-full inline-flex items-center justify-center button-enhanced">
+                <Button onClick={handleCreateTask} className="w-full inline-flex items-center justify-center h-8 px-3 rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Task
                 </Button>
