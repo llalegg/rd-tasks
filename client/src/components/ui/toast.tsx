@@ -51,7 +51,7 @@ const Toast = React.forwardRef<
         display: 'flex',
         minHeight: '48px',
         padding: '12px 12px 12px 16px',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         alignSelf: 'stretch',
         borderRadius: 'var(--rounded-12-dropdown)',
