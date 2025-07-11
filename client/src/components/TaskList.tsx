@@ -109,13 +109,12 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
   });
 
   return (
-    <Card className="w-full">
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <Table className="w-full rounded-t-2xl">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12 text-center bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent first:rounded-tl-2xl">
+    <div className="w-full">
+      <div className="overflow-x-auto">
+        <Table className="w-full">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12 text-center text-[12px] font-medium text-[#979795]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -124,7 +123,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('priority')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[200px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
+                <TableHead className="min-w-[200px] text-[12px] font-medium text-[#979795]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -134,7 +133,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('name')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[180px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
+                <TableHead className="min-w-[180px] text-[12px] font-medium text-[#979795]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -144,7 +143,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('type')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[120px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
+                <TableHead className="min-w-[120px] text-[12px] font-medium text-[#979795]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -154,7 +153,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('deadline')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[80px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
+                <TableHead className="min-w-[80px] text-[12px] font-medium text-[#979795]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -164,8 +163,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('assignee')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[120px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">Related Athletes</TableHead>
-                <TableHead className="min-w-[120px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
+                <TableHead className="min-w-[120px] text-[12px] font-medium text-[#979795]">Related Athletes</TableHead>
+                <TableHead className="min-w-[120px] text-[12px] font-medium text-[#979795]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -175,7 +174,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('status')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-16 bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent last:rounded-tr-2xl">Actions</TableHead>
+                <TableHead className="w-16 text-[12px] font-medium text-[#979795]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -281,7 +280,6 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
             </TableBody>
           </Table>
         </div>
-      </CardContent>
-    </Card>
-  );
+      </div>
+    );
 }

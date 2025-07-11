@@ -7,14 +7,11 @@ import {
   ChatTeardrop, 
   PhoneCall, 
   Vault, 
-  Books,
-  DeviceMobile
+  Books
 } from "@phosphor-icons/react";
 
 export function MinimalSidebar() {
   const [location] = useLocation();
-  const isLibrariesSection = location === '/' || location.startsWith('/exercise') || location.startsWith('/equipment');
-  const isAthleteView = location.startsWith('/athlete-view');
 
   return (
     <aside className="fixed bottom-0 left-0 right-0 md:right-auto md:top-0 md:bottom-auto h-[64px] md:h-screen w-full md:w-[80px] bg-[#171716] flex flex-row md:flex-col items-center justify-between md:justify-start z-50">
@@ -28,7 +25,7 @@ export function MinimalSidebar() {
       {/* Navigation Items */}
       <div className="flex-1 flex flex-row md:flex-col items-center justify-center gap-2 md:gap-[16px] px-4">
         {/* To-Dos */}
-        <div className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg text-[#585856]">
+        <div className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg bg-[rgba(255,255,255,0.04)] text-[#F7F6F2]">
           <CheckSquare className="w-6 h-6" weight="regular" />
           <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
             To-Dos
@@ -68,30 +65,10 @@ export function MinimalSidebar() {
         </div>
 
         {/* Libraries */}
-        <Link href="/" className={`flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg cursor-pointer ${
-          isLibrariesSection
-            ? 'bg-[rgba(255,255,255,0.04)] text-[#F7F6F2]' 
-            : 'text-[#585856] hover:bg-[rgba(255,255,255,0.04)]'
-        } transition-colors`}>
+        <Link href="/" className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg cursor-pointer text-[#585856] hover:bg-[rgba(255,255,255,0.04)] transition-colors">
           <Books className="w-6 h-6" weight="regular" />
           <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
             Libraries
-          </span>
-        </Link>
-        
-        {/* Athlete View */}
-        <Link href="/athlete-view" className={`flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg cursor-pointer ${
-          isAthleteView
-            ? 'bg-[rgba(255,255,255,0.04)] text-[#F7F6F2]' 
-            : 'text-[#585856] hover:bg-[rgba(255,255,255,0.04)]'
-        } transition-colors`}>
-          <DeviceMobile 
-            className="w-6 h-6" 
-            weight="regular" 
-            color={isAthleteView ? "#F7F6F2" : "#585856"} 
-          />
-          <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
-            Athlete View
           </span>
         </Link>
       </div>
