@@ -115,40 +115,18 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
   return (
     <div className={spacing}>
-      {/* Task Title and Edit Button */}
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          <h1 className={`${titleSize} font-semibold mb-2 pr-4`}>{task.name}</h1>
-          <Badge variant="outline" className="mb-3 text-xs">
-            {formatTaskType(task.type)}
-          </Badge>
-        </div>
-        {showEditButton && onEdit && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onEdit(task)}
-                  className="shrink-0 h-8 w-8 p-0 hover:bg-muted"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Edit task</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+      {/* Task Title */}
+      <div className="flex-1 min-w-0">
+        <h1 className={`${titleSize} font-semibold mb-2 pr-4`}>{task.name}</h1>
+        <Badge variant="outline" className="mb-3 text-xs">
+          {formatTaskType(task.type)}
+        </Badge>
       </div>
 
       {/* Description */}
       {task.description && (
         <div className="bg-muted/50 p-2 rounded-lg">
-          <div className="flex items-center gap-2 mb-1">
-            <FileText className="h-4 w-4 text-muted-foreground" />
+          <div className="mb-1">
             <span className="text-sm font-medium text-muted-foreground">Description</span>
           </div>
           <p className="text-sm leading-relaxed">
@@ -159,8 +137,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
       {/* Status Section */}
       <div className="bg-muted/50 p-2 rounded-lg">
-        <div className="flex items-center gap-2 mb-1">
-          <Target className="h-4 w-4 text-muted-foreground" />
+        <div className="mb-1">
           <span className="text-sm font-medium text-muted-foreground">Status</span>
         </div>
         <Select 
@@ -215,8 +192,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       {/* Priority and Deadline */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-muted/50 p-2 rounded-lg">
-          <div className="flex items-center gap-2 mb-1">
-            <PriorityIcon priority={task.priority} size="sm" />
+          <div className="mb-1">
             <span className="text-sm font-medium text-muted-foreground">Priority</span>
           </div>
           <div className="flex items-center gap-2">
@@ -230,8 +206,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
         </div>
 
         <div className="bg-muted/50 p-2 rounded-lg">
-          <div className="flex items-center gap-2 mb-1">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+          <div className="mb-1">
             <span className="text-sm font-medium text-muted-foreground">Deadline</span>
           </div>
           {task.deadline ? (
@@ -258,8 +233,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
       {/* Assignee */}
       <div className="bg-muted/50 p-2 rounded-lg">
-        <div className="flex items-center gap-2 mb-1">
-          <UserIcon className="h-4 w-4 text-muted-foreground" />
+        <div className="mb-1">
           <span className="text-sm font-medium text-muted-foreground">Assignee</span>
         </div>
         {assignee ? (
@@ -275,8 +249,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       {/* Related Athletes */}
       {relatedAthletes.length > 0 && (
         <div className="bg-muted/50 p-2 rounded-lg">
-          <div className="flex items-center gap-2 mb-1">
-            <Target className="h-4 w-4 text-muted-foreground" />
+          <div className="mb-1">
             <span className="text-sm font-medium text-muted-foreground">Related Athletes</span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -291,8 +264,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
       {/* Creator */}
       <div className="bg-muted/50 p-2 rounded-lg">
-        <div className="flex items-center gap-2 mb-1">
-          <UserIcon className="h-4 w-4 text-muted-foreground" />
+        <div className="mb-1">
           <span className="text-sm font-medium text-muted-foreground">Created by</span>
         </div>
         {creator ? (
@@ -310,33 +282,25 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
         )}
       </div>
 
-      {/* Change History */}
+      {/* Activity History */}
       <div className="bg-muted/50 p-2 rounded-lg">
-        <div className="flex items-center gap-2 mb-1">
-          <Clock className="h-4 w-4 text-muted-foreground" />
+        <div className="mb-1">
           <span className="text-sm font-medium text-muted-foreground">Activity History</span>
         </div>
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-muted-foreground">Task created</span>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">{formatDate(task.createdAt)}</span>
+          <div className="text-xs">
+            <span className="text-muted-foreground">Task created by </span>
+            <span className="font-medium">{creator?.name || 'Unknown'}</span>
+            <span className="text-muted-foreground"> on {formatDate(task.createdAt)}</span>
           </div>
           {task.updatedAt && task.updatedAt !== task.createdAt && (
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-muted-foreground">Task updated</span>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-muted-foreground">{formatDate(task.updatedAt)}</span>
+            <div className="text-xs">
+              <span className="text-muted-foreground">Task updated on {formatDate(task.updatedAt)}</span>
             </div>
           )}
           {task.status === 'completed' && (
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-muted-foreground">Task completed</span>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-muted-foreground">{formatDate(task.updatedAt || task.createdAt)}</span>
+            <div className="text-xs">
+              <span className="text-muted-foreground">Task completed on {formatDate(task.updatedAt || task.createdAt)}</span>
             </div>
           )}
         </div>

@@ -172,6 +172,11 @@ Changelog:
 - July 11, 2025. Unified task details layout between modal (Kanban) and sidebar (List) views with consistent data presentation
 - July 11, 2025. Enhanced task details with proper status dropdowns, priority badges, and visual grouping sections
 - July 11, 2025. Improved modal styling with custom background color (#1C1C1B) and proper spacing for optimal readability
+- July 11, 2025. Made task details modal more compact with reduced padding and spacing between sections
+- July 11, 2025. Added Edit button (secondary variant) positioned left of X close icon in modal header
+- July 11, 2025. Removed icons from all section labels for cleaner appearance
+- July 11, 2025. Enhanced activity history to show creator and updater information with detailed timestamps
+- July 11, 2025. Removed colored circles from activity history for minimal design approach
 ```
 
 ## User Preferences

@@ -587,13 +587,36 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
       {/* Task Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-[#1C1C1B] border-none overflow-hidden">
-          <ScrollArea className="max-h-[90vh] p-4">
+          <div className="flex items-center justify-between p-4 pb-0">
+            <div></div>
+            <div className="flex items-center gap-2">
+              {selectedTask && onEditTask && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleEditTask(selectedTask)}
+                  className="h-8 px-3 text-xs"
+                >
+                  Edit
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleModalClose}
+                className="h-8 w-8 p-0 hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <ScrollArea className="max-h-[80vh] px-4 pb-4">
             {selectedTask && (
               <TaskDetails
                 task={selectedTask}
                 onStatusUpdate={onTaskStatusChange!}
                 onEdit={handleEditTask}
-                showEditButton={true}
+                showEditButton={false}
                 layout="modal"
               />
             )}
