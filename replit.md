@@ -139,6 +139,11 @@ Changelog:
 - July 11, 2025. Cleaned up table styling by removing header backgrounds and outer borders for minimalist appearance
 - July 11, 2025. Made top navigation bar fixed position with matching background color
 - July 11, 2025. Applied full rounded corners (pill-shaped) to all form inputs and dropdown selects for design consistency
+- July 11, 2025. Updated search input with proper flex layout, 32px height, tertiary background (#292928), and 10px gap spacing
+- July 11, 2025. Enhanced table styling with proper row heights (48px), modal background color (#1C1C1B), and flex layout
+- July 11, 2025. Updated table headers with proper typography (Montserrat, 12px, medium weight, #BCBBB7 color)
+- July 11, 2025. Refined Add Task button styling with proper dimensions and gap spacing
+- July 11, 2025. Modified Assignee and Related Athletes columns to display avatars only without text labels
 ```
 
 ## User Preferences

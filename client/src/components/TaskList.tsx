@@ -114,7 +114,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12 text-center text-[12px] font-medium text-[#979795]">
+              <TableHead className="w-12 text-center overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -123,7 +123,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('priority')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[200px] text-[12px] font-medium text-[#979795]">
+                <TableHead className="min-w-[200px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -133,7 +133,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('name')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[180px] text-[12px] font-medium text-[#979795]">
+                <TableHead className="min-w-[180px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -143,7 +143,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('type')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[120px] text-[12px] font-medium text-[#979795]">
+                <TableHead className="min-w-[120px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -153,7 +153,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('deadline')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[80px] text-[12px] font-medium text-[#979795]">
+                <TableHead className="min-w-[80px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -163,8 +163,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('assignee')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[120px] text-[12px] font-medium text-[#979795]">Related Athletes</TableHead>
-                <TableHead className="min-w-[120px] text-[12px] font-medium text-[#979795]">
+                <TableHead className="min-w-[120px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">Related Athletes</TableHead>
+                <TableHead className="min-w-[120px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -174,7 +174,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('status')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-16 text-[12px] font-medium text-[#979795]">Actions</TableHead>
+                <TableHead className="w-16 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -189,7 +189,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                 return (
                   <TableRow 
                     key={task.id} 
-                    className="cursor-pointer h-[48px] bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors border-b-2 border-[#0D0D0C]"
+                    className="cursor-pointer flex h-[48px] items-center align-self-stretch bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors border-b-2 border-[#0D0D0C]"
                     onClick={() => onTaskClick(task)}
                   >
                     <TableCell className="text-center">
@@ -208,24 +208,26 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     </TableCell>
                     <TableCell>
                       {assignee ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center">
                           <UserAvatar
                             userId={assignee.id}
                             name={assignee.name}
                             size="sm"
                           />
-                          <span className="text-sm text-[#979795]">{assignee.name}</span>
                         </div>
                       ) : (
                         <span className="text-[#979795] text-xs">Unassigned</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex items-center space-x-2">
                         {relatedAthletes.map((athlete) => (
-                          <Badge key={athlete.id} variant="outline" className="text-xs bg-transparent border-[#494947] text-[#979795] rounded-full">
-                            {athlete.name}
-                          </Badge>
+                          <UserAvatar
+                            key={athlete.id}
+                            userId={athlete.id}
+                            name={athlete.name}
+                            size="sm"
+                          />
                         ))}
                         {relatedAthletes.length === 0 && (
                           <span className="text-[#979795] text-xs">None</span>
