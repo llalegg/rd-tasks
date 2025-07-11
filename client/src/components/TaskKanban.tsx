@@ -256,7 +256,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
           <span className="text-white/50 text-xs font-normal">({tasks.length})</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2 md:space-y-3 min-h-[200px] md:min-h-[400px] p-3 md:p-4 relative transition-all duration-200 pl-[8px] pr-[8px] pt-[8px] pb-[8px] text-[16px]">
+      <CardContent className="space-y-2 md:space-y-3 min-h-[200px] md:min-h-[400px] p-3 md:p-4 relative transition-all duration-200 text-[16px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]">
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task, index) => {
             const isHoveringAbove = activeTaskId && dragOverTaskId === task.id;
