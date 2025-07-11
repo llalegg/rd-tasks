@@ -171,6 +171,7 @@ export default function TaskManager() {
         <header className="bg-background fixed top-0 left-0 right-0 z-40 md:ml-[80px]">
           <div className="w-full px-3 md:px-5">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-3 md:py-0 md:h-16 gap-3 md:gap-4">
+              {/* Left Side - Title */}
               <div className="flex items-center justify-between w-full md:w-auto">
                 <div className="flex-shrink-0">
                   <h1 className="text-lg md:text-xl font-semibold text-foreground">To-Do's</h1>
@@ -197,47 +198,50 @@ export default function TaskManager() {
                 </div>
               </div>
               
-              {/* Search and Controls */}
-              <div className="flex items-center space-x-2 md:space-x-3 flex-1 w-full md:max-w-2xl">
-                <div className="flex p-0 items-center gap-[10px] flex-1 relative">
+              {/* Right Side - Search, Filters, View Toggle and Add Button */}
+              <div className="flex items-center space-x-2 md:space-x-3 w-full md:w-auto">
+                {/* Search Input */}
+                <div className="flex p-0 items-center gap-[10px] flex-1 md:flex-none md:w-64 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
                   <Input
                     placeholder="Search tasks"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 text-sm h-8 px-3 py-2 rounded-lg bg-[#292928] border-[#292928] flex-1"
+                    className="pl-10 text-sm h-8 px-3 py-2 rounded-lg bg-[#292928] border-[#292928] w-full"
                   />
                 </div>
-                <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium">
+                
+                {/* Filters Button */}
+                <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
                   <Filter className="w-4 h-4" style={{ marginRight: '8px' }} />
                   <span className="hidden sm:inline">Filters</span>
                 </Button>
-              </div>
 
-              {/* Desktop View Toggle and Add Button */}
-              <div className="hidden md:flex items-center space-x-3">
-                <div className="flex items-center bg-muted rounded-lg p-1">
-                  <Button
-                    variant={currentView === 'list' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setCurrentView('list')}
-                    className="h-8 w-8 p-0"
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant={currentView === 'kanban' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setCurrentView('kanban')}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Columns className="w-4 h-4" />
+                {/* Desktop View Toggle and Add Button */}
+                <div className="hidden md:flex items-center space-x-3">
+                  <div className="flex items-center bg-muted rounded-lg p-1">
+                    <Button
+                      variant={currentView === 'list' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setCurrentView('list')}
+                      className="h-8 w-8 p-0"
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={currentView === 'kanban' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setCurrentView('kanban')}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Columns className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
+                    <Plus className="w-4 h-4" style={{ marginRight: '8px' }} />
+                    Add Task
                   </Button>
                 </div>
-                <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
-                  <Plus className="w-4 h-4" style={{ marginRight: '8px' }} />
-                  Add Task
-                </Button>
               </div>
               
               {/* Mobile Add Button */}
