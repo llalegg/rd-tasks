@@ -110,10 +110,10 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
 
   return (
     <div className="w-full">
-      <div className="overflow-x-auto">
-        <Table className="w-full">
-          <TableHeader>
-            <TableRow>
+      <div className="overflow-x-auto max-h-[calc(100vh-200px)] overflow-y-auto">
+        <Table className="w-full table-fixed">
+          <TableHeader className="sticky top-0 z-10 bg-background">
+            <TableRow className="border-b border-border">
               <TableHead className="w-12 text-center overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
@@ -123,7 +123,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('priority')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[200px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
+                <TableHead className="w-1/4 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -133,7 +133,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('name')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[180px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
+                <TableHead className="w-1/6 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -143,7 +143,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('type')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[120px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
+                <TableHead className="w-1/6 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -153,7 +153,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('deadline')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[80px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
+                <TableHead className="w-16 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -163,8 +163,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('assignee')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[120px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">Related Athletes</TableHead>
-                <TableHead className="min-w-[120px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
+                <TableHead className="w-24 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">Related Athletes</TableHead>
+                <TableHead className="w-1/6 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
@@ -189,13 +189,13 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                 return (
                   <TableRow 
                     key={task.id} 
-                    className="cursor-pointer flex h-[48px] items-center align-self-stretch bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors border-b-2 border-[#0D0D0C]"
+                    className="cursor-pointer h-[48px] bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors border-b-2 border-[#0D0D0C]"
                     onClick={() => onTaskClick(task)}
                   >
                     <TableCell className="text-center">
                       <PriorityIcon priority={task.priority} />
                     </TableCell>
-                    <TableCell className="font-bold text-[#F7F6F2]">
+                    <TableCell className="overflow-hidden text-ellipsis text-[#F7F6F2] font-montserrat text-[14px] font-medium leading-[146%]">
                       {task.name}
                     </TableCell>
                     <TableCell>
