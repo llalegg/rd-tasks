@@ -111,23 +111,35 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
   };
 
   const titleSize = layout === 'modal' ? 'text-xl' : 'text-base';
-  const spacing = layout === 'modal' ? 'space-y-4' : 'space-y-4';
+  const spacing = layout === 'modal' ? 'space-y-2' : 'space-y-4';
 
   return (
     <div className={spacing}>
       {/* Task Title */}
       <div className="flex-1 min-w-0">
         <h1 className={`${titleSize} font-semibold mb-2 pr-4`}>{task.name}</h1>
-        <Badge variant="outline" className="mb-3 text-xs">
+        <Badge variant="outline" className="mb-2 text-xs">
           {formatTaskType(task.type)}
         </Badge>
+        {showEditButton && onEdit && (
+          <div className="mt-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onEdit(task)}
+              className="h-8 px-3 text-xs"
+            >
+              Edit
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Description */}
       {task.description && (
         <div className="bg-muted/50 p-2 rounded-lg">
           <div className="mb-1">
-            <span className="text-sm font-medium text-muted-foreground">Description</span>
+            <span className="text-xs font-medium text-muted-foreground">Description</span>
           </div>
           <p className="text-sm leading-relaxed">
             {task.description}
@@ -138,7 +150,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       {/* Status Section */}
       <div className="bg-muted/50 p-2 rounded-lg">
         <div className="mb-1">
-          <span className="text-sm font-medium text-muted-foreground">Status</span>
+          <span className="text-xs font-medium text-muted-foreground">Status</span>
         </div>
         <Select 
           value={selectedStatus || task.status} 
@@ -190,10 +202,10 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       </div>
 
       {/* Priority and Deadline */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <div className="bg-muted/50 p-2 rounded-lg">
           <div className="mb-1">
-            <span className="text-sm font-medium text-muted-foreground">Priority</span>
+            <span className="text-xs font-medium text-muted-foreground">Priority</span>
           </div>
           <div className="flex items-center gap-2">
             <Badge 
@@ -207,7 +219,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
         <div className="bg-muted/50 p-2 rounded-lg">
           <div className="mb-1">
-            <span className="text-sm font-medium text-muted-foreground">Deadline</span>
+            <span className="text-xs font-medium text-muted-foreground">Deadline</span>
           </div>
           {task.deadline ? (
             <div className="flex items-center gap-2">
@@ -234,7 +246,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       {/* Assignee */}
       <div className="bg-muted/50 p-2 rounded-lg">
         <div className="mb-1">
-          <span className="text-sm font-medium text-muted-foreground">Assignee</span>
+          <span className="text-xs font-medium text-muted-foreground">Assignee</span>
         </div>
         {assignee ? (
           <div className="flex items-center gap-2">
@@ -250,7 +262,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       {relatedAthletes.length > 0 && (
         <div className="bg-muted/50 p-2 rounded-lg">
           <div className="mb-1">
-            <span className="text-sm font-medium text-muted-foreground">Related Athletes</span>
+            <span className="text-xs font-medium text-muted-foreground">Related Athletes</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {relatedAthletes.map((athlete) => (
@@ -265,7 +277,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       {/* Creator */}
       <div className="bg-muted/50 p-2 rounded-lg">
         <div className="mb-1">
-          <span className="text-sm font-medium text-muted-foreground">Created by</span>
+          <span className="text-xs font-medium text-muted-foreground">Created by</span>
         </div>
         {creator ? (
           <div className="flex items-center gap-2">
@@ -285,7 +297,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       {/* Activity History */}
       <div className="bg-muted/50 p-2 rounded-lg">
         <div className="mb-1">
-          <span className="text-sm font-medium text-muted-foreground">Activity History</span>
+          <span className="text-xs font-medium text-muted-foreground">Activity History</span>
         </div>
         <div className="space-y-1">
           <div className="text-xs">
