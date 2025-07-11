@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Task } from "@shared/schema";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { X, Edit } from "lucide-react";
 import TaskDetails from "./TaskDetails";
 import { mockUsers } from "@/data/mockData";
@@ -27,6 +28,12 @@ export default function TaskSidebar({ task, isOpen, onClose, onStatusUpdate, onE
   }, [isOpen, onClose]);
 
   if (!task) return null;
+
+  const formatTaskType = (type: string) => {
+    return type.split('.').map(part => 
+      part.charAt(0).toUpperCase() + part.slice(1)
+    ).join(' ');
+  };
 
   const getStatusColor = (status: Task['status']) => {
     switch (status) {
@@ -57,16 +64,31 @@ export default function TaskSidebar({ task, isOpen, onClose, onStatusUpdate, onE
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#292928]">
-          <h2 className="text-lg font-semibold text-white">Task Details</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="h-7 w-7 p-0 text-white hover:bg-[#292928]"
-          >
-            <X className="h-3 w-3" />
-          </Button>
+        <div className="flex items-center justify-between p-6 border-b border-[#292928]">
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-white pr-8">{task.name}</h2>
+            <Badge variant="outline" className="w-fit mt-2">
+              {formatTaskType(task.type)}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(task)}
+              className="h-8 w-8 p-0 rounded-[9999px] hover:bg-accent hover:text-accent-foreground"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="h-8 w-8 p-0 rounded-[9999px] hover:bg-accent hover:text-accent-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Content */}
