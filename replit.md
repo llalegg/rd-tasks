@@ -158,6 +158,7 @@ Changelog:
 - July 11, 2025. Updated yellow badge styling with custom background (#302608) and text color (#EAB308)
 - July 11, 2025. Changed green badge to grey badge with transparent background, backdrop blur, and secondary text color (#979795)
 - July 11, 2025. Made all badges hugged by width (fit-content) instead of filling available space for better visual balance
+- July 11, 2025. Updated all buttons to have consistent 6px spacing between icons and text labels
 ```
 
 ## User Preferences

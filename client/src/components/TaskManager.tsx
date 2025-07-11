@@ -214,7 +214,7 @@ export default function TaskManager() {
                 
                 {/* Filters Button */}
                 <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
-                  <Filter className="w-4 h-4" style={{ marginRight: '8px' }} />
+                  <Filter className="w-4 h-4" style={{ marginRight: '6px' }} />
                   <span className="hidden sm:inline">Filters</span>
                 </Button>
 
@@ -239,7 +239,7 @@ export default function TaskManager() {
                     </Button>
                   </div>
                   <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
-                    <Plus className="w-4 h-4" style={{ marginRight: '8px' }} />
+                    <Plus className="w-4 h-4" style={{ marginRight: '6px' }} />
                     Add Task
                   </Button>
                 </div>
@@ -248,7 +248,7 @@ export default function TaskManager() {
               {/* Mobile Add Button */}
               <div className="md:hidden w-full">
                 <Button onClick={handleCreateTask} className="w-full flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
-                  <Plus className="w-4 h-4" style={{ marginRight: '8px' }} />
+                  <Plus className="w-4 h-4" style={{ marginRight: '6px' }} />
                   Add Task
                 </Button>
               </div>
