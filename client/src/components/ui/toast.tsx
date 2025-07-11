@@ -50,7 +50,7 @@ const Toast = React.forwardRef<
       style={{
         display: 'flex',
         minHeight: '48px',
-        padding: '0px var(--12-buttons) 0px var(--16)',
+        padding: '12px',
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'stretch',

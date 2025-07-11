@@ -194,6 +194,7 @@ Changelog:
 - July 11, 2025. Made sort dropdown only visible in Kanban view with Priority and Deadline options only
 - July 11, 2025. Added tooltips to priority column in List view showing priority level names
 - July 11, 2025. Updated TaskSidebar header to match modal styling with simplified close button
+- July 11, 2025. Reduced toast message padding to 12px for more compact appearance
 ```
 
 ## User Preferences
