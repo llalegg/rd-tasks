@@ -167,7 +167,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                 <TableHead className="w-1/6 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
-                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground" 
+                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
                     onClick={() => handleSort('status')}
                   >
                     Status
