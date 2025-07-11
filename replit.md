@@ -200,6 +200,7 @@ Changelog:
 - July 11, 2025. Added formatTaskType function to TaskManager component to fix missing function error
 - July 11, 2025. Removed status indicator from Task Detail Panel header and removed border outline from top bar
 - July 11, 2025. Made Task Detail Panel header transparent and changed panel background to #1C1C1B with #292928 border
+- July 11, 2025. Updated toast message padding to have 16px spacing from left side to content
 ```
 
 ## User Preferences
