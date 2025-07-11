@@ -315,9 +315,9 @@ export default function TaskManager() {
 
       {/* Task Detail Panel */}
       {selectedTask && (
-        <div className="fixed top-0 right-0 w-full md:w-[500px] h-full bg-[#1C1C1B] border-l border-[#292928] z-40 flex flex-col relative">
+        <div className="fixed top-0 right-0 w-full md:w-[500px] h-full bg-[#1C1C1B] border-l border-[#292928] z-40 flex flex-col">
           {/* Panel Header */}
-          <div className="flex items-start justify-between p-6 border-b border-[#292928]">
+          <div className="flex items-center justify-between p-6 border-b border-[#292928]">
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-white pr-8">{selectedTask.name}</h2>
               <Badge variant="outline" className="w-fit mt-2">
@@ -338,7 +338,7 @@ export default function TaskManager() {
               variant="ghost"
               size="sm"
               onClick={() => setSelectedTask(null)}
-              className="h-8 w-8 p-0 rounded-[9999px] hover:bg-accent hover:text-accent-foreground absolute top-4 right-4"
+              className="h-8 w-8 p-0 rounded-[9999px] hover:bg-accent hover:text-accent-foreground"
             >
               <X className="h-4 w-4" />
             </Button>
