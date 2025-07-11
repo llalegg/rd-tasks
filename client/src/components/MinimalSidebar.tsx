@@ -17,7 +17,7 @@ export function MinimalSidebar() {
   return (
     <aside className="fixed bottom-0 left-0 right-0 md:right-auto md:top-0 md:bottom-auto h-[64px] md:h-screen w-full md:w-[80px] bg-[#171716] flex flex-row md:flex-col items-center justify-between md:justify-start z-50">
       {/* Logo - Hidden on mobile */}
-      <div className="hidden md:block w-[48px] h-[48px] pt-6">
+      <div className="hidden md:block w-[64px] h-[64px] pt-6">
         <img src={logoImage} alt="Logo" className="w-full h-full object-contain" />
       </div>
 
