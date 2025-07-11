@@ -115,8 +115,8 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
       }}
       {...attributes}
       {...listeners}
-      className={`cursor-pointer hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 group card-hover ${
-        isDragging ? 'opacity-60 rotate-1 scale-102 shadow-lg z-50' : 'hover:-translate-y-0.5 hover:border-primary/30'
+      className={`cursor-pointer hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 hover:border-white hover:border-2 transition-all duration-200 group card-hover ${
+        isDragging ? 'opacity-60 rotate-1 scale-102 shadow-lg z-50' : 'hover:-translate-y-0.5'
       }`}
       onClick={() => onTaskClick(task)}
     >
@@ -126,12 +126,11 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
             {task.name}
           </h4>
           <div className="flex items-center gap-1 flex-shrink-0">
-            <PriorityIcon priority={task.priority} size="sm" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="h-8 w-8 md:h-6 md:w-6 p-0 opacity-70 hover:opacity-100 touch-manipulation rounded-[9999px] hover:bg-accent hover:text-accent-foreground"
+                  className="h-8 w-8 md:h-6 md:w-6 p-0 opacity-0 group-hover:opacity-70 hover:opacity-100 touch-manipulation rounded-[9999px] hover:bg-accent hover:text-accent-foreground transition-opacity duration-200"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <DotsThreeVertical className="h-4 w-4 md:h-3 md:w-3" />
@@ -184,6 +183,12 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
           
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
+              {/* Priority Icon */}
+              <PriorityIcon priority={task.priority} size="sm" />
+              
+              {/* Deadline next to Priority */}
+              <DeadlineBadge deadline={task.deadline} className="text-xs" />
+              
               {/* Related Athletes */}
               {relatedAthletes.length > 0 && (
                 <div className="flex items-center space-x-1">
@@ -213,7 +218,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
                 </div>
               )}
             </div>
-            <DeadlineBadge deadline={task.deadline} className="text-xs" />
+            <div></div>
           </div>
           
           {/* Assignee Avatar - Bottom Right Corner */}
@@ -534,7 +539,6 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                 <div className="space-y-2 relative">
                   <div className="flex items-start justify-between">
                     <h3 className="font-medium text-sm leading-tight pr-2 text-white">{activeTask.name}</h3>
-                    <PriorityIcon priority={activeTask.priority} size="sm" />
                   </div>
                   
                   <div className="flex items-center text-xs text-white/80">
@@ -543,6 +547,12 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
+                      {/* Priority Icon */}
+                      <PriorityIcon priority={activeTask.priority} size="sm" />
+                      
+                      {/* Deadline next to Priority */}
+                      <DeadlineBadge deadline={activeTask.deadline} className="text-xs" />
+                      
                       {/* Related Athletes for drag overlay */}
                       {activeTask.relatedAthletes && activeTask.relatedAthletes.length > 0 && (
                         <div className="flex items-center space-x-1">
@@ -561,7 +571,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                         </div>
                       )}
                     </div>
-                    <DeadlineBadge deadline={activeTask.deadline} className="text-xs" />
+                    <div></div>
                   </div>
                   
                   {/* Assignee Avatar - Bottom Right Corner for drag overlay */}
