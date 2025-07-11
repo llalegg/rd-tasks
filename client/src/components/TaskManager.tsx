@@ -31,6 +31,12 @@ export default function TaskManager() {
 
   console.log('Tasks loading state:', { isLoading, tasksCount: tasks.length, error });
 
+  const formatTaskType = (type: string) => {
+    return type.split('.').map(part => 
+      part.charAt(0).toUpperCase() + part.slice(1)
+    ).join(' ');
+  };
+
   // Fetch users from API
   const { data: users = [] } = useQuery({
     queryKey: ['/api/users'],
