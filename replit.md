@@ -149,6 +149,7 @@ Changelog:
 - July 11, 2025. Applied custom column colors to Kanban board: To-Do (#31180F), In Progress (#162949), Pending (#302608), Completed (#072A15)
 - July 11, 2025. Added 64% opacity to all Kanban column background colors using hex alpha values for proper color rendering
 - July 11, 2025. Applied custom card styling with 16px border-radius and #171716 background using CSS variables
+- July 11, 2025. Updated toast component styling with custom CSS variables for consistent design system integration
 ```
 
 ## User Preferences

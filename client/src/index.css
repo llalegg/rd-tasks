@@ -59,6 +59,11 @@
   --radius: 0.5rem;
   --rounded-16-card: 16px;
   --background-01: #171716;
+  --12-buttons: 12px;
+  --16: 16px;
+  --rounded-12-dropdown: 12px;
+  --gray-400: #3D3D3C;
+  --background-03-dropdown: #292928;
 }
 
 .dark {
