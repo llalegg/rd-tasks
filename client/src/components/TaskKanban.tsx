@@ -351,10 +351,10 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   );
 
   const columns = [
-    { key: 'new', title: 'To-Do', color: 'bg-[#31180F]' },
-    { key: 'in_progress', title: 'In Progress', color: 'bg-[#162949]' },
-    { key: 'blocked', title: 'Pending', color: 'bg-[#302608]' },
-    { key: 'completed', title: 'Completed', color: 'bg-[#072A15]' }
+    { key: 'new', title: 'To-Do', color: 'bg-[#31180F]/64' },
+    { key: 'in_progress', title: 'In Progress', color: 'bg-[#162949]/64' },
+    { key: 'blocked', title: 'Pending', color: 'bg-[#302608]/64' },
+    { key: 'completed', title: 'Completed', color: 'bg-[#072A15]/64' }
   ];
 
   // Sort tasks within each column
