@@ -110,8 +110,8 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
       {...attributes}
       {...listeners}
       className={`cursor-pointer bg-[#2a2a2a] hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 group card-hover ${
-        isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg z-50' : 'hover:-translate-y-0.5 hover:border-primary/30'
-      } ${isOver ? 'ring-2 ring-primary/50 bg-primary/10' : ''}`}
+        isDragging ? 'opacity-60 rotate-1 scale-102 shadow-lg z-50' : 'hover:-translate-y-0.5 hover:border-primary/30'
+      }`}
       onClick={() => onTaskClick(task)}
     >
       <CardContent className="p-3 md:p-4 touch-manipulation">
@@ -240,8 +240,8 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
 
   return (
     <Card 
-      className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-300 kanban-column ${
-        isOver ? 'ring-2 ring-primary ring-offset-2 bg-primary/10 shadow-lg md:scale-[1.02]' : ''
+      className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-200 kanban-column ${
+        isOver ? 'ring-1 ring-primary/30 bg-primary/5 shadow-md' : ''
       } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}
     >
       <CardHeader 
@@ -253,9 +253,9 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
           <span className="text-white/50 text-xs font-normal">({tasks.length})</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className={`space-y-2 md:space-y-3 min-h-[200px] md:min-h-[400px] p-3 md:p-4 relative transition-all duration-300 ${
-        isOver ? 'bg-primary/10 ring-2 ring-primary/40 ring-inset' : ''
-      } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}>
+      <CardContent className={`space-y-2 md:space-y-3 min-h-[200px] md:min-h-[400px] p-3 md:p-4 relative transition-all duration-200 ${
+        dragOverColumnId === column.key ? 'bg-primary/5' : ''
+      }`}>
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task, index) => {
             const isHoveringAbove = activeTaskId && dragOverTaskId === task.id;
@@ -272,20 +272,14 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
             
             return (
               <div key={task.id} className="relative">
-                {/* Insertion placeholder - shows when dragging over a position */}
+                {/* Simple drop zone indicator */}
                 {isHoveringAbove && (
-                  <div className="h-5 mb-3 bg-gradient-to-r from-primary/20 to-primary/40 border-2 border-dashed border-primary rounded-lg flex items-center justify-center transition-all duration-300 ease-out scale-105 shadow-lg animate-pulse">
-                    <div className="text-xs text-primary font-bold">
-                      ⬇ Drop here ⬇
-                    </div>
-                  </div>
+                  <div className="h-2 mb-2 bg-primary/40 rounded-sm transition-all duration-150"></div>
                 )}
                 
-                <div className={`transition-all duration-300 ease-out ${
-                  shouldPushDown ? 'translate-y-6 opacity-90' : ''
-                } ${isHoveringAbove ? 'translate-y-1 opacity-95' : ''} ${
-                  activeTaskId === task.id ? 'opacity-40 scale-95' : ''
-                }`}>
+                <div className={`transition-all duration-150 ease-out ${
+                  shouldPushDown ? 'translate-y-4' : ''
+                } ${activeTaskId === task.id ? 'opacity-50' : ''}`}>
                   <SortableTaskCard
                     task={task}
                     onTaskClick={onTaskClick}
@@ -300,33 +294,24 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
           
           {/* Bottom drop zone for empty space at end of column */}
           {activeTaskId && isOver && dragOverColumnId === column.key && !dragOverTaskId && (
-            <div className="h-5 bg-gradient-to-r from-primary/20 to-primary/40 border-2 border-dashed border-primary rounded-lg flex items-center justify-center transition-all duration-300 ease-out scale-105 shadow-lg animate-pulse">
-              <div className="text-xs text-primary font-bold">
-                ⬇ Drop at end ⬇
-              </div>
-            </div>
+            <div className="h-2 bg-primary/40 rounded-sm transition-all duration-150"></div>
           )}
         </SortableContext>
         
         {/* Drop zone indicator for empty columns */}
         {tasks.length === 0 && (
           <div className={`absolute inset-0 flex items-center justify-center text-muted-foreground transition-all duration-200 ${
-            isOver ? 'text-primary bg-primary/10 border-2 border-dashed border-primary rounded-lg' : 'border-2 border-dashed border-transparent'
+            isOver ? 'border-2 border-dashed border-primary/50 rounded-lg bg-primary/5' : 'border-2 border-dashed border-transparent'
           }`}>
             <div className="text-center">
-              <div className="text-2xl mb-2">⬇</div>
-              <p className="text-sm font-medium">Drop tasks here</p>
+              <p className="text-sm font-medium opacity-70">Drop tasks here</p>
             </div>
           </div>
         )}
         
-        {/* Drop zone indicator for populated columns */}
+        {/* Subtle column highlight when dragging over */}
         {tasks.length > 0 && isOver && (
-          <div className="absolute inset-0 bg-primary/5 border-2 border-dashed border-primary rounded-lg pointer-events-none transition-all duration-200">
-            <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-medium">
-              Drop here
-            </div>
-          </div>
+          <div className="absolute inset-0 bg-primary/5 rounded-lg pointer-events-none transition-all duration-200"></div>
         )}
       </CardContent>
     </Card>

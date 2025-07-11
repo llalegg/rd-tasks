@@ -126,6 +126,9 @@ Changelog:
 - July 10, 2025. Replaced status buttons with elegant dropdown selects in Task Modal and Task Panel
 - July 10, 2025. Enhanced status dropdowns with icons, loading states, and better visual feedback
 - July 10, 2025. Completed comprehensive mobile optimization with responsive layout and touch interactions
+- July 11, 2025. Simplified drag-and-drop experience with clean Trello-style interactions
+- July 11, 2025. Removed flashy placeholders and implemented subtle visual feedback
+- July 11, 2025. Enhanced card shifting behavior with smooth animations and predictable drop positioning
 ```
 
 ## User Preferences

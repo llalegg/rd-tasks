@@ -1,0 +1,58 @@
+# Fix Drag-and-Drop Experience in Kanban – Simplify and Improve Placement Behavior
+
+The current drag-and-drop interaction is too complex and not behaving as expected. Here's what I need you to fix immediately:
+
+## What's Wrong Now:
+
+1. **Overuse of placeholders and visual noise**
+   - "⬇ Drop here ⬇" messages and pulsing effects are distracting
+   - Placeholder appears even when not useful (e.g. dragging over non-drop areas)
+
+2. **Unrealistic column feedback**
+   - Highlighted borders and corner badges add noise but don’t help me predict actual drop position
+
+3. **Cards don’t shift smoothly**
+   - When dragging over a populated column, existing tasks should **shift down** to make room
+   - Currently, the placeholder exists **between** cards, but cards don’t animate away properly
+
+---
+
+## What I Want Instead:
+
+### 1. Smooth Card Shifting (Like Trello/Jira)
+- When I drag a task into a column:
+  - Other tasks should **move downward** to make space
+  - The space where the task will land should be **clearly visible**
+  - Do NOT show big messages like "Drop here" — just use spacing and animation
+
+### 2. Remove Flashy Placeholders
+- Get rid of pulsing arrows, glowing messages, and overly styled overlays
+- Drop target should be **simple and obvious**:
+  - Empty column? Show just a dashed border
+  - Hovering over middle of a column? Push tasks to show spacing
+  - Don't show large labels unless absolutely necessary
+
+### 3. Clean Column Hover Feedback
+- Highlight the column **lightly**, not with heavy color or dashed outlines
+- You may use a subtle background or box shadow on hover
+
+---
+
+## Technical Instructions:
+
+- Use `react-beautiful-dnd` or `@dnd-kit/sortable` with proper vertical sorting
+- Animate spacing using CSS transition (e.g., `transition-all`, `duration-150`)
+- When hovering between two tasks, the placeholder should push the cards and indicate drop location
+- Don’t allow overlapping visual layers like blue rings, glowing icons, etc.
+
+---
+
+## Summary:
+
+Clean up the drag interaction so it behaves like Trello or Jira:
+- Tasks shift down in real time
+- Drop position is visible through spacing, not labels
+- Reduce animation noise
+- Show only subtle visual hints
+
+Do not come back with flashy UI. Just make it **functional, simple, and predictable**.
