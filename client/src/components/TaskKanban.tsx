@@ -177,7 +177,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
         
 
         
-        <div className="space-y-2">
+        <div className="space-y-2 relative">
           <div className="flex items-center text-xs text-muted-foreground">
             <Tag className="w-3 h-3 mr-1" />
             {formatTaskType(task.type)}
@@ -185,35 +185,46 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
           
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {assignee && (
-                <UserAvatar
-                  userId={assignee.id}
-                  name={assignee.name}
-                  size="xs"
-                />
+              {/* Related Athletes */}
+              {relatedAthletes.length > 0 && (
+                <div className="flex items-center space-x-1">
+                  <Users className="w-3 h-3 text-muted-foreground" />
+                  <div className="flex -space-x-1">
+                    {relatedAthletes.length === 1 ? (
+                      <UserAvatar
+                        key={relatedAthletes[0]!.id}
+                        userId={relatedAthletes[0]!.id}
+                        name={relatedAthletes[0]!.name}
+                        size="xs"
+                      />
+                    ) : (
+                      <>
+                        <UserAvatar
+                          key={relatedAthletes[0]!.id}
+                          userId={relatedAthletes[0]!.id}
+                          name={relatedAthletes[0]!.name}
+                          size="xs"
+                        />
+                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium border-2 border-white/20">
+                          +{relatedAthletes.length - 1}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
             <DeadlineBadge deadline={task.deadline} className="text-xs" />
           </div>
           
-          {relatedAthletes.length > 0 && (
-            <div className="flex items-center space-x-1">
-              <Users className="w-3 h-3 text-muted-foreground" />
-              <div className="flex -space-x-1">
-                {relatedAthletes.slice(0, 3).map((athlete, index) => (
-                  <UserAvatar
-                    key={athlete!.id}
-                    userId={athlete!.id}
-                    name={athlete!.name}
-                    size="xs"
-                  />
-                ))}
-                {relatedAthletes.length > 3 && (
-                  <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium border-2 border-white/20">
-                    +{relatedAthletes.length - 3}
-                  </div>
-                )}
-              </div>
+          {/* Assignee Avatar - Bottom Right Corner */}
+          {assignee && (
+            <div className="absolute bottom-0 right-0">
+              <UserAvatar
+                userId={assignee.id}
+                name={assignee.name}
+                size="xs"
+              />
             </div>
           )}
         </div>
@@ -521,17 +532,48 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
           {activeTask ? (
             <Card className="cursor-grabbing border-none shadow-2xl rotate-3 scale-110 opacity-95" style={{ borderRadius: 'var(--rounded-16-card)', background: 'var(--background-01)' }}>
               <CardContent className="p-4">
-                <div className="space-y-3">
+                <div className="space-y-2 relative">
                   <div className="flex items-start justify-between">
                     <h3 className="font-medium text-sm leading-tight pr-2 text-white">{activeTask.name}</h3>
                     <PriorityIcon priority={activeTask.priority} size="sm" />
                   </div>
                   
-                  <div className="flex flex-wrap gap-1">
-                    <Badge variant="outline" className="text-xs px-2 py-0.5 border-white/20 text-white/80">
-                      {formatTaskType(activeTask.type)}
-                    </Badge>
+                  <div className="flex items-center text-xs text-white/80">
+                    <Tag className="w-3 h-3 mr-1" />
+                    {formatTaskType(activeTask.type)}
                   </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {/* Related Athletes for drag overlay */}
+                      {activeTask.relatedAthletes && activeTask.relatedAthletes.length > 0 && (
+                        <div className="flex items-center space-x-1">
+                          <Users className="w-3 h-3 text-white/60" />
+                          <div className="flex -space-x-1">
+                            {activeTask.relatedAthletes.length === 1 ? (
+                              <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-medium border-2 border-white/20">
+                                1
+                              </div>
+                            ) : (
+                              <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-medium border-2 border-white/20">
+                                +{activeTask.relatedAthletes.length}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <DeadlineBadge deadline={activeTask.deadline} className="text-xs" />
+                  </div>
+                  
+                  {/* Assignee Avatar - Bottom Right Corner for drag overlay */}
+                  {activeTask.assignee && (
+                    <div className="absolute bottom-0 right-0">
+                      <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-medium border-2 border-white/20">
+                        {activeTask.assignee.charAt(0)}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
