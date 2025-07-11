@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Task } from "@shared/schema";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, Filter, List, Columns, Edit, X } from "lucide-react";
@@ -308,33 +309,33 @@ export default function TaskManager() {
 
       {/* Task Detail Panel */}
       {selectedTask && (
-        <div className="fixed top-0 right-0 w-full md:w-[500px] h-full bg-background border-l border-border z-40 flex flex-col">
+        <div className="fixed top-0 right-0 w-full md:w-[500px] h-full bg-[#1C1C1B] border-l border-[#292928] z-40 flex flex-col">
           {/* Panel Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${getStatusColor(selectedTask.status)}`} />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {getStatusLabel(selectedTask.status)}
-              </span>
+          <div className="flex items-center justify-between p-6 border-b border-[#292928]">
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold text-white pr-8">{selectedTask.name}</h2>
+              <Badge variant="outline" className="w-fit mt-2">
+                {formatTaskType(selectedTask.type)}
+              </Badge>
+              <div className="mt-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleEditTask(selectedTask)}
+                  className="h-8 px-3 text-xs"
+                >
+                  Edit
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleEditTask(selectedTask)}
-                className="h-7 w-7 p-0"
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedTask(null)}
-                className="h-7 w-7 p-0"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedTask(null)}
+              className="h-8 w-8 p-0 rounded-[9999px] hover:bg-accent hover:text-accent-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Panel Content */}
