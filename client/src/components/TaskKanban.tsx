@@ -241,20 +241,17 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
     <Card 
       className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit ${
         isOver || dragOverColumnId === column.key ? column.solidColor : column.color
-      } border-none transition-all duration-200 kanban-column ${
-        isOver || dragOverColumnId === column.key ? 'ring-2 ring-white/50 shadow-lg' : ''
-      }`}
+      } border-none transition-all duration-200 kanban-column`}
     >
       <CardHeader 
         className="pb-2 md:pb-3 px-3 pt-3"
-        ref={setNodeRef}
       >
         <CardTitle className="text-white text-sm md:text-sm font-medium flex items-center gap-2">
           <span className="text-white/90">{column.title}</span>
           <span className="text-white/50 text-xs font-normal">({tasks.length})</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2 md:space-y-3 min-h-[200px] md:min-h-[400px] p-2 relative transition-all duration-200">
+      <CardContent className="space-y-2 md:space-y-3 min-h-[200px] md:min-h-[400px] p-2 relative transition-all duration-200" ref={setNodeRef}>
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task, index) => {
             const isHoveringAbove = activeTaskId && dragOverTaskId === task.id;
@@ -306,16 +303,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
           </div>
         )}
         
-        {/* Enhanced drop zone visual feedback */}
-        {activeTaskId && (isOver || dragOverColumnId === column.key) && (
-          <div className="absolute inset-0 bg-white/5 rounded-lg pointer-events-none transition-all duration-200">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white/10 rounded-lg px-3 py-2 border border-white/20 backdrop-blur-sm">
-                <p className="text-white text-sm font-medium">Drop here</p>
-              </div>
-            </div>
-          </div>
-        )}
+
         
         {/* Add task button at bottom left */}
         <div className="absolute bottom-3 left-3">
