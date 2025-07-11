@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal, Edit, Trash2, Circle, Clock, AlertCircle, CheckCircle } from "lucide-react";
 import { DotsThreeVertical, PencilSimple, Trash } from "@phosphor-icons/react";
+import MoreDotsIcon from "./MoreDotsIcon";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
@@ -110,7 +111,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
 
   return (
     <div className="w-full h-[calc(100vh-160px)]">
-      <div className="h-full overflow-x-auto overflow-y-auto">
+      <div className="h-full overflow-x-auto overflow-y-auto min-w-[800px]">
         <Table className="w-full table-fixed">
           <TableHeader className="sticky top-0 z-10 bg-background">
             <TableRow className="border-b border-border">
@@ -123,7 +124,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('priority')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-1/4 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
+                <TableHead className="min-w-[240px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
@@ -174,7 +175,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('status')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-16 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">Actions</TableHead>
+                <TableHead className="w-16"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -199,9 +200,9 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                       {task.name}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-xs bg-transparent border-[#494947] text-[#979795] rounded-md">
+                      <span className="text-[#979795] font-montserrat text-[12px] font-medium leading-[132%]">
                         {formatTaskType(task.type)}
-                      </Badge>
+                      </span>
                     </TableCell>
                     <TableCell>
                       <DeadlineBadge deadline={task.deadline} />
@@ -255,7 +256,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                             <span className="sr-only">Open menu</span>
-                            <DotsThreeVertical className="h-4 w-4" />
+                            <MoreDotsIcon className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-[#292928]">
