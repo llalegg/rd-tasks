@@ -237,7 +237,7 @@ export default function TaskManager() {
                       <Columns className="w-4 h-4" />
                     </Button>
                   </div>
-                  <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
+                  <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
                     <Plus className="w-4 h-4" style={{ marginRight: '8px' }} />
                     Add Task
                   </Button>
@@ -246,7 +246,7 @@ export default function TaskManager() {
               
               {/* Mobile Add Button */}
               <div className="md:hidden w-full">
-                <Button onClick={handleCreateTask} className="w-full flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
+                <Button onClick={handleCreateTask} className="w-full flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
                   <Plus className="w-4 h-4" style={{ marginRight: '8px' }} />
                   Add Task
                 </Button>
