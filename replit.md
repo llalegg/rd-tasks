@@ -199,6 +199,7 @@ Changelog:
 - July 11, 2025. Reverted Task Detail Panel to original layout with status indicator and standard background
 - July 11, 2025. Added formatTaskType function to TaskManager component to fix missing function error
 - July 11, 2025. Removed status indicator from Task Detail Panel header and removed border outline from top bar
+- July 11, 2025. Made Task Detail Panel header transparent and changed panel background to #1C1C1B with #292928 border
 ```
 
 ## User Preferences
