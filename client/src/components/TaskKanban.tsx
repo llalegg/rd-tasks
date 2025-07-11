@@ -179,7 +179,6 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
         
         <div className="space-y-2 relative">
           <div className="flex items-center text-xs text-muted-foreground">
-            <Tag className="w-3 h-3 mr-1" />
             {formatTaskType(task.type)}
           </div>
           
@@ -539,7 +538,6 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                   </div>
                   
                   <div className="flex items-center text-xs text-white/80">
-                    <Tag className="w-3 h-3 mr-1" />
                     {formatTaskType(activeTask.type)}
                   </div>
                   
