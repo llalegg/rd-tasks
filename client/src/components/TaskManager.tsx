@@ -199,7 +199,7 @@ export default function TaskManager() {
                     placeholder="Search tasks..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 text-sm"
+                    className="pl-10 text-sm h-8 px-3 py-2 rounded-lg bg-[#292928] border-[#292928] flex-1"
                   />
                 </div>
                 <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium">
