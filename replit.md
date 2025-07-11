@@ -167,6 +167,11 @@ Changelog:
 - July 11, 2025. Updated drag overlay to match new card layout structure for consistency
 - July 11, 2025. Simplified actions dropdown menu to show only Edit and Delete options without icons
 - July 11, 2025. Added white outline on hover for better visual feedback using CSS outline properties
+- July 11, 2025. Implemented modal window for task details in Kanban board (centered dialog with scroll area)
+- July 11, 2025. Created shared TaskDetails component for common task information display across views
+- July 11, 2025. Unified task details layout between modal (Kanban) and sidebar (List) views with consistent data presentation
+- July 11, 2025. Enhanced task details with proper status dropdowns, priority badges, and visual grouping sections
+- July 11, 2025. Improved modal styling with custom background color (#1C1C1B) and proper spacing for optimal readability
 ```
 
 ## User Preferences

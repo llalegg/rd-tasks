@@ -3,13 +3,16 @@ import { mockUsers, mockAthletes } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2, CheckCircle, Clock, AlertCircle, Circle, Plus } from "lucide-react";
+import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2, CheckCircle, Clock, AlertCircle, Circle, Plus, X } from "lucide-react";
 import { DotsThreeVertical, PencilSimple, Trash } from "@phosphor-icons/react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
 import PriorityIcon from "./PriorityIcon";
+import TaskDetails from "./TaskDetails";
 import {
   DndContext,
   DragEndEvent,
@@ -325,8 +328,25 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('priority');
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedTask(null);
+  };
+
+  const handleEditTask = (task: Task) => {
+    handleModalClose();
+    onEditTask?.(task);
+  };
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -491,7 +511,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                 key={column.key}
                 column={column}
                 tasks={sortedTasks}
-                onTaskClick={onTaskClick}
+                onTaskClick={handleTaskClick}
                 onEditTask={onEditTask}
                 onDeleteTask={onDeleteTask}
                 onStatusChange={onTaskStatusChange}
@@ -563,6 +583,36 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      {/* Task Details Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-[#1C1C1B] border-none">
+          <DialogHeader className="p-6 pb-4">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-lg font-semibold">Task Details</DialogTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleModalClose}
+                className="h-8 w-8 p-0 hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </DialogHeader>
+          <ScrollArea className="flex-1 px-6 pb-6">
+            {selectedTask && (
+              <TaskDetails
+                task={selectedTask}
+                onStatusUpdate={onTaskStatusChange!}
+                onEdit={handleEditTask}
+                showEditButton={true}
+                layout="modal"
+              />
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
