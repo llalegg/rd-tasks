@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Filter, List, Columns, Edit, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Search, Filter, List, Columns, Edit, X, ChevronDown, Check } from "lucide-react";
 import TaskList from "./TaskList";
 import TaskKanban from "./TaskKanban";
 import TaskForm from "./TaskForm";
@@ -22,6 +24,7 @@ export default function TaskManager() {
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('deadline');
+  const [statusFilters, setStatusFilters] = useState<Task['status'][]>([]);
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -49,11 +52,13 @@ export default function TaskManager() {
     queryFn: () => fetch('/api/athletes').then(res => res.json()),
   });
 
-  // Filter and sort tasks based on search query and sort option
-  const filteredTasks = tasks.filter(task => 
-    task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    task.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  ).sort((a, b) => {
+  // Filter and sort tasks based on search query, status filters, and sort option
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilters.length === 0 || statusFilters.includes(task.status);
+    return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
     if (sortBy === 'priority') {
       const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
       return priorityOrder[b.priority] - priorityOrder[a.priority];
@@ -170,13 +175,27 @@ export default function TaskManager() {
 
   const getStatusLabel = (status: Task['status']) => {
     switch (status) {
-      case 'new': return 'New';
+      case 'new': return 'To-Do';
       case 'in_progress': return 'In Progress';
-      case 'blocked': return 'Blocked';
+      case 'blocked': return 'Pending';
       case 'completed': return 'Completed';
       default: return status;
     }
   };
+
+  const handleStatusFilterChange = (status: Task['status'], checked: boolean) => {
+    if (checked) {
+      setStatusFilters(prev => [...prev, status]);
+    } else {
+      setStatusFilters(prev => prev.filter(s => s !== status));
+    }
+  };
+
+  const clearStatusFilters = () => {
+    setStatusFilters([]);
+  };
+
+  const statusOptions: Task['status'][] = ['new', 'in_progress', 'blocked', 'completed'];
 
   return (
     <div className="min-h-screen bg-background flex md:ml-[80px] pb-[64px] md:pb-0">
@@ -242,11 +261,53 @@ export default function TaskManager() {
                   </Select>
                 )}
 
-                {/* Filters Button */}
-                <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
-                  <Filter className="w-4 h-4" style={{ marginRight: '6px' }} />
-                  <span className="hidden sm:inline">Filters</span>
-                </Button>
+                {/* Status Filter */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
+                      <Filter className="w-4 h-4" style={{ marginRight: '6px' }} />
+                      <span className="hidden sm:inline">
+                        {statusFilters.length > 0 ? `Status (${statusFilters.length})` : 'Status'}
+                      </span>
+                      <ChevronDown className="w-3 h-3 ml-1" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-3 bg-[#292928] border-[#3D3D3C]" align="end">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-medium text-[#F7F6F2]">Filter by Status</h4>
+                        {statusFilters.length > 0 && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={clearStatusFilters}
+                            className="h-6 px-2 text-[10px] text-[#979795] hover:text-[#F7F6F2]"
+                          >
+                            Clear
+                          </Button>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {statusOptions.map((status) => (
+                          <div key={status} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`status-${status}`}
+                              checked={statusFilters.includes(status)}
+                              onCheckedChange={(checked) => handleStatusFilterChange(status, checked === true)}
+                              className="border-[#585856] data-[state=checked]:bg-[#E5E4E1] data-[state=checked]:border-[#E5E4E1]"
+                            />
+                            <label
+                              htmlFor={`status-${status}`}
+                              className="text-sm text-[#F7F6F2] cursor-pointer"
+                            >
+                              {getStatusLabel(status)}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
                 {/* Desktop View Toggle and Add Button */}
                 <div className="hidden md:flex items-center space-x-3">
