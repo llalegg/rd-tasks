@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2, CheckCircle, Clock, AlertCircle, Circle } from "lucide-react";
+import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2, CheckCircle, Clock, AlertCircle, Circle, Plus } from "lucide-react";
 import { DotsThreeVertical, PencilSimple, Trash } from "@phosphor-icons/react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DeadlineBadge from "./DeadlineBadge";
@@ -38,6 +38,7 @@ interface TaskKanbanProps {
   onTaskReorder?: (reorderedTasks: Task[]) => void;
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (taskId: string) => void;
+  onCreateTask?: (status: Task['status']) => void;
 }
 
 // Sortable Task Card Component
@@ -229,12 +230,13 @@ interface DroppableColumnProps {
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (taskId: string) => void;
   onStatusChange?: (taskId: string, newStatus: Task['status']) => void;
+  onCreateTask?: (status: Task['status']) => void;
   activeTaskId?: string | null;
   dragOverTaskId?: string | null;
   dragOverColumnId?: string | null;
 }
 
-function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask, onStatusChange, activeTaskId, dragOverTaskId, dragOverColumnId }: DroppableColumnProps) {
+function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask, onStatusChange, onCreateTask, activeTaskId, dragOverTaskId, dragOverColumnId }: DroppableColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.key,
   });
@@ -314,12 +316,24 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
         {tasks.length > 0 && isOver && (
           <div className="absolute inset-0 bg-primary/5 rounded-lg pointer-events-none transition-all duration-200"></div>
         )}
+        
+        {/* Add task button at bottom left */}
+        <div className="absolute bottom-3 left-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onCreateTask?.(column.key as Task['status'])}
+            className="h-8 w-8 p-0 text-white/50 hover:text-white hover:bg-white/10 rounded-[9999px] transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onTaskReorder, onEditTask, onDeleteTask }: TaskKanbanProps) {
+export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onTaskReorder, onEditTask, onDeleteTask, onCreateTask }: TaskKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
@@ -493,6 +507,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
                 onEditTask={onEditTask}
                 onDeleteTask={onDeleteTask}
                 onStatusChange={onTaskStatusChange}
+                onCreateTask={onCreateTask}
                 activeTaskId={activeId}
                 dragOverTaskId={dragOverTaskId}
                 dragOverColumnId={dragOverColumnId}

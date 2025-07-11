@@ -109,6 +109,12 @@ export default function TaskManager() {
     setIsFormOpen(true);
   };
 
+  const handleCreateTaskWithStatus = (status: Task['status']) => {
+    setFormMode('create');
+    setSelectedTask({ status } as Task);
+    setIsFormOpen(true);
+  };
+
   const handleEditTask = (task: Task) => {
     setFormMode('edit');
     setSelectedTask(task);
@@ -123,7 +129,7 @@ export default function TaskManager() {
     if (formMode === 'create') {
       createTaskMutation.mutate({
         ...taskData,
-        status: 'new' as Task['status'],
+        status: selectedTask?.status || 'new' as Task['status'],
         creatorId: '1', // Default creator ID
       });
     } else if (formMode === 'edit' && selectedTask) {
@@ -265,6 +271,7 @@ export default function TaskManager() {
               onTaskStatusChange={handleStatusUpdate}
               onEditTask={handleEditTask}
               onDeleteTask={handleDeleteTask}
+              onCreateTask={handleCreateTaskWithStatus}
             />
           )}
         </main>
