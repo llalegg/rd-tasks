@@ -202,14 +202,14 @@ export default function TaskManager() {
                 <div className="flex p-0 items-center gap-[10px] flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
                   <Input
-                    placeholder="Search tasks..."
+                    placeholder="Search tasks"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 text-sm h-8 px-3 py-2 rounded-lg bg-[#292928] border-[#292928] flex-1"
                   />
                 </div>
                 <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium">
-                  <Filter className="w-4 h-4 mr-2" />
+                  <Filter className="w-4 h-4" style={{ marginRight: '8px' }} />
                   <span className="hidden sm:inline">Filters</span>
                 </Button>
               </div>
@@ -234,16 +234,16 @@ export default function TaskManager() {
                     <Columns className="w-4 h-4" />
                   </Button>
                 </div>
-                <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center gap-2 rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
-                  <Plus className="w-4 h-4" />
+                <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
+                  <Plus className="w-4 h-4" style={{ marginRight: '8px' }} />
                   Add Task
                 </Button>
               </div>
               
               {/* Mobile Add Button */}
               <div className="md:hidden w-full">
-                <Button onClick={handleCreateTask} className="w-full flex h-8 px-3 py-2 justify-center items-center gap-2 rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
-                  <Plus className="w-4 h-4" />
+                <Button onClick={handleCreateTask} className="w-full flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] text-[14px] font-semibold">
+                  <Plus className="w-4 h-4" style={{ marginRight: '8px' }} />
                   Add Task
                 </Button>
               </div>
