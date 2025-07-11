@@ -16,20 +16,48 @@ export default function DeadlineBadge({ deadline, className = "" }: DeadlineBadg
   const getCustomStyle = () => {
     switch (badgeInfo.color) {
       case 'red':
-        return 'bg-red-600 hover:bg-red-700 text-white border-red-600';
+        return {
+          style: {
+            display: 'flex',
+            padding: 'var(--2) var(--8-tags)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 'var(--4-icon-text)',
+            borderRadius: 'var(--rounded-full-button)',
+            background: 'var(--fill-badge-red-muted)',
+            color: 'var(--text-error-default)',
+            textAlign: 'center' as const,
+            fontFamily: 'Montserrat',
+            fontSize: '12px',
+            fontStyle: 'normal',
+            fontWeight: '500',
+            lineHeight: '132%',
+            border: 'none'
+          },
+          className: ''
+        };
       case 'yellow':
-        return 'bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600';
+        return {
+          style: {},
+          className: 'bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600'
+        };
       case 'green':
-        return 'bg-green-600 hover:bg-green-700 text-white border-green-600';
+        return {
+          style: {},
+          className: 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+        };
       default:
-        return '';
+        return { style: {}, className: '' };
     }
   };
+
+  const customStyle = getCustomStyle();
 
   return (
     <Badge 
       variant={badgeInfo.variant}
-      className={`${getCustomStyle()} ${className}`}
+      className={`${customStyle.className} ${className}`}
+      style={customStyle.style}
       title={deadline ? new Date(deadline).toLocaleDateString('en-US', { 
         weekday: 'long',
         year: 'numeric', 

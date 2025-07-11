@@ -64,6 +64,12 @@
   --rounded-12-dropdown: 12px;
   --gray-400: #3D3D3C;
   --background-03-dropdown: #292928;
+  --2: 2px;
+  --8-tags: 8px;
+  --4-icon-text: 4px;
+  --rounded-full-button: 9999px;
+  --fill-badge-red-muted: #321A1A;
+  --text-error-default: #F87171;
 }
 
 .dark {

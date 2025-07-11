@@ -154,6 +154,7 @@ Changelog:
 - July 11, 2025. Made avatars smaller (xs size) on Kanban cards and added semitransparent white borders to all avatars
 - July 11, 2025. Restructured header layout to group search input and filters on the right with view toggle and add task button
 - July 11, 2025. Updated Add Task button font size to 12px and adjusted search input padding for 6px spacing between icon and text
+- July 11, 2025. Updated red deadline badge styling with custom background (#321A1A), text color (#F87171), and Montserrat typography
 ```
 
 ## User Preferences
