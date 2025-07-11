@@ -108,10 +108,14 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
   return (
     <Card 
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        borderRadius: 'var(--rounded-16-card)',
+        background: 'var(--background-01)',
+      }}
       {...attributes}
       {...listeners}
-      className={`cursor-pointer bg-[#2a2a2a] hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 group card-hover ${
+      className={`cursor-pointer hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 group card-hover ${
         isDragging ? 'opacity-60 rotate-1 scale-102 shadow-lg z-50' : 'hover:-translate-y-0.5 hover:border-primary/30'
       }`}
       onClick={() => onTaskClick(task)}
@@ -521,7 +525,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
           easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
         }}>
           {activeTask ? (
-            <Card className="cursor-grabbing bg-[#2a2a2a] border-none shadow-2xl rotate-3 scale-110 opacity-95">
+            <Card className="cursor-grabbing border-none shadow-2xl rotate-3 scale-110 opacity-95" style={{ borderRadius: 'var(--rounded-16-card)', background: 'var(--background-01)' }}>
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">

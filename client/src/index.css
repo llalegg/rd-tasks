@@ -57,6 +57,8 @@
   --destructive-foreground: hsl(0, 0%, 100%);
   --ring: hsl(0, 0%, 80%);
   --radius: 0.5rem;
+  --rounded-16-card: 16px;
+  --background-01: #171716;
 }
 
 .dark {
