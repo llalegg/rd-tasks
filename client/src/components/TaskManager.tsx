@@ -207,7 +207,8 @@ export default function TaskManager() {
                     placeholder="Search tasks"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 text-sm h-8 px-3 py-2 rounded-lg bg-[#292928] border-[#292928] w-full"
+                    className="text-sm h-8 px-3 py-2 rounded-lg bg-[#292928] border-[#292928] w-full"
+                    style={{ paddingLeft: '22px' }}
                   />
                 </div>
                 
