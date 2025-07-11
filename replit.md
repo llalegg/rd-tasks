@@ -198,6 +198,7 @@ Changelog:
 - July 11, 2025. Updated TaskSidebar header to exactly match modal header with task name, type badge, and edit button
 - July 11, 2025. Reverted Task Detail Panel to original layout with status indicator and standard background
 - July 11, 2025. Added formatTaskType function to TaskManager component to fix missing function error
+- July 11, 2025. Removed status indicator from Task Detail Panel header and removed border outline from top bar
 ```
 
 ## User Preferences

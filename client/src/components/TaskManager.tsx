@@ -317,13 +317,7 @@ export default function TaskManager() {
       {selectedTask && (
         <div className="fixed top-0 right-0 w-full md:w-[500px] h-full bg-background border-l border-border z-40 flex flex-col">
           {/* Panel Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${getStatusColor(selectedTask.status)}`} />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {getStatusLabel(selectedTask.status)}
-              </span>
-            </div>
+          <div className="flex items-center justify-end p-4 bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
