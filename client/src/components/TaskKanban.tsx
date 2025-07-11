@@ -243,7 +243,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
 
   return (
     <Card 
-      className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit bg-[#1c1c1c] border-none transition-all duration-200 kanban-column ${
+      className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit ${column.color} border-none transition-all duration-200 kanban-column ${
         isOver ? 'ring-1 ring-primary/30 bg-primary/5 shadow-md' : ''
       } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}
     >
@@ -351,10 +351,10 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   );
 
   const columns = [
-    { key: 'new', title: 'New', color: 'bg-transparent' },
-    { key: 'in_progress', title: 'In Progress', color: 'bg-transparent' },
-    { key: 'blocked', title: 'Blocked', color: 'bg-transparent' },
-    { key: 'completed', title: 'Completed', color: 'bg-transparent' }
+    { key: 'new', title: 'To-Do', color: 'bg-[#31180F]' },
+    { key: 'in_progress', title: 'In Progress', color: 'bg-[#162949]' },
+    { key: 'blocked', title: 'Pending', color: 'bg-[#302608]' },
+    { key: 'completed', title: 'Completed', color: 'bg-[#072A15]' }
   ];
 
   // Sort tasks within each column

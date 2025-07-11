@@ -146,6 +146,7 @@ Changelog:
 - July 11, 2025. Modified Assignee and Related Athletes columns to display avatars only without text labels
 - July 11, 2025. Added ghost buttons to bottom left of each Kanban column for quick task creation with pre-selected status
 - July 11, 2025. Updated table height to use full page height with proper padding for better space utilization
+- July 11, 2025. Applied custom column colors to Kanban board: To-Do (#31180F), In Progress (#162949), Pending (#302608), Completed (#072A15)
 ```
 
 ## User Preferences
