@@ -239,9 +239,11 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
 
   return (
     <Card 
-      className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit ${column.color} border-none transition-all duration-200 kanban-column ${
-        isOver ? 'ring-1 ring-primary/30 bg-primary/5 shadow-md' : ''
-      } ${dragOverColumnId === column.key ? 'bg-primary/5' : ''}`}
+      className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit ${
+        isOver || dragOverColumnId === column.key ? column.solidColor : column.color
+      } border-none transition-all duration-200 kanban-column ${
+        isOver || dragOverColumnId === column.key ? 'ring-2 ring-white/50 shadow-lg' : ''
+      }`}
     >
       <CardHeader 
         className="pb-2 md:pb-3 px-3 pt-3"
@@ -297,8 +299,8 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
         
         {/* Drop zone indicator for empty columns */}
         {tasks.length === 0 && (
-          <div className={`absolute inset-0 flex items-center justify-center text-muted-foreground transition-all duration-200 ${
-            isOver ? 'border-2 border-dashed border-primary/50 rounded-lg bg-primary/5' : 'border-2 border-dashed border-transparent'
+          <div className={`absolute inset-0 flex items-center justify-center text-white/60 transition-all duration-200 ${
+            isOver || dragOverColumnId === column.key ? 'border-2 border-dashed border-white/50 rounded-lg' : 'border-2 border-dashed border-transparent'
           }`}>
             <div className="text-center">
               <p className="text-sm font-medium opacity-70">Drop tasks here</p>
@@ -306,9 +308,15 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
           </div>
         )}
         
-        {/* Subtle column highlight when dragging over */}
-        {tasks.length > 0 && isOver && (
-          <div className="absolute inset-0 bg-primary/5 rounded-lg pointer-events-none transition-all duration-200"></div>
+        {/* Enhanced drop zone visual feedback */}
+        {activeTaskId && (isOver || dragOverColumnId === column.key) && (
+          <div className="absolute inset-0 bg-white/5 rounded-lg pointer-events-none transition-all duration-200 border-2 border-dashed border-white/30">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-white/10 rounded-lg px-3 py-2 border border-white/20 backdrop-blur-sm">
+                <p className="text-white text-sm font-medium">Drop here</p>
+              </div>
+            </div>
+          </div>
         )}
         
         {/* Add task button at bottom left */}
@@ -345,10 +353,10 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   );
 
   const columns = [
-    { key: 'new', title: 'To-Do', color: 'bg-[#31180FA3]' },
-    { key: 'in_progress', title: 'In Progress', color: 'bg-[#162949A3]' },
-    { key: 'blocked', title: 'Pending', color: 'bg-[#302608A3]' },
-    { key: 'completed', title: 'Completed', color: 'bg-[#072A15A3]' }
+    { key: 'new', title: 'To-Do', color: 'bg-[#31180FA3]', solidColor: 'bg-[#31180F]' },
+    { key: 'in_progress', title: 'In Progress', color: 'bg-[#162949A3]', solidColor: 'bg-[#162949]' },
+    { key: 'blocked', title: 'Pending', color: 'bg-[#302608A3]', solidColor: 'bg-[#302608]' },
+    { key: 'completed', title: 'Completed', color: 'bg-[#072A15A3]', solidColor: 'bg-[#072A15]' }
   ];
 
   // Sort tasks within each column
