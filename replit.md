@@ -206,6 +206,7 @@ Changelog:
 - July 11, 2025. Added more diverse random profile images for athletes and users
 - July 11, 2025. Made top navigation bar responsive to shrink when task panel is open (500px margin)
 - July 11, 2025. Removed all console.log statements from TaskManager and TaskKanban components
+- July 11, 2025. Updated MinimalSidebar to use custom logo image instead of SVG
 ```
 
 ## User Preferences
