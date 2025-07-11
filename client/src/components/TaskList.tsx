@@ -109,8 +109,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
   });
 
   return (
-    <div className="w-full">
-      <div className="overflow-x-auto max-h-[calc(100vh-200px)] overflow-y-auto">
+    <div className="w-full h-[calc(100vh-160px)]">
+      <div className="h-full overflow-x-auto overflow-y-auto">
         <Table className="w-full table-fixed">
           <TableHeader className="sticky top-0 z-10 bg-background">
             <TableRow className="border-b border-border">

@@ -144,6 +144,8 @@ Changelog:
 - July 11, 2025. Updated table headers with proper typography (Montserrat, 12px, medium weight, #BCBBB7 color)
 - July 11, 2025. Refined Add Task button styling with proper dimensions and gap spacing
 - July 11, 2025. Modified Assignee and Related Athletes columns to display avatars only without text labels
+- July 11, 2025. Added ghost buttons to bottom left of each Kanban column for quick task creation with pre-selected status
+- July 11, 2025. Updated table height to use full page height with proper padding for better space utilization
 ```
 
 ## User Preferences
