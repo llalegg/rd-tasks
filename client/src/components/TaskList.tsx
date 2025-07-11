@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal, Edit, Trash2, Circle, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { DotsThreeVertical, PencilSimple, Trash } from "@phosphor-icons/react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
@@ -111,10 +112,10 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
     <Card className="w-full">
       <CardContent className="p-0">
         <div className="overflow-x-auto">
-          <Table className="w-full">
+          <Table className="w-full rounded-t-2xl">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12 text-center">
+                <TableHead className="w-12 text-center bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent first:rounded-tl-2xl">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium" 
@@ -123,7 +124,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('priority')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[200px]">
+                <TableHead className="min-w-[200px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium" 
@@ -133,7 +134,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('name')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[180px]">
+                <TableHead className="min-w-[180px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium" 
@@ -143,7 +144,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('type')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[120px]">
+                <TableHead className="min-w-[120px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium" 
@@ -153,7 +154,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('deadline')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[80px]">
+                <TableHead className="min-w-[80px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium" 
@@ -163,8 +164,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('assignee')}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[120px]">Related Athletes</TableHead>
-                <TableHead className="min-w-[120px]">
+                <TableHead className="min-w-[120px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">Related Athletes</TableHead>
+                <TableHead className="min-w-[120px] bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium" 
@@ -174,7 +175,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('status')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-16">Actions</TableHead>
+                <TableHead className="w-16 bg-[#1C1C1B] text-[12px] font-medium text-[#979795] hover:bg-transparent last:rounded-tr-2xl">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -189,17 +190,17 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                 return (
                   <TableRow 
                     key={task.id} 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    className="cursor-pointer h-[48px] bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors border-b-2 border-[#0D0D0C]"
                     onClick={() => onTaskClick(task)}
                   >
                     <TableCell className="text-center">
                       <PriorityIcon priority={task.priority} />
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-bold text-[#F7F6F2]">
                       {task.name}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs bg-transparent border-[#494947] text-[#979795] rounded-md">
                         {formatTaskType(task.type)}
                       </Badge>
                     </TableCell>
@@ -208,32 +209,27 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     </TableCell>
                     <TableCell>
                       {assignee ? (
-                        <UserAvatar
-                          userId={assignee.id}
-                          name={assignee.name}
-                          size="sm"
-                        />
+                        <div className="flex items-center gap-2">
+                          <UserAvatar
+                            userId={assignee.id}
+                            name={assignee.name}
+                            size="sm"
+                          />
+                          <span className="text-sm text-[#979795]">{assignee.name}</span>
+                        </div>
                       ) : (
-                        <span className="text-muted-foreground text-xs">Unassigned</span>
+                        <span className="text-[#979795] text-xs">Unassigned</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex -space-x-1">
-                        {relatedAthletes.slice(0, 3).map((athlete, index) => (
-                          <UserAvatar
-                            key={athlete!.id}
-                            userId={athlete!.id}
-                            name={athlete!.name}
-                            size="sm"
-                          />
+                      <div className="flex flex-wrap gap-1">
+                        {relatedAthletes.map((athlete) => (
+                          <Badge key={athlete.id} variant="outline" className="text-xs bg-transparent border-[#494947] text-[#979795] rounded-full">
+                            {athlete.name}
+                          </Badge>
                         ))}
-                        {relatedAthletes.length > 3 && (
-                          <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
-                            +{relatedAthletes.length - 3}
-                          </div>
-                        )}
                         {relatedAthletes.length === 0 && (
-                          <span className="text-muted-foreground text-xs">None</span>
+                          <span className="text-[#979795] text-xs">None</span>
                         )}
                       </div>
                     </TableCell>
@@ -253,12 +249,12 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <DotsThreeVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -266,14 +262,14 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                             e.stopPropagation();
                             onEditTask?.(task);
                           }}>
-                            <Edit className="mr-2 h-4 w-4" />
+                            <PencilSimple className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={(e) => {
                             e.stopPropagation();
                             onDeleteTask?.(task.id);
                           }}>
-                            <Trash2 className="mr-2 h-4 w-4" />
+                            <Trash className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>

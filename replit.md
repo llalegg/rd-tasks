@@ -129,6 +129,9 @@ Changelog:
 - July 11, 2025. Simplified drag-and-drop experience with clean Trello-style interactions
 - July 11, 2025. Removed flashy placeholders and implemented subtle visual feedback
 - July 11, 2025. Enhanced card shifting behavior with smooth animations and predictable drop positioning
+- July 11, 2025. Applied professional dark theme table styling to List View with consistent colors and typography
+- July 11, 2025. Implemented Phosphor Icons for dropdown actions and improved badge styling with transparent backgrounds
+- July 11, 2025. Enhanced table accessibility with proper hover states and visual hierarchy using specific color values
 ```
 
 ## User Preferences
