@@ -193,8 +193,8 @@ export default function TaskManager() {
               
               {/* Search and Controls */}
               <div className="flex items-center space-x-2 md:space-x-3 flex-1 w-full md:max-w-2xl">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <div className="flex p-0 items-center gap-[10px] flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
                   <Input
                     placeholder="Search tasks..."
                     value={searchQuery}
