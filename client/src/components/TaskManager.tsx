@@ -232,12 +232,12 @@ export default function TaskManager() {
                 {/* Sort Dropdown - Only show in Kanban view */}
                 {currentView === 'kanban' && (
                   <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline') => setSortBy(value)}>
-                    <SelectTrigger className="w-32 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px]">
+                    <SelectTrigger className="w-36 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px] text-left">
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#292928] border-none">
-                      <SelectItem value="priority" className="text-[12px] hover:bg-muted/50">Sort by priority</SelectItem>
-                      <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50">Sort by deadline</SelectItem>
+                      <SelectItem value="priority" className="text-[12px] hover:bg-muted/50 text-left">Sort by priority</SelectItem>
+                      <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50 text-left">Sort by deadline</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
