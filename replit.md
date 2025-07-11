@@ -135,6 +135,10 @@ Changelog:
 - July 11, 2025. Applied consistent button styling system across all components with proper variants and typography
 - July 11, 2025. Implemented pill-shaped buttons (rounded-[9999px]) with Montserrat font and proper sizing
 - July 11, 2025. Updated button colors to match design system: primary (#E5E4E1), secondary (#292928), tertiary, and ghost variants
+- July 11, 2025. Updated sidebar to highlight "To-Do's" as selected menu item and removed "Athlete View" option
+- July 11, 2025. Cleaned up table styling by removing header backgrounds and outer borders for minimalist appearance
+- July 11, 2025. Made top navigation bar fixed position with matching background color
+- July 11, 2025. Applied full rounded corners (pill-shaped) to all form inputs and dropdown selects for design consistency
 ```
 
 ## User Preferences
