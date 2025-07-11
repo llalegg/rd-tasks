@@ -199,6 +199,8 @@ Changelog:
 - July 11, 2025. Updated Task Detail Panel header to remove status indicator and move edit button under task type as secondary button
 - July 11, 2025. Changed Task Detail Panel background to #1C1C1B with #292928 border to match modal styling
 - July 11, 2025. Added formatTaskType function to TaskManager component to fix missing function error
+- July 11, 2025. Removed Task Title section from TaskDetails component (title/badge/edit button now only in panel header)
+- July 11, 2025. Positioned close button at top right corner of Task Detail Panel with absolute positioning
 ```
 
 ## User Preferences
