@@ -586,21 +586,8 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
 
       {/* Task Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-[#1C1C1B] border-none">
-          <DialogHeader className="p-6 pb-4">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-lg font-semibold">Task Details</DialogTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleModalClose}
-                className="h-8 w-8 p-0 hover:bg-muted"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </DialogHeader>
-          <ScrollArea className="flex-1 px-6 pb-6">
+        <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-[#1C1C1B] border-none overflow-hidden">
+          <ScrollArea className="max-h-[90vh] p-4">
             {selectedTask && (
               <TaskDetails
                 task={selectedTask}

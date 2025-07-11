@@ -111,7 +111,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
   };
 
   const titleSize = layout === 'modal' ? 'text-xl' : 'text-base';
-  const spacing = layout === 'modal' ? 'space-y-6' : 'space-y-4';
+  const spacing = layout === 'modal' ? 'space-y-4' : 'space-y-4';
 
   return (
     <div className={spacing}>
@@ -146,8 +146,8 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
       {/* Description */}
       {task.description && (
-        <div className="bg-muted/50 p-3 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-muted/50 p-2 rounded-lg">
+          <div className="flex items-center gap-2 mb-1">
             <FileText className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium text-muted-foreground">Description</span>
           </div>
@@ -158,8 +158,8 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       )}
 
       {/* Status Section */}
-      <div className="bg-muted/50 p-3 rounded-lg">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="bg-muted/50 p-2 rounded-lg">
+        <div className="flex items-center gap-2 mb-1">
           <Target className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium text-muted-foreground">Status</span>
         </div>
@@ -213,14 +213,13 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       </div>
 
       {/* Priority and Deadline */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-muted/50 p-3 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-muted/50 p-2 rounded-lg">
+          <div className="flex items-center gap-2 mb-1">
             <PriorityIcon priority={task.priority} size="sm" />
             <span className="text-sm font-medium text-muted-foreground">Priority</span>
           </div>
           <div className="flex items-center gap-2">
-            <PriorityIcon priority={task.priority} size="sm" />
             <Badge 
               variant="outline" 
               className={`${getPriorityBadge(task.priority).color} text-xs font-medium w-fit`}
@@ -230,8 +229,8 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
           </div>
         </div>
 
-        <div className="bg-muted/50 p-3 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-muted/50 p-2 rounded-lg">
+          <div className="flex items-center gap-2 mb-1">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium text-muted-foreground">Deadline</span>
           </div>
@@ -258,8 +257,8 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       </div>
 
       {/* Assignee */}
-      <div className="bg-muted/50 p-3 rounded-lg">
-        <div className="flex items-center gap-2 mb-2">
+      <div className="bg-muted/50 p-2 rounded-lg">
+        <div className="flex items-center gap-2 mb-1">
           <UserIcon className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium text-muted-foreground">Assignee</span>
         </div>
@@ -275,8 +274,8 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
       {/* Related Athletes */}
       {relatedAthletes.length > 0 && (
-        <div className="bg-muted/50 p-3 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-muted/50 p-2 rounded-lg">
+          <div className="flex items-center gap-2 mb-1">
             <Target className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium text-muted-foreground">Related Athletes</span>
           </div>
@@ -291,8 +290,8 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
       )}
 
       {/* Creator */}
-      <div className="bg-muted/50 p-3 rounded-lg">
-        <div className="flex items-center gap-2 mb-2">
+      <div className="bg-muted/50 p-2 rounded-lg">
+        <div className="flex items-center gap-2 mb-1">
           <UserIcon className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium text-muted-foreground">Created by</span>
         </div>
@@ -309,6 +308,38 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
         ) : (
           <span className="text-xs text-muted-foreground">Unknown</span>
         )}
+      </div>
+
+      {/* Change History */}
+      <div className="bg-muted/50 p-2 rounded-lg">
+        <div className="flex items-center gap-2 mb-1">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">Activity History</span>
+        </div>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-xs">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-muted-foreground">Task created</span>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-muted-foreground">{formatDate(task.createdAt)}</span>
+          </div>
+          {task.updatedAt && task.updatedAt !== task.createdAt && (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-muted-foreground">Task updated</span>
+              <span className="text-muted-foreground">•</span>
+              <span className="text-muted-foreground">{formatDate(task.updatedAt)}</span>
+            </div>
+          )}
+          {task.status === 'completed' && (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-muted-foreground">Task completed</span>
+              <span className="text-muted-foreground">•</span>
+              <span className="text-muted-foreground">{formatDate(task.updatedAt || task.createdAt)}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
