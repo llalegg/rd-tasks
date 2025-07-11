@@ -299,9 +299,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
         
         {/* Drop zone indicator for empty columns */}
         {tasks.length === 0 && (
-          <div className={`absolute inset-0 flex items-center justify-center text-white/60 transition-all duration-200 ${
-            isOver || dragOverColumnId === column.key ? 'border-2 border-dashed border-white/50 rounded-lg' : 'border-2 border-dashed border-transparent'
-          }`}>
+          <div className="absolute inset-0 flex items-center justify-center text-white/60 transition-all duration-200">
             <div className="text-center">
               <p className="text-sm font-medium opacity-70">Drop tasks here</p>
             </div>
@@ -310,7 +308,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
         
         {/* Enhanced drop zone visual feedback */}
         {activeTaskId && (isOver || dragOverColumnId === column.key) && (
-          <div className="absolute inset-0 bg-white/5 rounded-lg pointer-events-none transition-all duration-200 border-2 border-dashed border-white/30">
+          <div className="absolute inset-0 bg-white/5 rounded-lg pointer-events-none transition-all duration-200">
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-white/10 rounded-lg px-3 py-2 border border-white/20 backdrop-blur-sm">
                 <p className="text-white text-sm font-medium">Drop here</p>
