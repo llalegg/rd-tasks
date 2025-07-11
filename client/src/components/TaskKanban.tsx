@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2, CheckCircle, Clock, AlertCircle, Circle } from "lucide-react";
+import { DotsThreeVertical, PencilSimple, Trash } from "@phosphor-icons/react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
