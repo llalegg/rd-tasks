@@ -159,6 +159,9 @@ Changelog:
 - July 11, 2025. Changed green badge to grey badge with transparent background, backdrop blur, and secondary text color (#979795)
 - July 11, 2025. Made all badges hugged by width (fit-content) instead of filling available space for better visual balance
 - July 11, 2025. Updated all buttons to have consistent 6px spacing between icons and text labels
+- July 11, 2025. Updated table rows to 48px height and added colored priority icons (red for high, yellow for medium, grey for low)
+- July 11, 2025. Adjusted priority icon and task name spacing, updated dropdown menus with #292928 background
+- July 11, 2025. Made status select dropdown with transparent black background (25% opacity) and no borders
 ```
 
 ## User Preferences

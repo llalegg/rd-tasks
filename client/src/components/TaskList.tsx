@@ -192,10 +192,10 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     className="cursor-pointer h-[48px] bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors border-b-2 border-[#0D0D0C]"
                     onClick={() => onTaskClick(task)}
                   >
-                    <TableCell className="text-center">
+                    <TableCell className="text-center w-12">
                       <PriorityIcon priority={task.priority} />
                     </TableCell>
-                    <TableCell className="overflow-hidden text-ellipsis text-[#F7F6F2] font-montserrat text-[14px] font-medium leading-[146%]">
+                    <TableCell className="overflow-hidden text-ellipsis text-[#F7F6F2] font-montserrat text-[14px] font-medium leading-[146%] pl-2">
                       {task.name}
                     </TableCell>
                     <TableCell>
@@ -239,10 +239,10 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                         value={task.status}
                         onValueChange={(value) => onStatusUpdate?.(task.id, value as Task['status'])}
                       >
-                        <SelectTrigger className="w-32">
+                        <SelectTrigger className="w-32 bg-[rgba(0,0,0,0.25)] border-none">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-[#292928]">
                           <SelectItem value="new">New</SelectItem>
                           <SelectItem value="in_progress">In Progress</SelectItem>
                           <SelectItem value="blocked">Blocked</SelectItem>
@@ -258,7 +258,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                             <DotsThreeVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="bg-[#292928]">
                           <DropdownMenuItem onClick={(e) => {
                             e.stopPropagation();
                             onEditTask?.(task);
