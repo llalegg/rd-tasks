@@ -32,7 +32,8 @@ export default function DeadlineBadge({ deadline, className = "" }: DeadlineBadg
             fontStyle: 'normal',
             fontWeight: '500',
             lineHeight: '132%',
-            border: 'none'
+            border: 'none',
+            width: 'fit-content'
           },
           className: ''
         };
@@ -53,7 +54,8 @@ export default function DeadlineBadge({ deadline, className = "" }: DeadlineBadg
             fontStyle: 'normal',
             fontWeight: '500',
             lineHeight: '132%',
-            border: 'none'
+            border: 'none',
+            width: 'fit-content'
           },
           className: ''
         };
@@ -75,7 +77,8 @@ export default function DeadlineBadge({ deadline, className = "" }: DeadlineBadg
             fontStyle: 'normal',
             fontWeight: '500',
             lineHeight: '132%',
-            border: 'none'
+            border: 'none',
+            width: 'fit-content'
           },
           className: ''
         };
