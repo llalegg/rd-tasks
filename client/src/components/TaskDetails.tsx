@@ -115,26 +115,6 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
   return (
     <div className={spacing}>
-      {/* Task Title */}
-      <div className="flex-1 min-w-0">
-        <h1 className={`${titleSize} font-semibold mb-2 pr-4`}>{task.name}</h1>
-        <Badge variant="outline" className="mb-2 text-xs">
-          {formatTaskType(task.type)}
-        </Badge>
-        {showEditButton && onEdit && (
-          <div className="mt-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onEdit(task)}
-              className="h-8 px-3 text-xs"
-            >
-              Edit
-            </Button>
-          </div>
-        )}
-      </div>
-
       {/* Description */}
       {task.description && (
         <div className="bg-muted/50 p-2 rounded-lg">
