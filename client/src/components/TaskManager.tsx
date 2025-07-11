@@ -162,7 +162,7 @@ export default function TaskManager() {
         selectedTask ? 'md:pr-[500px]' : ''
       }`}>
         {/* Header */}
-        <header className="bg-background/95 backdrop-blur-sm sticky top-0 z-40">
+        <header className="bg-background fixed top-0 left-0 right-0 z-40 md:ml-[80px]">
           <div className="w-full px-3 md:px-5">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-3 md:py-0 md:h-16 gap-3 md:gap-4">
               <div className="flex items-center justify-between w-full md:w-auto">
@@ -245,7 +245,7 @@ export default function TaskManager() {
           </div>
         </header>
         {/* Main Content */}
-        <main className="w-full px-3 md:px-5 py-4 md:py-8">
+        <main className="w-full px-3 md:px-5 py-4 md:py-8 pt-20 md:pt-24">
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
