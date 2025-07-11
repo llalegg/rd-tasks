@@ -115,7 +115,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
       }}
       {...attributes}
       {...listeners}
-      className={`cursor-pointer hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 hover:border-white hover:border-2 transition-all duration-200 group card-hover ${
+      className={`cursor-pointer hover:bg-[#333333] border-none shadow-sm hover:shadow-md hover:shadow-primary/20 hover:outline hover:outline-2 hover:outline-white hover:outline-offset-0 transition-all duration-200 group card-hover ${
         isDragging ? 'opacity-60 rotate-1 scale-102 shadow-lg z-50' : 'hover:-translate-y-0.5'
       }`}
       onClick={() => onTaskClick(task)}
@@ -141,32 +141,13 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
                   e.stopPropagation();
                   onEditTask?.(task);
                 }}>
-                  <PencilSimple className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {['new', 'in_progress', 'blocked', 'completed'].map((status) => {
-                  const StatusIcon = getStatusIcon(status as Task['status']);
-                  return (
-                    <DropdownMenuItem 
-                      key={status}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStatusChange?.(task.id, status as Task['status']);
-                      }}
-                      className={task.status === status ? 'bg-primary/20' : ''}
-                    >
-                      <StatusIcon className="mr-2 h-4 w-4" />
-                      {getStatusLabel(status as Task['status'])}
-                    </DropdownMenuItem>
-                  );
-                })}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={(e) => {
                   e.stopPropagation();
                   onDeleteTask?.(task.id);
                 }}>
-                  <Trash className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

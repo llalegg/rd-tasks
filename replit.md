@@ -165,6 +165,8 @@ Changelog:
 - July 11, 2025. Enhanced Kanban card interactions with white border on hover and actions menu visibility toggle
 - July 11, 2025. Restructured card layout: priority icon and deadline moved to same line with related athletes
 - July 11, 2025. Updated drag overlay to match new card layout structure for consistency
+- July 11, 2025. Simplified actions dropdown menu to show only Edit and Delete options without icons
+- July 11, 2025. Added white outline on hover for better visual feedback using CSS outline properties
 ```
 
 ## User Preferences
