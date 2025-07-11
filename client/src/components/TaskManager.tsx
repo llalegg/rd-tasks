@@ -261,7 +261,8 @@ export default function TaskManager() {
                   </Select>
                 )}
 
-                {/* Status Filter */}
+                {/* Status Filter - Only show in List view */}
+                {currentView === 'list' && (
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
@@ -308,6 +309,7 @@ export default function TaskManager() {
                     </div>
                   </PopoverContent>
                 </Popover>
+                )}
 
                 {/* Desktop View Toggle and Add Button */}
                 <div className="hidden md:flex items-center space-x-3">
