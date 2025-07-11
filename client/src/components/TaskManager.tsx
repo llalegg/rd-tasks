@@ -29,7 +29,7 @@ export default function TaskManager() {
     queryFn: () => fetch('/api/tasks').then(res => res.json()),
   });
 
-  console.log('Tasks loading state:', { isLoading, tasksCount: tasks.length, error });
+
 
   const formatTaskType = (type: string) => {
     return type.split('.').map(part => 
@@ -69,13 +69,10 @@ export default function TaskManager() {
   // Update task status mutation
   const updateTaskMutation = useMutation({
     mutationFn: async ({ taskId, status }: { taskId: string; status: Task['status'] }) => {
-      console.log('updateTaskMutation called with:', { taskId, status });
-      const result = await apiRequest('PUT', `/api/tasks/${taskId}`, { status });
-      console.log('updateTaskMutation result:', result);
-      return result;
+      return await apiRequest('PUT', `/api/tasks/${taskId}`, { status });
     },
     onSuccess: () => {
-      console.log('updateTaskMutation success - invalidating queries');
+
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
       toast({
         title: "Success",
@@ -83,7 +80,7 @@ export default function TaskManager() {
       });
     },
     onError: (error) => {
-      console.error('updateTaskMutation error:', error);
+
       toast({
         title: "Error",
         description: "Failed to update task status",
@@ -119,7 +116,7 @@ export default function TaskManager() {
   };
 
   const handleStatusUpdate = (taskId: string, newStatus: Task['status']) => {
-    console.log('TaskManager handleStatusUpdate called:', { taskId, newStatus });
+
     updateTaskMutation.mutate({ taskId, status: newStatus });
   };
 
@@ -188,7 +185,7 @@ export default function TaskManager() {
         selectedTask ? 'md:pr-[500px]' : ''
       }`}>
         {/* Header */}
-        <header className="bg-background fixed top-0 left-0 right-0 z-40 md:ml-[80px]">
+        <header className={`bg-background fixed top-0 left-0 z-40 md:ml-[80px] transition-all duration-300 ${selectedTask ? 'right-[500px]' : 'right-0'}`}>
           <div className="w-full px-3 md:px-5">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-3 md:py-0 md:h-16 gap-3 md:gap-4">
               {/* Left Side - Title */}

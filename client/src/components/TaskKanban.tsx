@@ -380,7 +380,7 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
   };
 
   const handleDragStart = (event: DragStartEvent) => {
-    console.log('Drag start:', event.active.id);
+
     setActiveId(event.active.id as string);
   };
 
@@ -441,17 +441,16 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
     const draggedTask = tasks.find(task => task.id === activeId);
     if (!draggedTask) return;
 
-    console.log('Drag end:', { activeId, overId, draggedTaskStatus: draggedTask.status });
+
 
     // Check if we're dropping over a column
     const columnStatuses = columns.map(col => col.key);
-    console.log('Column statuses:', columnStatuses);
+
     
     if (columnStatuses.includes(overId)) {
       // Dropping over a column - change status
       if (overId !== draggedTask.status) {
-        console.log('Changing status from', draggedTask.status, 'to', overId);
-        console.log('onTaskStatusChange function exists:', !!onTaskStatusChange);
+
         if (onTaskStatusChange) {
           onTaskStatusChange(activeId, overId as Task['status']);
         }

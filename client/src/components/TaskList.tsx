@@ -155,7 +155,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('deadline')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-16 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
+                <TableHead className="w-24 overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
                     className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
