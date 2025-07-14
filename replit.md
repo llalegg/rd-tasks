@@ -145,6 +145,7 @@ Changelog:
 - July 14, 2025. Set default List view status filters to New, In Progress, and Pending (completed tasks filtered out)
 - July 14, 2025. Created 3 overdue tasks in New status with July 10th deadlines for testing
 - July 14, 2025. Fixed task assignment display by connecting TaskList and TaskKanban to real API data instead of mock data
+- July 14, 2025. Fixed z-index issues with user avatar tooltips/hover cards to ensure they appear above all other elements
 - July 11, 2025. Cleaned up table styling by removing header backgrounds and outer borders for minimalist appearance
 - July 11, 2025. Made top navigation bar fixed position with matching background color
 - July 11, 2025. Applied full rounded corners (pill-shaped) to all form inputs and dropdown selects for design consistency
