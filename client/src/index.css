@@ -82,6 +82,20 @@
   position: fixed !important;
 }
 
+/* Additional specificity for hover cards */
+[data-radix-popper-content-wrapper] {
+  z-index: 999999 !important;
+}
+
+/* Override any stacking contexts in kanban */
+.kanban-column * {
+  z-index: auto !important;
+}
+
+.kanban-column {
+  z-index: 1 !important;
+}
+
 /* Fix z-index issues with kanban columns */
 .kanban-column {
   position: relative;

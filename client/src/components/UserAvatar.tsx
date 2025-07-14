@@ -1,8 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { User, MapPin, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { User as UserType } from "@shared/schema";
+import { PortalTooltip } from "./PortalTooltip";
 
 interface UserAvatarProps {
   userId: string;
@@ -84,43 +83,8 @@ export default function UserAvatar({ userId, name, size = "sm", showTooltip = tr
   }
 
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
-        <div className="cursor-pointer relative z-[99999]">
-          {avatar}
-        </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-80 !z-[99999]" side="top" sticky="always">
-        <div className="flex justify-between space-x-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage 
-              src={getProfileImage(userId)} 
-              alt={displayName}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
-              {getInitials(displayName)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="space-y-1 flex-1">
-            <h4 className="text-sm font-semibold">{displayName}</h4>
-            <p className="text-sm text-muted-foreground flex items-center">
-              <User className="w-3 h-3 mr-1" />
-              {userRole}
-            </p>
-            <p className="text-sm text-muted-foreground flex items-center">
-              <MapPin className="w-3 h-3 mr-1" />
-              {userLocation}
-            </p>
-            <p className="text-xs text-muted-foreground flex items-center">
-              <Calendar className="w-3 h-3 mr-1" />
-              Team member since 2023
-            </p>
-          </div>
-        </div>
-      </HoverCardContent>
-    </HoverCard>
+    <PortalTooltip userId={userId} user={user} displayName={displayName}>
+      {avatar}
+    </PortalTooltip>
   );
 }
