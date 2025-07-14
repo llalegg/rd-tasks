@@ -56,7 +56,9 @@ export default function TaskManager() {
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilters.length === 0 || statusFilters.includes(task.status);
+    // In Kanban view, show all tasks regardless of status filter (columns represent status)
+    // In List view, apply status filter
+    const matchesStatus = currentView === 'kanban' || statusFilters.length === 0 || statusFilters.includes(task.status);
     return matchesSearch && matchesStatus;
   }).sort((a, b) => {
     if (sortBy === 'priority') {

@@ -141,6 +141,10 @@ Changelog:
 - July 14, 2025. Added multi-select status filter for List view (hidden in Kanban view since columns represent status)
 - July 14, 2025. Created comprehensive athlete database with 50 athletes and randomized related athlete assignments (0-3 per task)
 - July 14, 2025. Updated all task displays to show "Christopher Harris (Me)" for assigned tasks
+- July 14, 2025. Fixed status filtering logic - List view applies status filter, Kanban view shows all tasks in respective columns
+- July 14, 2025. Set default List view status filters to New, In Progress, and Pending (completed tasks filtered out)
+- July 14, 2025. Created 3 overdue tasks in New status with July 10th deadlines for testing
+- July 14, 2025. Fixed task assignment display by connecting TaskList and TaskKanban to real API data instead of mock data
 - July 11, 2025. Cleaned up table styling by removing header backgrounds and outer borders for minimalist appearance
 - July 11, 2025. Made top navigation bar fixed position with matching background color
 - July 11, 2025. Applied full rounded corners (pill-shaped) to all form inputs and dropdown selects for design consistency
