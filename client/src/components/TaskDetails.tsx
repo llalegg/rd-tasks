@@ -251,7 +251,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
         {assignee ? (
           <div className="flex items-center gap-2">
             <UserAvatar userId={assignee.id} name={assignee.name} size="sm" />
-            <span className="text-sm font-medium">{assignee.name}</span>
+            <span className="text-sm font-medium">{assignee.name === 'Christopher Harris' ? 'Christopher Harris (Me)' : assignee.name}</span>
           </div>
         ) : (
           <span className="text-xs text-muted-foreground">No assignee</span>

@@ -36,7 +36,8 @@ export default function UserAvatar({ userId, name, size = "sm", showTooltip = tr
   };
 
   // Use provided name or fallback to user data
-  const displayName = name || user?.name || 'Unknown User';
+  const rawDisplayName = name || user?.name || 'Unknown User';
+  const displayName = rawDisplayName === 'Christopher Harris' ? 'Christopher Harris (Me)' : rawDisplayName;
   const userRole = user?.role || 'Team Member';
   const userLocation = user?.location || 'Location not set';
 

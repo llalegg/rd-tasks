@@ -226,7 +226,7 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
                       {assignee ? (
                         <>
                           <UserAvatar userId={assignee.id} name={assignee.name} size="sm" />
-                          <span className="text-sm font-medium">{assignee.name}</span>
+                          <span className="text-sm font-medium">{assignee.name === 'Christopher Harris' ? 'Christopher Harris (Me)' : assignee.name}</span>
                         </>
                       ) : (
                         <span className="text-sm text-muted-foreground">Unassigned</span>
