@@ -86,11 +86,11 @@ export default function UserAvatar({ userId, name, size = "sm", showTooltip = tr
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <div className="cursor-pointer">
+        <div className="cursor-pointer relative z-[99999]">
           {avatar}
         </div>
       </HoverCardTrigger>
-      <HoverCardContent className="w-80" side="top">
+      <HoverCardContent className="w-80 !z-[99999]" side="top" sticky="always">
         <div className="flex justify-between space-x-4">
           <Avatar className="h-16 w-16">
             <AvatarImage 

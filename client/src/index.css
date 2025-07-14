@@ -73,6 +73,27 @@
   --text-error-default: #F87171;
   --fill-badge-yellow-muted: #302608;
   --yellow-500: #EAB308;
+}
+
+/* Ensure tooltips and hover cards always appear on top */
+[data-radix-hover-card-content],
+[data-radix-tooltip-content] {
+  z-index: 999999 !important;
+  position: fixed !important;
+}
+
+/* Fix z-index issues with kanban columns */
+.kanban-column {
+  position: relative;
+  z-index: 1;
+}
+
+.kanban-column .card {
+  position: relative;
+  z-index: 2;
+}
+
+:root {
   --alpha-2a-press-selected: rgba(255, 255, 255, 0.08);
   --text-base-secondary: #979795;
   --modal-background: #1C1C1B;
