@@ -24,7 +24,7 @@ export default function TaskManager() {
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('deadline');
-  const [statusFilters, setStatusFilters] = useState<Task['status'][]>([]);
+  const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'blocked']);
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({

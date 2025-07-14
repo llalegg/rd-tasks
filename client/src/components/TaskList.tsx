@@ -1,5 +1,5 @@
 import { Task } from "@shared/schema";
-import { mockUsers, mockAthletes } from "@/data/mockData";
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,6 +29,18 @@ type SortDirection = 'asc' | 'desc';
 export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTask, onDeleteTask }: TaskListProps) {
   const [sortField, setSortField] = useState<SortField>('deadline');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  // Fetch users from API
+  const { data: users = [] } = useQuery({
+    queryKey: ['/api/users'],
+    queryFn: () => fetch('/api/users').then(res => res.json()),
+  });
+
+  // Fetch athletes from API
+  const { data: athletes = [] } = useQuery({
+    queryKey: ['/api/athletes'],
+    queryFn: () => fetch('/api/athletes').then(res => res.json()),
+  });
 
   const formatTaskType = (type: string) => {
     return type.split('.').map(part => 
@@ -181,10 +193,10 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
             </TableHeader>
             <TableBody>
               {sortedTasks.map((task) => {
-                const assignee = mockUsers.find(u => u.id === task.assigneeId);
+                const assignee = users.find(u => u.id === task.assigneeId);
                 const relatedAthletes = task.relatedAthleteIds ? 
                   task.relatedAthleteIds.map(id => {
-                    const athlete = mockAthletes.find(a => a.id === id);
+                    const athlete = athletes.find(a => a.id === id);
                     return athlete ? { id: athlete.id, name: athlete.name } : null;
                   }).filter(Boolean) : [];
 

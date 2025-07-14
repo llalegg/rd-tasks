@@ -1,5 +1,5 @@
 import { Task } from "@shared/schema";
-import { mockUsers, mockAthletes } from "@/data/mockData";
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -70,15 +70,27 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
     },
   });
 
+  // Fetch users from API
+  const { data: users = [] } = useQuery({
+    queryKey: ['/api/users'],
+    queryFn: () => fetch('/api/users').then(res => res.json()),
+  });
+
+  // Fetch athletes from API
+  const { data: athletes = [] } = useQuery({
+    queryKey: ['/api/athletes'],
+    queryFn: () => fetch('/api/athletes').then(res => res.json()),
+  });
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: transition || 'transform 150ms cubic-bezier(0.25, 1, 0.5, 1)',
   };
 
-  const assignee = mockUsers.find(u => u.id === task.assigneeId);
+  const assignee = users.find(u => u.id === task.assigneeId);
   const relatedAthletes = task.relatedAthleteIds ? 
     task.relatedAthleteIds.map(id => {
-      const athlete = mockAthletes.find(a => a.id === id);
+      const athlete = athletes.find(a => a.id === id);
       return athlete ? { id: athlete.id, name: athlete.name } : null;
     }).filter(Boolean) : [];
 
