@@ -75,7 +75,7 @@ export function MinimalSidebar() {
       {/* User Profile - Hidden on mobile */}
       <div className="hidden md:flex flex-col justify-end items-center gap-2 mb-6">
         <div className="relative flex w-[40px] h-[40px] flex-col justify-center items-center rounded-[9999px] border border-[rgba(0,0,0,0.70)] bg-[#292928]">
-          <span className="text-[#979795] text-center text-xs font-medium leading-[132%] font-montserrat">JD</span>
+          <span className="text-[#979795] text-center text-xs font-medium leading-[132%] font-montserrat">CH</span>
           <div className="absolute left-[-2px] bottom-[-2px] flex w-4 h-4 p-[2.667px] justify-center items-center rounded-[9999px] border border-[#1C1C1B] bg-[#3D3D3C]">
             <div className="w-2 h-2 bg-[#979795] rounded-full"></div>
           </div>

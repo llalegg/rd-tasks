@@ -136,6 +136,11 @@ Changelog:
 - July 11, 2025. Implemented pill-shaped buttons (rounded-[9999px]) with Montserrat font and proper sizing
 - July 11, 2025. Updated button colors to match design system: primary (#E5E4E1), secondary (#292928), tertiary, and ghost variants
 - July 11, 2025. Updated sidebar to highlight "To-Do's" as selected menu item and removed "Athlete View" option
+- July 14, 2025. Updated database with 50 tasks from CSV file, assigned 35 tasks to Christopher Harris (Me)
+- July 14, 2025. Added Christopher Harris as new user and updated sidebar initials from "JD" to "CH"
+- July 14, 2025. Added multi-select status filter for List view (hidden in Kanban view since columns represent status)
+- July 14, 2025. Created comprehensive athlete database with 50 athletes and randomized related athlete assignments (0-3 per task)
+- July 14, 2025. Updated all task displays to show "Christopher Harris (Me)" for assigned tasks
 - July 11, 2025. Cleaned up table styling by removing header backgrounds and outer borders for minimalist appearance
 - July 11, 2025. Made top navigation bar fixed position with matching background color
 - July 11, 2025. Applied full rounded corners (pill-shaped) to all form inputs and dropdown selects for design consistency
