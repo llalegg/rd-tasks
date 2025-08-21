@@ -41,7 +41,6 @@ export const tasks = pgTable('tasks', {
   name: text('name').notNull(),
   type: taskTypeEnum('type').notNull(),
   description: text('description').notNull(),
-  comment: text('comment'),
   assigneeId: text('assignee_id').references(() => users.id).notNull(),
   creatorId: text('creator_id').references(() => users.id).notNull(),
   relatedAthleteIds: text('related_athlete_ids').array(),

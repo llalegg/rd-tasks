@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { X, Calendar, User as UserIcon, Users, Upload } from "lucide-react";
+import { X, Calendar, User as UserIcon, Users } from "lucide-react";
 
 interface TaskFormProps {
   task: Task | null;
@@ -25,7 +25,6 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    comment: '',
     type: '',
     assigneeId: '',
     deadline: '',
@@ -48,7 +47,6 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
       setFormData({
         name: task.name,
         description: task.description || '',
-        comment: task.comment || '',
         type: task.type,
         assigneeId: task.assigneeId,
         deadline: task.deadline ? task.deadline.toISOString().split('T')[0] : '',
@@ -58,7 +56,6 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
       setFormData({
         name: '',
         description: '',
-        comment: '',
         type: '',
         assigneeId: '',
         deadline: '',
@@ -193,19 +190,6 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="comment" className="text-sm font-medium">
-              Comment
-            </Label>
-            <Textarea
-              id="comment"
-              value={formData.comment}
-              onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
-              rows={2}
-              className="mt-1"
-              placeholder="Add any additional notes or comments..."
-            />
-          </div>
 
           <div>
             <Label className="text-sm font-medium">
@@ -254,16 +238,6 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
             </div>
           </div>
 
-          <div>
-            <Label className="text-sm font-medium">Attachments</Label>
-            <div className="mt-2 border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-              <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Drop files here or click to browse
-              </p>
-              <input type="file" multiple className="hidden" />
-            </div>
-          </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-border">
             <Button type="button" variant="outline" onClick={onClose} className="h-8 px-3 rounded-[9999px] bg-transparent border-[#F7F6F2] text-[#F7F6F2] hover:bg-[#1C1C1B] text-[14px] font-medium">
