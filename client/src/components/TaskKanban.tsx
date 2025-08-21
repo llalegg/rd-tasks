@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2, CheckCircle, Clock, AlertCircle, Circle, Plus, X } from "lucide-react";
+import { Calendar, Tag, User, Users, MoreHorizontal, Edit, Trash2, CheckCircle, Clock, AlertCircle, Plus, X } from "lucide-react";
 import { DotsThreeVertical, PencilSimple, Trash } from "@phosphor-icons/react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
-import PriorityIcon from "./PriorityIcon";
 import TaskDetails from "./TaskDetails";
 import {
   DndContext,
@@ -104,11 +103,11 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
 
   const getStatusIcon = (status: Task['status']) => {
     switch (status) {
-      case 'new': return Circle;
+      case 'new': return null;
       case 'in_progress': return Clock;
       case 'blocked': return AlertCircle;
       case 'completed': return CheckCircle;
-      default: return Circle;
+      default: return null;
     }
   };
 
@@ -141,7 +140,6 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-start gap-2 flex-1 pr-2">
             {/* Status Icon */}
-            {task.status === 'new' && <Circle className="w-3 h-3 text-blue-500 fill-current mt-0.5 flex-shrink-0" />}
             {task.status === 'in_progress' && <Clock className="w-3 h-3 text-yellow-500 fill-current mt-0.5 flex-shrink-0" />}
             {task.status === 'pending' && <AlertCircle className="w-3 h-3 text-orange-500 fill-current mt-0.5 flex-shrink-0" />}
             {task.status === 'completed' && <CheckCircle className="w-3 h-3 text-green-500 fill-current mt-0.5 flex-shrink-0" />}
@@ -189,7 +187,6 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               {/* Priority Icon */}
-              <PriorityIcon priority={task.priority} size="sm" />
               
               {/* Deadline next to Priority */}
               <DeadlineBadge deadline={task.deadline} className="text-xs" />
@@ -362,7 +359,7 @@ export default function TaskKanban({
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('priority');
+  const [sortBy, setSortBy] = useState<'deadline'>('deadline');
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -404,14 +401,9 @@ export default function TaskKanban({
   // Sort tasks within each column
   const sortTasks = (tasks: Task[]) => {
     return [...tasks].sort((a, b) => {
-      if (sortBy === 'priority') {
-        const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
-      } else {
-        const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
-        const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
-        return aDeadline - bDeadline;
-      }
+      const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+      const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+      return aDeadline - bDeadline;
     });
   };
 
@@ -566,7 +558,6 @@ export default function TaskKanban({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       {/* Priority Icon */}
-                      <PriorityIcon priority={activeTask.priority} size="sm" />
                       
                       {/* Deadline next to Priority */}
                       <DeadlineBadge deadline={activeTask.deadline} className="text-xs" />

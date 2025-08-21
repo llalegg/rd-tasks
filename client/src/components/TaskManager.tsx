@@ -23,12 +23,11 @@ export default function TaskManager() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('deadline');
+  const [sortBy, setSortBy] = useState<'deadline'>('deadline');
   const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'pending']);
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [creatorFilters, setCreatorFilters] = useState<string[]>([]);
   const [athleteFilters, setAthleteFilters] = useState<string[]>([]);
-  const [priorityFilters, setPriorityFilters] = useState<Task['priority'][]>([]);
   const [hideCompleted, setHideCompleted] = useState(true);
   const [visibleColumns, setVisibleColumns] = useState<Task['status'][]>(['new', 'in_progress', 'pending', 'completed']);
 
@@ -71,16 +70,13 @@ export default function TaskManager() {
     const matchesStatus = currentView === 'kanban' || statusFilters.length === 0 || statusFilters.includes(task.status);
     const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
     const matchesCreator = creatorFilters.length === 0 || creatorFilters.includes(task.creatorId);
-    const matchesPriority = priorityFilters.length === 0 || priorityFilters.includes(task.priority);
+    const matchesPriority = true;
     const matchesAthlete = athleteFilters.length === 0 || 
       (task.relatedAthleteIds && task.relatedAthleteIds.some(id => athleteFilters.includes(id)));
     
     return matchesSearch && matchesStatus && matchesType && matchesCreator && matchesPriority && matchesAthlete;
   }).sort((a, b) => {
-    if (sortBy === 'priority') {
-      const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
-      return priorityOrder[b.priority] - priorityOrder[a.priority];
-    } else if (sortBy === 'deadline') {
+    if (sortBy === 'deadline') {
       if (!a.deadline && !b.deadline) return 0;
       if (!a.deadline) return 1;
       if (!b.deadline) return -1;
@@ -277,12 +273,11 @@ export default function TaskManager() {
                     >
                       {hideCompleted ? 'Show' : 'Hide'} Completed
                     </Button>
-                    <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline') => setSortBy(value)}>
+                    <Select value={sortBy} onValueChange={(value: 'deadline') => setSortBy(value)}>
                       <SelectTrigger className="w-36 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px] text-left">
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#292928] border-none">
-                        <SelectItem value="priority" className="text-[12px] hover:bg-muted/50 text-left">Sort by priority</SelectItem>
                         <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50 text-left">Sort by deadline</SelectItem>
                       </SelectContent>
                     </Select>

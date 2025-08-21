@@ -8,11 +8,10 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, X, Check, Loader2, Calendar, User, Target, Clock, FileText, Circle, AlertCircle, CheckCircle, ChevronDown } from "lucide-react";
+import { Edit, X, Check, Loader2, Calendar, User, Target, Clock, FileText, AlertCircle, CheckCircle, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
-import PriorityIcon from "./PriorityIcon";
 import { useToast } from "@/hooks/use-toast";
 
 interface TaskModalProps {
@@ -52,22 +51,14 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
     });
   };
 
-  const getPriorityBadge = (priority: Task['priority']) => {
-    const configs = {
-      low: { color: 'bg-green-500/20 text-green-400 border-green-500/30', label: 'Low' },
-      medium: { color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', label: 'Medium' },
-      high: { color: 'bg-red-500/20 text-red-400 border-red-500/30', label: 'High' }
-    };
-    return configs[priority] || configs.medium;
-  };
 
   const getStatusIcon = (status: Task['status']) => {
     switch (status) {
-      case 'new': return Circle;
+      case 'new': return null;
       case 'in_progress': return Clock;
       case 'blocked': return AlertCircle;
       case 'completed': return CheckCircle;
-      default: return Circle;
+      default: return null;
     }
   };
 
@@ -107,7 +98,6 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
     }
   };
 
-  const priorityConfig = getPriorityBadge(task.priority);
 
   return (
     <TooltipProvider>
@@ -267,18 +257,12 @@ export default function TaskModal({ task, isOpen, onClose, onStatusUpdate, onEdi
                 <Separator />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Priority & Deadline Group */}
+                  {/* Deadline */}
                   <div>
                     <Label className="text-xs font-medium text-muted-foreground mb-2 block">
-                      Priority & Urgency
+                      Deadline
                     </Label>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <PriorityIcon priority={task.priority} size="sm" />
-                        <Badge className={`text-xs ${priorityConfig.color}`}>
-                          {priorityConfig.label} Priority
-                        </Badge>
-                      </div>
                       {task.deadline && (
                         <div className="flex items-center gap-2">
                           <Calendar className="h-3 w-3 text-muted-foreground" />

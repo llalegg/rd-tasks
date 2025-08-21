@@ -27,7 +27,6 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
     description: '',
     comment: '',
     type: '',
-    priority: 'medium',
     assigneeId: '',
     deadline: '',
     relatedAthleteIds: [] as string[]
@@ -51,7 +50,6 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
         description: task.description || '',
         comment: task.comment || '',
         type: task.type,
-        priority: task.priority,
         assigneeId: task.assigneeId,
         deadline: task.deadline ? task.deadline.toISOString().split('T')[0] : '',
         relatedAthleteIds: task.relatedAthleteIds || []
@@ -62,7 +60,6 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
         description: '',
         comment: '',
         type: '',
-        priority: 'medium',
         assigneeId: '',
         deadline: '',
         relatedAthleteIds: []
@@ -79,8 +76,7 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
     const submitData = {
       ...formData,
       deadline: formData.deadline ? new Date(formData.deadline) : null,
-      type: formData.type as any,
-      priority: formData.priority as any
+      type: formData.type as any
     };
     onSubmit(submitData);
   };
@@ -140,42 +136,23 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label className="text-sm font-medium">Type *</Label>
-              <Select 
-                value={formData.type} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select type..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {taskTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="text-sm font-medium">Priority *</Label>
-              <Select 
-                value={formData.priority} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select priority..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label className="text-sm font-medium">Type *</Label>
+            <Select 
+              value={formData.type} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select type..." />
+              </SelectTrigger>
+              <SelectContent>
+                {taskTypes.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Target, User as UserIcon, Calendar, Clock, FileText, Circle, AlertCircle, CheckCircle, Edit, Loader2 } from "lucide-react";
+import { Target, User as UserIcon, Calendar, Clock, FileText, AlertCircle, CheckCircle, Edit, Loader2 } from "lucide-react";
 import { useState } from "react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
-import PriorityIcon from "./PriorityIcon";
 import { useToast } from "@/hooks/use-toast";
 
 interface TaskDetailsProps {
@@ -57,14 +56,6 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
     });
   };
 
-  const getPriorityBadge = (priority: Task['priority']) => {
-    const configs = {
-      low: { color: 'bg-transparent backdrop-blur-sm text-secondary border-transparent', label: 'Low' },
-      medium: { color: 'bg-[#302608] text-[#EAB308] border-transparent', label: 'Medium' },
-      high: { color: 'bg-[#321A1A] text-[#F87171] border-transparent', label: 'High' }
-    };
-    return configs[priority] || configs.medium;
-  };
 
   const getStatusLabel = (status: Task['status']) => {
     switch (status) {
@@ -78,11 +69,11 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
   const getStatusIcon = (status: Task['status']) => {
     switch (status) {
-      case 'new': return Circle;
+      case 'new': return null;
       case 'in_progress': return Clock;
       case 'blocked': return AlertCircle;
       case 'completed': return CheckCircle;
-      default: return Circle;
+      default: return null;
     }
   };
 
@@ -201,26 +192,11 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
         </Select>
       </div>
 
-      {/* Priority and Deadline */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-muted/50 p-2 rounded-lg">
-          <div className="mb-1">
-            <span className="text-xs font-medium text-muted-foreground">Priority</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge 
-              variant="outline" 
-              className={`${getPriorityBadge(task.priority).color} text-xs font-medium w-fit`}
-            >
-              {getPriorityBadge(task.priority).label}
-            </Badge>
-          </div>
+      {/* Deadline */}
+      <div className="bg-muted/50 p-2 rounded-lg">
+        <div className="mb-1">
+          <span className="text-xs font-medium text-muted-foreground">Deadline</span>
         </div>
-
-        <div className="bg-muted/50 p-2 rounded-lg">
-          <div className="mb-1">
-            <span className="text-xs font-medium text-muted-foreground">Deadline</span>
-          </div>
           {task.deadline ? (
             <div className="flex items-center gap-2">
               <DeadlineBadge deadline={task.deadline} />
@@ -237,10 +213,9 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
                 </Tooltip>
               </TooltipProvider>
             </div>
-          ) : (
-            <span className="text-xs text-muted-foreground">No deadline set</span>
-          )}
-        </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">No deadline set</span>
+        )}
       </div>
 
       {/* Assignee */}

@@ -18,7 +18,6 @@ export const taskTypeEnum = pgEnum('task_type', [
   'assessment_review'
 ]);
 export const taskStatusEnum = pgEnum('task_status', ['new', 'in_progress', 'pending', 'completed']);
-export const taskPriorityEnum = pgEnum('task_priority', ['low', 'medium', 'high']);
 export const userRoleEnum = pgEnum('user_role', ['admin', 'coach', 'analyst', 'therapist', 'athlete', 'parent', 'staff']);
 
 // Tables
@@ -48,7 +47,6 @@ export const tasks = pgTable('tasks', {
   relatedAthleteIds: text('related_athlete_ids').array(),
   deadline: timestamp('deadline'),
   status: taskStatusEnum('status').notNull().default('new'),
-  priority: taskPriorityEnum('priority').notNull().default('medium'),
   historyLog: text('history_log').array().default([]),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

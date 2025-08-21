@@ -13,7 +13,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useState } from "react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
-import PriorityIcon from "./PriorityIcon";
 
 interface TaskListProps {
   tasks: Task[];
@@ -23,7 +22,7 @@ interface TaskListProps {
   onDeleteTask?: (taskId: string) => void;
 }
 
-type SortField = 'deadline' | 'type' | 'name' | 'assignee' | 'priority' | 'status';
+type SortField = 'deadline' | 'type' | 'name' | 'assignee' | 'status';
 type SortDirection = 'asc' | 'desc';
 
 export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTask, onDeleteTask }: TaskListProps) {
@@ -99,15 +98,10 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
         bValue = b.type.toLowerCase();
         break;
       case 'assignee':
-        const assigneeA = mockUsers.find(u => u.id === a.assigneeId)?.name || '';
-        const assigneeB = mockUsers.find(u => u.id === b.assigneeId)?.name || '';
+        const assigneeA = users.find(u => u.id === a.assigneeId)?.name || '';
+        const assigneeB = users.find(u => u.id === b.assigneeId)?.name || '';
         aValue = assigneeA.toLowerCase();
         bValue = assigneeB.toLowerCase();
-        break;
-      case 'priority':
-        const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
-        aValue = priorityOrder[a.priority];
-        bValue = priorityOrder[b.priority];
         break;
       case 'status':
         aValue = a.status.toLowerCase();
@@ -128,15 +122,6 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
         <Table className="w-full table-fixed">
           <TableHeader className="sticky top-0 z-10 bg-background">
             <TableRow className="border-b border-border">
-              <TableHead className="w-12 text-center overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
-                  <Button 
-                    variant="ghost" 
-                    className="h-auto p-0 font-medium hover:bg-accent hover:text-accent-foreground text-[12px]" 
-                    onClick={() => handleSort('priority')}
-                  >
-                    {getSortIcon('priority')}
-                  </Button>
-                </TableHead>
                 <TableHead className="min-w-[240px] overflow-hidden text-ellipsis text-[#BCBBB7] font-montserrat text-[12px] font-medium leading-[132%]">
                   <Button 
                     variant="ghost" 
@@ -206,20 +191,6 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     className="cursor-pointer h-[48px] bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors border-b-2 border-[#0D0D0C]"
                     onClick={() => onTaskClick(task)}
                   >
-                    <TableCell className="text-center w-12">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex justify-center">
-                              <PriorityIcon priority={task.priority} />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="capitalize">{task.priority}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
                     <TableCell className="overflow-hidden text-ellipsis text-[#F7F6F2] font-montserrat text-[14px] font-medium leading-[146%] pl-2">
                       {task.name}
                     </TableCell>
