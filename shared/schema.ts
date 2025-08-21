@@ -4,10 +4,22 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
 // Enums
-export const taskTypeEnum = pgEnum('task_type', ['training.strength', 'training.endurance', 'training.speed', 'recovery.massage', 'recovery.rest', 'competition.match', 'competition.tournament', 'analysis.performance', 'analysis.video']);
-export const taskStatusEnum = pgEnum('task_status', ['new', 'in_progress', 'blocked', 'completed']);
+export const taskTypeEnum = pgEnum('task_type', [
+  // Manual tasks (user-created)
+  'mechanical_analysis', 
+  'data_reporting', 
+  'injury', 
+  'general_to_do',
+  // Automatic tasks (system-generated)
+  'schedule_call_injury',
+  'schedule_call_onboarding',
+  'coach_assignment',
+  'create_program',
+  'assessment_review'
+]);
+export const taskStatusEnum = pgEnum('task_status', ['new', 'in_progress', 'pending', 'completed']);
 export const taskPriorityEnum = pgEnum('task_priority', ['low', 'medium', 'high']);
-export const userRoleEnum = pgEnum('user_role', ['admin', 'coach', 'analyst', 'therapist']);
+export const userRoleEnum = pgEnum('user_role', ['admin', 'coach', 'analyst', 'therapist', 'athlete', 'parent', 'staff']);
 
 // Tables
 export const users = pgTable('users', {
@@ -28,14 +40,16 @@ export const athletes = pgTable('athletes', {
 export const tasks = pgTable('tasks', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
-  description: text('description'),
-  type: text('type').notNull(),
-  status: taskStatusEnum('status').notNull(),
-  priority: taskPriorityEnum('priority').notNull(),
-  deadline: text('deadline'),
-  assigneeId: text('assignee_id').references(() => users.id),
+  type: taskTypeEnum('type').notNull(),
+  description: text('description').notNull(),
+  comment: text('comment'),
+  assigneeId: text('assignee_id').references(() => users.id).notNull(),
   creatorId: text('creator_id').references(() => users.id).notNull(),
   relatedAthleteIds: text('related_athlete_ids').array(),
+  deadline: timestamp('deadline'),
+  status: taskStatusEnum('status').notNull().default('new'),
+  priority: taskPriorityEnum('priority').notNull().default('medium'),
+  historyLog: text('history_log').array().default([]),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

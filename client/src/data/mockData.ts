@@ -1,20 +1,20 @@
 import { Task, User, Athlete } from "@shared/schema";
 
 export const mockUsers: User[] = [
-  { id: '1', name: 'Sarah Johnson' },
-  { id: '2', name: 'Michael Chen' },
-  { id: '3', name: 'Emma Davis' },
-  { id: '4', name: 'James Wilson' },
-  { id: '5', name: 'Lisa Rodriguez' }
+  { id: '1', name: 'Sarah Johnson', email: 'sarah@example.com', role: 'coach' },
+  { id: '2', name: 'Michael Chen', email: 'michael@example.com', role: 'analyst' },
+  { id: '3', name: 'Emma Davis', email: 'emma@example.com', role: 'therapist' },
+  { id: '4', name: 'James Wilson', email: 'james@example.com', role: 'admin' },
+  { id: '5', name: 'Lisa Rodriguez', email: 'lisa@example.com', role: 'coach' }
 ];
 
 export const mockAthletes: Athlete[] = [
-  { id: '1', name: 'Alex Thompson' },
-  { id: '2', name: 'Jordan Martinez' },
-  { id: '3', name: 'Taylor Kim' },
-  { id: '4', name: 'Casey Brown' },
-  { id: '5', name: 'Morgan Lee' },
-  { id: '6', name: 'Riley Garcia' }
+  { id: '1', name: 'Alex Thompson', sport: 'Basketball', team: 'Lakers', position: 'Point Guard' },
+  { id: '2', name: 'Jordan Martinez', sport: 'Soccer', team: 'United', position: 'Forward' },
+  { id: '3', name: 'Taylor Kim', sport: 'Tennis', team: null, position: null },
+  { id: '4', name: 'Casey Brown', sport: 'Swimming', team: 'Sharks', position: 'Freestyle' },
+  { id: '5', name: 'Morgan Lee', sport: 'Track', team: 'Eagles', position: 'Sprinter' },
+  { id: '6', name: 'Riley Garcia', sport: 'Baseball', team: 'Tigers', position: 'Pitcher' }
 ];
 
 // Generate dates relative to today for testing deadline badges
@@ -35,107 +35,124 @@ export const mockTasks: Task[] = [
     id: '1',
     name: 'Review Q4 Performance Assessment',
     description: 'Complete comprehensive review of athlete performance metrics for Q4',
-    type: 'manual.assessment.review',
+    type: 'data_reporting',
     assigneeId: '1',
     relatedAthleteIds: ['1', '2'],
-    deadline: today.toISOString().split('T')[0], // Today
+    deadline: today,
     priority: 'high',
     status: 'new',
-    createdAt: '2024-01-15T08:00:00Z',
-    updatedAt: '2024-01-15T08:00:00Z',
-    creatorId: '3'
+    createdAt: new Date('2024-01-15T08:00:00Z'),
+    updatedAt: new Date('2024-01-15T08:00:00Z'),
+    creatorId: '3',
+    comment: null,
+    historyLog: []
   },
   {
     id: '2',
     name: 'Schedule Follow-up Call',
     description: 'Arrange follow-up call with athlete regarding training plan adjustments',
-    type: 'manual.communication.schedule_call',
+    type: 'schedule_call_onboarding',
     assigneeId: '2',
     relatedAthleteIds: ['3'],
-    deadline: yesterday.toISOString().split('T')[0], // Yesterday
+    deadline: yesterday,
     priority: 'medium',
     status: 'in_progress',
-    createdAt: '2024-01-12T10:30:00Z',
-    updatedAt: '2024-01-16T14:20:00Z',
-    creatorId: '1'
+    createdAt: new Date('2024-01-12T10:30:00Z'),
+    updatedAt: new Date('2024-01-16T14:20:00Z'),
+    creatorId: '1',
+    comment: null,
+    historyLog: []
   },
   {
     id: '3',
     name: 'Injury Recovery Assessment',
     description: 'Evaluate recovery progress and adjust rehabilitation protocol',
-    type: 'manual.injury.followup',
+    type: 'injury',
     assigneeId: '3',
     relatedAthleteIds: ['4'],
-    deadline: tomorrow.toISOString().split('T')[0], // Tomorrow
+    deadline: tomorrow,
     priority: 'high',
-    status: 'blocked',
-    createdAt: '2024-01-10T09:15:00Z',
-    updatedAt: '2024-01-17T11:45:00Z',
-    creatorId: '2'
+    status: 'pending',
+    createdAt: new Date('2024-01-10T09:15:00Z'),
+    updatedAt: new Date('2024-01-17T11:45:00Z'),
+    creatorId: '2',
+    comment: null,
+    historyLog: []
   },
   {
     id: '4',
     name: 'Complete Onboarding Process',
     description: 'Finish setting up new athlete profile and initial assessments',
-    type: 'system.admin.onboarding',
+    type: 'coach_assignment',
     assigneeId: '4',
     relatedAthleteIds: ['5'],
-    deadline: inTwoDays.toISOString().split('T')[0], // In 2 days
+    deadline: inTwoDays,
     priority: 'medium',
     status: 'completed',
-    createdAt: '2024-01-08T13:00:00Z',
-    updatedAt: '2024-01-18T16:30:00Z',
-    creatorId: '1'
+    createdAt: new Date('2024-01-08T13:00:00Z'),
+    updatedAt: new Date('2024-01-18T16:30:00Z'),
+    creatorId: '1',
+    comment: null,
+    historyLog: []
   },
   {
     id: '5',
     name: 'Payment Processing Issue',
     description: 'Resolve failed payment transaction for monthly subscription',
-    type: 'system.payment.failed',
+    type: 'general_to_do',
     assigneeId: '5',
     relatedAthleteIds: ['6'],
-    deadline: inFiveDays.toISOString().split('T')[0], // In 5 days
+    deadline: inFiveDays,
     priority: 'high',
     status: 'new',
-    createdAt: '2024-01-14T07:45:00Z',
-    updatedAt: '2024-01-14T07:45:00Z',
-    creatorId: '3'
+    createdAt: new Date('2024-01-14T07:45:00Z'),
+    updatedAt: new Date('2024-01-14T07:45:00Z'),
+    creatorId: '3',
+    comment: null,
+    historyLog: []
   },
   {
     id: '6',
     name: 'Review Flagged Assessment',
     description: 'Investigate assessment results that were automatically flagged by the system',
-    type: 'system.assessment.flagged',
+    type: 'assessment_review',
     assigneeId: '1',
     relatedAthleteIds: ['2', '3'],
-    deadline: threeDaysAgo.toISOString().split('T')[0], // 3 days ago (overdue)
+    deadline: threeDaysAgo,
     priority: 'medium',
     status: 'in_progress',
-    createdAt: '2024-01-16T12:20:00Z',
-    updatedAt: '2024-01-17T09:10:00Z',
-    creatorId: '4'
+    createdAt: new Date('2024-01-16T12:20:00Z'),
+    updatedAt: new Date('2024-01-17T09:10:00Z'),
+    creatorId: '4',
+    comment: null,
+    historyLog: []
   },
   {
     id: '7',
     name: 'Team Meeting Preparation',
     description: 'Prepare presentation materials for quarterly team meeting',
-    type: 'manual.communication.schedule_call',
+    type: 'general_to_do',
     assigneeId: '3',
     relatedAthleteIds: ['1'],
-    deadline: undefined, // No deadline
+    deadline: null,
     priority: 'low',
     status: 'new',
-    createdAt: '2024-01-18T08:00:00Z',
-    updatedAt: '2024-01-18T08:00:00Z',
-    creatorId: '2'
+    createdAt: new Date('2024-01-18T08:00:00Z'),
+    updatedAt: new Date('2024-01-18T08:00:00Z'),
+    creatorId: '2',
+    comment: null,
+    historyLog: []
   }
 ];
 
 export const taskTypes = [
-  { value: 'manual.assessment.review', label: 'Manual Assessment Review' },
-  { value: 'manual.communication.schedule_call', label: 'Manual Communication Schedule Call' },
-  { value: 'manual.injury.followup', label: 'Manual Injury Followup' },
-  { value: 'system.admin.onboarding', label: 'System Admin Onboarding' },
-  { value: 'system.payment.failed', label: 'System Payment Failed' },
-  { value: 'system.assessment.flagged', label: 'System Assessment Flagged' }
+  { value: 'mechanical_analysis', label: 'Mechanical Analysis' },
+  { value: 'data_reporting', label: 'Data Reporting' },
+  { value: 'injury', label: 'Injury' },
+  { value: 'general_to_do', label: 'General To-Do' },
+  { value: 'schedule_call_injury', label: 'Schedule Call (Injury)' },
+  { value: 'schedule_call_onboarding', label: 'Schedule Call (Onboarding)' },
+  { value: 'coach_assignment', label: 'Coach Assignment' },
+  { value: 'create_program', label: 'Create Program' },
+  { value: 'assessment_review', label: 'Assessment Review' }
 ];

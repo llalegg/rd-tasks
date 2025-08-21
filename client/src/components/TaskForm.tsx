@@ -36,7 +36,7 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
         type: task.type,
         priority: task.priority,
         assigneeId: task.assigneeId,
-        deadline: task.deadline || '',
+        deadline: task.deadline ? task.deadline.toISOString().split('T')[0] : '',
         relatedAthleteIds: task.relatedAthleteIds || []
       });
     } else {
@@ -54,7 +54,13 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    const submitData = {
+      ...formData,
+      deadline: formData.deadline ? new Date(formData.deadline) : null,
+      type: formData.type as any, // Cast to match the enum type
+      priority: formData.priority as any // Cast to match the enum type
+    };
+    onSubmit(submitData);
   };
 
   const handleAthleteSelection = (athleteId: string, checked: boolean) => {
