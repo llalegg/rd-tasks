@@ -57,7 +57,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
     switch (status) {
       case 'new': return 'secondary';
       case 'in_progress': return 'default';
-      case 'blocked': return 'outline';
+      case 'pending': return 'outline';
       case 'completed': return 'secondary';
       default: return 'secondary';
     }
@@ -98,8 +98,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
         bValue = b.type.toLowerCase();
         break;
       case 'assignee':
-        const assigneeA = users.find(u => u.id === a.assigneeId)?.name || '';
-        const assigneeB = users.find(u => u.id === b.assigneeId)?.name || '';
+        const assigneeA = users.find((u: any) => u.id === a.assigneeId)?.name || '';
+        const assigneeB = users.find((u: any) => u.id === b.assigneeId)?.name || '';
         aValue = assigneeA.toLowerCase();
         bValue = assigneeB.toLowerCase();
         break;
@@ -178,10 +178,10 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
             </TableHeader>
             <TableBody>
               {sortedTasks.map((task) => {
-                const assignee = users.find(u => u.id === task.assigneeId);
+                const assignee = users.find((u: any) => u.id === task.assigneeId);
                 const relatedAthletes = task.relatedAthleteIds ? 
                   task.relatedAthleteIds.map(id => {
-                    const athlete = athletes.find(a => a.id === id);
+                    const athlete = athletes.find((a: any) => a.id === id);
                     return athlete ? { id: athlete.id, name: athlete.name } : null;
                   }).filter(Boolean) : [];
 
@@ -200,7 +200,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <DeadlineBadge deadline={task.deadline} />
+                      <DeadlineBadge deadline={task.deadline || undefined} className="text-xs" />
                     </TableCell>
                     <TableCell>
                       {assignee ? (
@@ -216,16 +216,31 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center -space-x-2">
-                        {relatedAthletes.map((athlete) => (
-                          <UserAvatar
-                            key={athlete.id}
-                            userId={athlete.id}
-                            name={athlete.name}
-                            size="sm"
-                          />
-                        ))}
-                        {relatedAthletes.length === 0 && (
+                      <div className="flex items-center space-x-1">
+                        {relatedAthletes.length > 0 ? (
+                          <>
+                            {relatedAthletes.length === 1 ? (
+                              <UserAvatar
+                                key={relatedAthletes[0]?.id}
+                                userId={relatedAthletes[0]?.id}
+                                name={relatedAthletes[0]?.name}
+                                size="sm"
+                              />
+                            ) : (
+                              <>
+                                <UserAvatar
+                                  key={relatedAthletes[0]?.id}
+                                  userId={relatedAthletes[0]?.id}
+                                  name={relatedAthletes[0]?.name}
+                                  size="sm"
+                                />
+                                <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium border-2 border-white/20">
+                                  +{relatedAthletes.length - 1}
+                                </div>
+                              </>
+                            )}
+                          </>
+                        ) : (
                           <span className="text-[#979795] text-xs">None</span>
                         )}
                       </div>
@@ -241,7 +256,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                         <SelectContent className="bg-[#292928]">
                           <SelectItem value="new">New</SelectItem>
                           <SelectItem value="in_progress">In Progress</SelectItem>
-                          <SelectItem value="blocked">Blocked</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
                           <SelectItem value="completed">Completed</SelectItem>
                         </SelectContent>
                       </Select>
