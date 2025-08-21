@@ -195,9 +195,9 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                       {task.name}
                     </TableCell>
                     <TableCell>
-                      <span className="text-[#979795] font-montserrat text-[12px] font-medium leading-[132%]">
+                      <Badge variant="secondary" className="text-xs">
                         {formatTaskType(task.type)}
-                      </span>
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <DeadlineBadge deadline={task.deadline} />

@@ -177,8 +177,10 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
 
         
         <div className="space-y-2 relative">
-          <div className="flex items-center text-xs text-muted-foreground">
-            {formatTaskType(task.type)}
+          <div className="flex items-center">
+            <Badge variant="secondary" className="text-xs">
+              {formatTaskType(task.type)}
+            </Badge>
           </div>
           
           <div className="flex items-center justify-between">
@@ -548,8 +550,10 @@ export default function TaskKanban({
                     <h3 className="font-medium text-sm leading-tight pr-2 text-white">{activeTask.name}</h3>
                   </div>
                   
-                  <div className="flex items-center text-xs text-white/80">
-                    {formatTaskType(activeTask.type)}
+                  <div className="flex items-center">
+                    <Badge variant="secondary" className="text-xs">
+                      {formatTaskType(activeTask.type)}
+                    </Badge>
                   </div>
                   
                   <div className="flex items-center justify-between">
