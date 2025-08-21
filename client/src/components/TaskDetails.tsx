@@ -48,8 +48,9 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
     ).join(' ');
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -61,7 +62,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
     switch (status) {
       case 'new': return 'To-Do';
       case 'in_progress': return 'In Progress';
-      case 'blocked': return 'Pending';
+      case 'pending': return 'Pending';
       case 'completed': return 'Completed';
       default: return status;
     }
@@ -71,7 +72,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
     switch (status) {
       case 'new': return null;
       case 'in_progress': return Clock;
-      case 'blocked': return AlertCircle;
+      case 'pending': return AlertCircle;
       case 'completed': return CheckCircle;
       default: return null;
     }
@@ -175,7 +176,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
                 <span>In Progress</span>
               </div>
             </SelectItem>
-            <SelectItem value="blocked" className="hover:bg-muted/50">
+            <SelectItem value="pending" className="hover:bg-muted/50">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
                 <span>Pending</span>

@@ -44,8 +44,9 @@ export default function TaskViewModal({ task, isOpen, onClose, onEdit }: TaskVie
     ).join(' ');
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -56,7 +57,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onEdit }: TaskVie
     switch (status) {
       case 'new': return null;
       case 'in_progress': return Clock;
-      case 'blocked': return AlertCircle;
+      case 'pending': return AlertCircle;
       case 'completed': return CheckCircle;
       default: return null;
     }
@@ -66,7 +67,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onEdit }: TaskVie
     switch (status) {
       case 'new': return 'To-Do';
       case 'in_progress': return 'In Progress';
-      case 'blocked': return 'Blocked';
+      case 'pending': return 'Pending';
       case 'completed': return 'Completed';
       default: return status;
     }
@@ -76,7 +77,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onEdit }: TaskVie
     switch (status) {
       case 'new': return 'text-blue-500';
       case 'in_progress': return 'text-yellow-500';
-      case 'blocked': return 'text-orange-500';
+      case 'pending': return 'text-orange-500';
       case 'completed': return 'text-green-500';
       default: return 'text-gray-500';
     }

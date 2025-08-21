@@ -88,10 +88,10 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
     transition: transition || 'transform 150ms cubic-bezier(0.25, 1, 0.5, 1)',
   };
 
-  const assignee = users.find(u => u.id === task.assigneeId);
+  const assignee = users.find((u: any) => u.id === task.assigneeId);
   const relatedAthletes = task.relatedAthleteIds ? 
     task.relatedAthleteIds.map(id => {
-      const athlete = athletes.find(a => a.id === id);
+      const athlete = athletes.find((a: any) => a.id === id);
       return athlete ? { id: athlete.id, name: athlete.name } : null;
     }).filter(Boolean) : [];
 
@@ -105,7 +105,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
     switch (status) {
       case 'new': return null;
       case 'in_progress': return Clock;
-      case 'blocked': return AlertCircle;
+      case 'pending': return AlertCircle;
       case 'completed': return CheckCircle;
       default: return null;
     }
@@ -115,7 +115,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
     switch (status) {
       case 'new': return 'New';
       case 'in_progress': return 'In Progress';
-      case 'blocked': return 'Blocked';
+      case 'pending': return 'Pending';
       case 'completed': return 'Completed';
       default: return status;
     }
@@ -139,10 +139,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
       <CardContent className="p-3 md:p-4 touch-manipulation">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-start gap-2 flex-1 pr-2">
-            {/* Status Icon */}
-            {task.status === 'in_progress' && <Clock className="w-3 h-3 text-yellow-500 fill-current mt-0.5 flex-shrink-0" />}
-            {task.status === 'pending' && <AlertCircle className="w-3 h-3 text-orange-500 fill-current mt-0.5 flex-shrink-0" />}
-            {task.status === 'completed' && <CheckCircle className="w-3 h-3 text-green-500 fill-current mt-0.5 flex-shrink-0" />}
+            {/* Status Icon removed */}
             <h4 className="text-sm font-medium text-foreground line-clamp-2" title={task.description || undefined}>
               {task.name}
             </h4>
@@ -261,7 +258,7 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
   return (
     <Card 
       className={`flex-shrink-0 w-full md:min-w-[280px] md:w-80 h-fit ${
-        isOver || dragOverColumnId === column.key ? column.solidColor : column.color
+        column.color
       } border-none transition-all duration-200 kanban-column`}
     >
       <CardHeader 
@@ -388,10 +385,10 @@ export default function TaskKanban({
 
   // Filter columns based on hideCompleted setting and visibleColumns
   const allColumns = [
-    { key: 'new', title: 'To-Do', color: 'bg-[#31180FA3]', solidColor: 'bg-[#31180F]' },
-    { key: 'in_progress', title: 'In Progress', color: 'bg-[#162949A3]', solidColor: 'bg-[#162949]' },
-    { key: 'pending', title: 'Pending', color: 'bg-[#302608A3]', solidColor: 'bg-[#302608]' },
-    { key: 'completed', title: 'Completed', color: 'bg-[#072A15A3]', solidColor: 'bg-[#072A15]' }
+    { key: 'new', title: 'To-Do', color: 'bg-[#31180FA3]' },
+    { key: 'in_progress', title: 'In Progress', color: 'bg-[#162949A3]' },
+    { key: 'pending', title: 'Pending', color: 'bg-[#302608A3]' },
+    { key: 'completed', title: 'Completed', color: 'bg-[#072A15A3]' }
   ];
 
   const columns = allColumns
@@ -563,17 +560,17 @@ export default function TaskKanban({
                       <DeadlineBadge deadline={activeTask.deadline} className="text-xs" />
                       
                       {/* Related Athletes for drag overlay */}
-                      {activeTask.relatedAthletes && activeTask.relatedAthletes.length > 0 && (
+                      {activeTask.relatedAthleteIds && activeTask.relatedAthleteIds.length > 0 && (
                         <div className="flex items-center space-x-1">
                           <Users className="w-3 h-3 text-white/60" />
                           <div className="flex -space-x-1">
-                            {activeTask.relatedAthletes.length === 1 ? (
+                            {activeTask.relatedAthleteIds.length === 1 ? (
                               <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-medium border-2 border-white/20">
                                 1
                               </div>
                             ) : (
                               <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-medium border-2 border-white/20">
-                                +{activeTask.relatedAthletes.length}
+                                +{activeTask.relatedAthleteIds.length}
                               </div>
                             )}
                           </div>
@@ -584,10 +581,10 @@ export default function TaskKanban({
                   </div>
                   
                   {/* Assignee Avatar - Bottom Right Corner for drag overlay */}
-                  {activeTask.assignee && (
+                  {activeTask.assigneeId && (
                     <div className="absolute bottom-0 right-0">
                       <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-medium border-2 border-white/20">
-                        {activeTask.assignee.charAt(0)}
+                        {activeTask.assigneeId.charAt(0)}
                       </div>
                     </div>
                   )}

@@ -61,7 +61,7 @@ export default function TaskManager() {
   });
 
   // Filter and sort tasks based on search query and filters
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = tasks.filter((task: Task) => {
     const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -75,10 +75,10 @@ export default function TaskManager() {
     const matchesCreator = creatorFilters.length === 0 || creatorFilters.includes(task.creatorId);
     const matchesPriority = true;
     const matchesAthlete = athleteFilters.length === 0 || 
-      (task.relatedAthleteIds && task.relatedAthleteIds.some(id => athleteFilters.includes(id)));
+      (task.relatedAthleteIds && task.relatedAthleteIds.some((id: string) => athleteFilters.includes(id)));
     
     return matchesSearch && matchesStatus && matchesType && matchesCreator && matchesPriority && matchesAthlete;
-  }).sort((a, b) => {
+  }).sort((a: Task, b: Task) => {
     if (sortBy === 'deadline') {
       if (!a.deadline && !b.deadline) return 0;
       if (!a.deadline) return 1;
