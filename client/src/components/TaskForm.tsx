@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
-import { Task } from "@shared/schema";
-import { mockUsers, mockAthletes, taskTypes } from "@/data/mockData";
+import { Task, User, Athlete } from "@shared/schema";
+import { taskTypes } from "@/data/mockData";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { X, Calendar, User as UserIcon, Users, Upload } from "lucide-react";
 
 interface TaskFormProps {
   task: Task | null;
@@ -21,11 +25,23 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    comment: '',
     type: '',
-    priority: '',
+    priority: 'medium',
     assigneeId: '',
     deadline: '',
     relatedAthleteIds: [] as string[]
+  });
+
+  // Fetch users and athletes
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ['/api/users'],
+    enabled: isOpen
+  });
+
+  const { data: athletes = [] } = useQuery<Athlete[]>({
+    queryKey: ['/api/athletes'],
+    enabled: isOpen
   });
 
   useEffect(() => {
@@ -33,6 +49,7 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
       setFormData({
         name: task.name,
         description: task.description || '',
+        comment: task.comment || '',
         type: task.type,
         priority: task.priority,
         assigneeId: task.assigneeId,
@@ -43,8 +60,9 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
       setFormData({
         name: '',
         description: '',
+        comment: '',
         type: '',
-        priority: '',
+        priority: 'medium',
         assigneeId: '',
         deadline: '',
         relatedAthleteIds: []
@@ -54,11 +72,15 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name.trim() || !formData.description.trim() || !formData.type || !formData.assigneeId) {
+      return; // Basic validation
+    }
+    
     const submitData = {
       ...formData,
       deadline: formData.deadline ? new Date(formData.deadline) : null,
-      type: formData.type as any, // Cast to match the enum type
-      priority: formData.priority as any // Cast to match the enum type
+      type: formData.type as any,
+      priority: formData.priority as any
     };
     onSubmit(submitData);
   };
@@ -158,7 +180,10 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label className="text-sm font-medium">Assignee *</Label>
+              <Label className="text-sm font-medium">
+                <UserIcon className="w-4 h-4 inline mr-1" />
+                Assignee *
+              </Label>
               <Select 
                 value={formData.assigneeId} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, assigneeId: value }))}
@@ -167,7 +192,7 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
                   <SelectValue placeholder="Select assignee..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockUsers.map((user) => (
+                  {users.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
                       {user.name}
                     </SelectItem>
@@ -178,6 +203,7 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
 
             <div>
               <Label htmlFor="deadline" className="text-sm font-medium">
+                <Calendar className="w-4 h-4 inline mr-1" />
                 Deadline
               </Label>
               <Input
@@ -191,25 +217,63 @@ export default function TaskForm({ task, isOpen, mode, onClose, onSubmit }: Task
           </div>
 
           <div>
-            <Label className="text-sm font-medium">Related Athletes</Label>
-            <div className="mt-2 space-y-2 max-h-32 overflow-y-auto border rounded-md p-3">
-              {mockAthletes.map((athlete) => (
-                <div key={athlete.id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id={`athlete-${athlete.id}`}
-                    checked={formData.relatedAthleteIds.includes(athlete.id)}
-                    onChange={(e) => handleAthleteSelection(athlete.id, e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                  <label 
-                    htmlFor={`athlete-${athlete.id}`} 
-                    className="text-sm text-foreground cursor-pointer"
-                  >
-                    {athlete.name}
-                  </label>
+            <Label htmlFor="comment" className="text-sm font-medium">
+              Comment
+            </Label>
+            <Textarea
+              id="comment"
+              value={formData.comment}
+              onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
+              rows={2}
+              className="mt-1"
+              placeholder="Add any additional notes or comments..."
+            />
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">
+              <Users className="w-4 h-4 inline mr-1" />
+              Related Athletes
+            </Label>
+            <div className="mt-2">
+              {formData.relatedAthleteIds.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {formData.relatedAthleteIds.map(athleteId => {
+                    const athlete = athletes.find(a => a.id === athleteId);
+                    return athlete ? (
+                      <Badge key={athleteId} variant="secondary" className="flex items-center gap-1">
+                        {athlete.name}
+                        <X 
+                          className="w-3 h-3 cursor-pointer" 
+                          onClick={() => handleAthleteSelection(athleteId, false)}
+                        />
+                      </Badge>
+                    ) : null;
+                  })}
                 </div>
-              ))}
+              )}
+              <ScrollArea className="h-32 border rounded-md p-3">
+                <div className="space-y-2">
+                  {athletes.map((athlete) => (
+                    <div key={athlete.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`athlete-${athlete.id}`}
+                        checked={formData.relatedAthleteIds.includes(athlete.id)}
+                        onCheckedChange={(checked) => handleAthleteSelection(athlete.id, !!checked)}
+                      />
+                      <label 
+                        htmlFor={`athlete-${athlete.id}`} 
+                        className="text-sm text-foreground cursor-pointer flex-1"
+                      >
+                        <div>
+                          <div className="font-medium">{athlete.name}</div>
+                          <div className="text-xs text-muted-foreground">{athlete.sport} • {athlete.team || 'Individual'}</div>
+                        </div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             </div>
           </div>
 
