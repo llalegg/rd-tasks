@@ -173,7 +173,6 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                     {getSortIcon('status')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-16"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -260,32 +259,6 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onEditTas
                           <SelectItem value="completed">Completed</SelectItem>
                         </SelectContent>
                       </Select>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
-                            <span className="sr-only">Open menu</span>
-                            <MoreDotsIcon className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-[#292928]">
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            onEditTask?.(task);
-                          }}>
-                            <PencilSimple className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            onDeleteTask?.(task.id);
-                          }}>
-                            <Trash className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );

@@ -144,34 +144,6 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
               {task.name}
             </h4>
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  className="h-8 w-8 md:h-6 md:w-6 p-0 opacity-0 group-hover:opacity-70 hover:opacity-100 touch-manipulation rounded-[9999px] hover:bg-accent hover:text-accent-foreground transition-opacity duration-200"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <DotsThreeVertical className="h-4 w-4 md:h-3 md:w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation();
-                  onEditTask?.(task);
-                }}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteTask?.(task.id);
-                }}>
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
         </div>
         
 
@@ -188,7 +160,7 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
               {/* Priority Icon */}
               
               {/* Deadline next to Priority */}
-              <DeadlineBadge deadline={task.deadline} className="text-xs" />
+              <DeadlineBadge deadline={task.deadline || undefined} className="text-xs" />
               
               {/* Related Athletes */}
               {relatedAthletes.length > 0 && (
@@ -561,7 +533,7 @@ export default function TaskKanban({
                       {/* Priority Icon */}
                       
                       {/* Deadline next to Priority */}
-                      <DeadlineBadge deadline={activeTask.deadline} className="text-xs" />
+                      <DeadlineBadge deadline={activeTask.deadline || undefined} className="text-xs" />
                       
                       {/* Related Athletes for drag overlay */}
                       {activeTask.relatedAthleteIds && activeTask.relatedAthleteIds.length > 0 && (
