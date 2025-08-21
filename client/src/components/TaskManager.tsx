@@ -21,10 +21,16 @@ export default function TaskManager() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
-  const [currentView, setCurrentView] = useState<'list' | 'kanban'>('list');
+  const [currentView, setCurrentView] = useState<'list' | 'kanban'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'priority' | 'deadline'>('deadline');
-  const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'blocked']);
+  const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'pending']);
+  const [typeFilters, setTypeFilters] = useState<string[]>([]);
+  const [creatorFilters, setCreatorFilters] = useState<string[]>([]);
+  const [athleteFilters, setAthleteFilters] = useState<string[]>([]);
+  const [priorityFilters, setPriorityFilters] = useState<Task['priority'][]>([]);
+  const [hideCompleted, setHideCompleted] = useState(true);
+  const [visibleColumns, setVisibleColumns] = useState<Task['status'][]>(['new', 'in_progress', 'pending', 'completed']);
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -52,14 +58,24 @@ export default function TaskManager() {
     queryFn: () => fetch('/api/athletes').then(res => res.json()),
   });
 
-  // Filter and sort tasks based on search query, status filters, and sort option
+  // Filter and sort tasks based on search query and filters
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    // In Kanban view, show all tasks regardless of status filter (columns represent status)
-    // In List view, apply status filter
+    
+    // Hide completed tasks if option is enabled
+    if (hideCompleted && task.status === 'completed') return false;
+    
+    // In Kanban view, apply all filters except status (columns represent status)
+    // In List view, apply all filters including status
     const matchesStatus = currentView === 'kanban' || statusFilters.length === 0 || statusFilters.includes(task.status);
-    return matchesSearch && matchesStatus;
+    const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
+    const matchesCreator = creatorFilters.length === 0 || creatorFilters.includes(task.creatorId);
+    const matchesPriority = priorityFilters.length === 0 || priorityFilters.includes(task.priority);
+    const matchesAthlete = athleteFilters.length === 0 || 
+      (task.relatedAthleteIds && task.relatedAthleteIds.some(id => athleteFilters.includes(id)));
+    
+    return matchesSearch && matchesStatus && matchesType && matchesCreator && matchesPriority && matchesAthlete;
   }).sort((a, b) => {
     if (sortBy === 'priority') {
       const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
@@ -179,7 +195,7 @@ export default function TaskManager() {
     switch (status) {
       case 'new': return 'To-Do';
       case 'in_progress': return 'In Progress';
-      case 'blocked': return 'Pending';
+      case 'pending': return 'Pending';
       case 'completed': return 'Completed';
       default: return status;
     }
@@ -197,7 +213,7 @@ export default function TaskManager() {
     setStatusFilters([]);
   };
 
-  const statusOptions: Task['status'][] = ['new', 'in_progress', 'blocked', 'completed'];
+  const statusOptions: Task['status'][] = ['new', 'in_progress', 'pending', 'completed'];
 
   return (
     <div className="min-h-screen bg-background flex md:ml-[80px] pb-[64px] md:pb-0">
@@ -250,17 +266,27 @@ export default function TaskManager() {
                   />
                 </div>
                 
-                {/* Sort Dropdown - Only show in Kanban view */}
+                {/* Board View Controls - Only show in Kanban view */}
                 {currentView === 'kanban' && (
-                  <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline') => setSortBy(value)}>
-                    <SelectTrigger className="w-36 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px] text-left">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#292928] border-none">
-                      <SelectItem value="priority" className="text-[12px] hover:bg-muted/50 text-left">Sort by priority</SelectItem>
-                      <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50 text-left">Sort by deadline</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setHideCompleted(!hideCompleted)}
+                      className="h-8 px-3 rounded-[9999px] bg-[#292928] border-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0"
+                    >
+                      {hideCompleted ? 'Show' : 'Hide'} Completed
+                    </Button>
+                    <Select value={sortBy} onValueChange={(value: 'priority' | 'deadline') => setSortBy(value)}>
+                      <SelectTrigger className="w-36 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px] text-left">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#292928] border-none">
+                        <SelectItem value="priority" className="text-[12px] hover:bg-muted/50 text-left">Sort by priority</SelectItem>
+                        <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50 text-left">Sort by deadline</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </>
                 )}
 
                 {/* Status Filter - Only show in List view */}
@@ -317,20 +343,20 @@ export default function TaskManager() {
                 <div className="hidden md:flex items-center space-x-3">
                   <div className="flex items-center bg-muted rounded-lg p-1">
                     <Button
-                      variant={currentView === 'list' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setCurrentView('list')}
-                      className="h-8 w-8 p-0"
-                    >
-                      <List className="w-4 h-4" />
-                    </Button>
-                    <Button
                       variant={currentView === 'kanban' ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setCurrentView('kanban')}
                       className="h-8 w-8 p-0"
                     >
                       <Columns className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={currentView === 'list' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setCurrentView('list')}
+                      className="h-8 w-8 p-0"
+                    >
+                      <List className="w-4 h-4" />
                     </Button>
                   </div>
                   <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
@@ -370,6 +396,8 @@ export default function TaskManager() {
               onEditTask={handleEditTask}
               onDeleteTask={handleDeleteTask}
               onCreateTask={handleCreateTaskWithStatus}
+              hideCompleted={hideCompleted}
+              visibleColumns={visibleColumns}
             />
           )}
         </main>

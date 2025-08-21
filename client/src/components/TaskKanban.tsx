@@ -42,6 +42,8 @@ interface TaskKanbanProps {
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (taskId: string) => void;
   onCreateTask?: (status: Task['status']) => void;
+  hideCompleted?: boolean;
+  visibleColumns?: Task['status'][];
 }
 
 // Sortable Task Card Component
@@ -137,9 +139,16 @@ function SortableTaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onStatu
     >
       <CardContent className="p-3 md:p-4 touch-manipulation">
         <div className="flex items-start justify-between mb-2">
-          <h4 className="text-sm font-medium text-foreground line-clamp-2 flex-1 pr-2">
-            {task.name}
-          </h4>
+          <div className="flex items-start gap-2 flex-1 pr-2">
+            {/* Status Icon */}
+            {task.status === 'new' && <Circle className="w-3 h-3 text-blue-500 fill-current mt-0.5 flex-shrink-0" />}
+            {task.status === 'in_progress' && <Clock className="w-3 h-3 text-yellow-500 fill-current mt-0.5 flex-shrink-0" />}
+            {task.status === 'pending' && <AlertCircle className="w-3 h-3 text-orange-500 fill-current mt-0.5 flex-shrink-0" />}
+            {task.status === 'completed' && <CheckCircle className="w-3 h-3 text-green-500 fill-current mt-0.5 flex-shrink-0" />}
+            <h4 className="text-sm font-medium text-foreground line-clamp-2" title={task.description || undefined}>
+              {task.name}
+            </h4>
+          </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -336,7 +345,17 @@ function DroppableColumn({ column, tasks, onTaskClick, onEditTask, onDeleteTask,
   );
 }
 
-export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onTaskReorder, onEditTask, onDeleteTask, onCreateTask }: TaskKanbanProps) {
+export default function TaskKanban({ 
+  tasks, 
+  onTaskClick, 
+  onTaskStatusChange, 
+  onTaskReorder, 
+  onEditTask, 
+  onDeleteTask, 
+  onCreateTask,
+  hideCompleted = true,
+  visibleColumns = ['new', 'in_progress', 'pending', 'completed']
+}: TaskKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
@@ -370,12 +389,17 @@ export default function TaskKanban({ tasks, onTaskClick, onTaskStatusChange, onT
     })
   );
 
-  const columns = [
+  // Filter columns based on hideCompleted setting and visibleColumns
+  const allColumns = [
     { key: 'new', title: 'To-Do', color: 'bg-[#31180FA3]', solidColor: 'bg-[#31180F]' },
     { key: 'in_progress', title: 'In Progress', color: 'bg-[#162949A3]', solidColor: 'bg-[#162949]' },
-    { key: 'blocked', title: 'Pending', color: 'bg-[#302608A3]', solidColor: 'bg-[#302608]' },
+    { key: 'pending', title: 'Pending', color: 'bg-[#302608A3]', solidColor: 'bg-[#302608]' },
     { key: 'completed', title: 'Completed', color: 'bg-[#072A15A3]', solidColor: 'bg-[#072A15]' }
   ];
+
+  const columns = allColumns
+    .filter(col => visibleColumns.includes(col.key as Task['status']))
+    .filter(col => !(hideCompleted && col.key === 'completed'));
 
   // Sort tasks within each column
   const sortTasks = (tasks: Task[]) => {
