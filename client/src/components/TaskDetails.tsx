@@ -156,7 +156,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
                 ) : (
                   (() => {
                     const StatusIcon = getStatusIcon(selectedStatus || task.status);
-                    return <StatusIcon className="h-4 w-4" />;
+                    return StatusIcon ? <StatusIcon className="h-4 w-4" /> : <div className="h-4 w-4"></div>;
                   })()
                 )}
                 <span>{getStatusLabel(selectedStatus || task.status)}</span>
@@ -166,7 +166,6 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
           <SelectContent className="bg-[#292928] border-none">
             <SelectItem value="new" className="hover:bg-muted/50">
               <div className="flex items-center gap-2">
-                <Circle className="h-4 w-4" />
                 <span>To-Do</span>
               </div>
             </SelectItem>

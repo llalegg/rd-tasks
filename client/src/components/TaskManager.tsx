@@ -12,6 +12,7 @@ import TaskList from "./TaskList";
 import TaskKanban from "./TaskKanban";
 import TaskForm from "./TaskForm";
 import TaskPanelContent from "./TaskPanelContent";
+import TaskViewModal from "./TaskViewModal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -21,6 +22,8 @@ export default function TaskManager() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [viewTask, setViewTask] = useState<Task | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'list' | 'kanban'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'deadline'>('deadline');
@@ -131,7 +134,15 @@ export default function TaskManager() {
   });
 
   const handleTaskClick = (task: Task) => {
+    setViewTask(task);
+    setIsViewModalOpen(true);
+  };
+
+  const handleTaskEdit = (task: Task) => {
     setSelectedTask(task);
+    setFormMode('edit');
+    setIsFormOpen(true);
+    setIsViewModalOpen(false);
   };
 
   const handleStatusUpdate = (taskId: string, newStatus: Task['status']) => {
@@ -440,6 +451,17 @@ export default function TaskManager() {
         mode={formMode}
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleFormSubmit}
+      />
+
+      {/* Task View Modal */}
+      <TaskViewModal
+        task={viewTask}
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setViewTask(null);
+        }}
+        onEdit={handleTaskEdit}
       />
     </div>
   );
