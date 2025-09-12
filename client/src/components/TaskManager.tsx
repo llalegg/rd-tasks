@@ -9,7 +9,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Search, Filter, List, Columns, Edit, X, ChevronDown, Check } from "lucide-react";
 import TaskList from "./TaskList";
-import TaskKanban from "./TaskKanban";
 import TaskForm from "./TaskForm";
 import TaskPanelContent from "./TaskPanelContent";
 import TaskViewModal from "./TaskViewModal";
@@ -24,7 +23,6 @@ export default function TaskManager() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [viewTask, setViewTask] = useState<Task | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<'list' | 'kanban'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'deadline'>('deadline');
   const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'pending']);
@@ -32,7 +30,6 @@ export default function TaskManager() {
   const [creatorFilters, setCreatorFilters] = useState<string[]>([]);
   const [athleteFilters, setAthleteFilters] = useState<string[]>([]);
   const [hideCompleted, setHideCompleted] = useState(true);
-  const [visibleColumns, setVisibleColumns] = useState<Task['status'][]>(['new', 'in_progress', 'pending', 'completed']);
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -68,9 +65,8 @@ export default function TaskManager() {
     // Hide completed tasks if option is enabled
     if (hideCompleted && task.status === 'completed') return false;
     
-    // In Kanban view, apply all filters except status (columns represent status)
-    // In List view, apply all filters including status
-    const matchesStatus = currentView === 'kanban' || statusFilters.length === 0 || statusFilters.includes(task.status);
+    // Apply status filters
+    const matchesStatus = statusFilters.length === 0 || statusFilters.includes(task.status);
     const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
     const matchesCreator = creatorFilters.length === 0 || creatorFilters.includes(task.creatorId);
     const matchesPriority = true;
