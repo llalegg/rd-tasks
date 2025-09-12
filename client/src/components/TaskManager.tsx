@@ -188,7 +188,7 @@ export default function TaskManager() {
     switch (status) {
       case 'new': return 'bg-blue-500';
       case 'in_progress': return 'bg-yellow-500';
-      case 'blocked': return 'bg-orange-500';
+      case 'pending': return 'bg-orange-500';
       case 'completed': return 'bg-green-500';
       default: return 'bg-gray-500';
     }
@@ -234,25 +234,6 @@ export default function TaskManager() {
                   <h1 className="text-lg md:text-xl font-semibold text-foreground">To-Do's</h1>
                 </div>
                 
-                {/* Mobile View Toggle */}
-                <div className="flex md:hidden items-center bg-muted rounded-lg p-1">
-                  <Button
-                    variant={currentView === 'list' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setCurrentView('list')}
-                    className="h-8 w-8 p-0"
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant={currentView === 'kanban' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setCurrentView('kanban')}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Columns className="w-4 h-4" />
-                  </Button>
-                </div>
               </div>
               
               {/* Right Side - Search, Filters, View Toggle and Add Button */}
@@ -269,18 +250,16 @@ export default function TaskManager() {
                   />
                 </div>
                 
-                {/* Board View Controls - Only show in Kanban view */}
-                {currentView === 'kanban' && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setHideCompleted(!hideCompleted)}
-                      className="h-8 px-3 rounded-[9999px] bg-[#292928] border-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0"
-                    >
-                      {hideCompleted ? 'Show' : 'Hide'} Completed
-                    </Button>
-                    <Select value={sortBy} onValueChange={(value: 'deadline') => setSortBy(value)}>
+                {/* List View Controls */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHideCompleted(!hideCompleted)}
+                  className="h-8 px-3 rounded-[9999px] bg-[#292928] border-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0"
+                >
+                  {hideCompleted ? 'Show' : 'Hide'} Completed
+                </Button>
+                <Select value={sortBy} onValueChange={(value: 'deadline') => setSortBy(value)}>
                       <SelectTrigger className="w-36 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px] text-left">
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
@@ -288,11 +267,9 @@ export default function TaskManager() {
                         <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50 text-left">Sort by deadline</SelectItem>
                       </SelectContent>
                     </Select>
-                  </>
-                )}
 
-                {/* Status Filter - Only show in List view */}
-                {currentView === 'list' && (
+                {/* Status Filter */}
+                <div>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
@@ -339,28 +316,10 @@ export default function TaskManager() {
                     </div>
                   </PopoverContent>
                 </Popover>
-                )}
+                </div>
 
-                {/* Desktop View Toggle and Add Button */}
+                {/* Add Button */}
                 <div className="hidden md:flex items-center space-x-3">
-                  <div className="flex items-center bg-muted rounded-lg p-1">
-                    <Button
-                      variant={currentView === 'kanban' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setCurrentView('kanban')}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Columns className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant={currentView === 'list' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setCurrentView('list')}
-                      className="h-8 w-8 p-0"
-                    >
-                      <List className="w-4 h-4" />
-                    </Button>
-                  </div>
                   <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
                     Add Task
                   </Button>
@@ -382,24 +341,13 @@ export default function TaskManager() {
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
             </div>
-          ) : currentView === 'list' ? (
+          ) : (
             <TaskList 
               tasks={filteredTasks} 
               onTaskClick={handleTaskClick}
               onStatusUpdate={handleStatusUpdate}
               onEditTask={handleEditTask}
               onDeleteTask={handleDeleteTask}
-            />
-          ) : (
-            <TaskKanban 
-              tasks={filteredTasks} 
-              onTaskClick={handleTaskClick}
-              onTaskStatusChange={handleStatusUpdate}
-              onEditTask={handleEditTask}
-              onDeleteTask={handleDeleteTask}
-              onCreateTask={handleCreateTaskWithStatus}
-              hideCompleted={hideCompleted}
-              visibleColumns={visibleColumns}
             />
           )}
         </main>
