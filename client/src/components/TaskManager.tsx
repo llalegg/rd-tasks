@@ -152,11 +152,6 @@ export default function TaskManager() {
     setIsFormOpen(true);
   };
 
-  const handleCreateTaskWithStatus = (status: Task['status']) => {
-    setFormMode('create');
-    setSelectedTask({ status } as Task);
-    setIsFormOpen(true);
-  };
 
   const handleEditTask = (task: Task) => {
     setFormMode('edit');
@@ -178,7 +173,7 @@ export default function TaskManager() {
     } else if (formMode === 'edit' && selectedTask) {
       updateTaskMutation.mutate({ 
         taskId: selectedTask.id, 
-        status: taskData.status || selectedTask.status 
+        ...taskData
       });
       setIsFormOpen(false);
     }
