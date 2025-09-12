@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Filter, List, Columns, Edit, X, ChevronDown, Check } from "lucide-react";
+import { Plus, Search, Filter, Edit, X, ChevronDown, Check } from "lucide-react";
 import TaskList from "./TaskList";
 import TaskForm from "./TaskForm";
 import TaskPanelContent from "./TaskPanelContent";
