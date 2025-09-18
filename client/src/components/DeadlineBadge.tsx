@@ -1,107 +1,86 @@
-import { Badge } from "@/components/ui/badge";
-import { getDeadlineBadge } from "@/lib/dateUtils";
-
 interface DeadlineBadgeProps {
   deadline: string | undefined;
   className?: string;
 }
 
 export default function DeadlineBadge({ deadline, className = "" }: DeadlineBadgeProps) {
-  const badgeInfo = getDeadlineBadge(deadline);
-  
-  if (!badgeInfo) {
-    return <span className={`text-muted-foreground ${className}`}>No deadline</span>;
-  }
+  const getDeadlineClass = (dateString: string | undefined) => {
+    if (!dateString) return 'deadline-empty';
+    
+    const today = new Date();
+    const deadlineDate = new Date(dateString);
+    
+    if (isNaN(deadlineDate.getTime())) return 'deadline-empty';
+    
+    const diffDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'deadline-overdue';  // Past due
+    if (diffDays === 0) return 'deadline-overdue'; // Due today (critical)
+    if (diffDays <= 2) return 'deadline-warning';  // Due soon
+    return 'deadline-normal'; // Future
+  };
 
-  const getCustomStyle = () => {
-    switch (badgeInfo.color) {
-      case 'red':
+  const formatDeadlineText = (dateString: string | undefined) => {
+    if (!dateString) return '–';
+    
+    const today = new Date();
+    const deadline = new Date(dateString);
+    
+    if (isNaN(deadline.getTime())) return '–';
+    
+    const diffDays = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === -1) return 'Yesterday';
+    if (diffDays === 1) return 'Tomorrow';
+    if (diffDays < 0) return `${Math.abs(diffDays)}d ago`;
+    if (diffDays <= 7) return `${diffDays}d`;
+    
+    // Format as short date
+    return deadline.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const deadlineClass = getDeadlineClass(deadline);
+  const deadlineText = formatDeadlineText(deadline);
+
+  const getDeadlineStyles = () => {
+    switch (deadlineClass) {
+      case 'deadline-overdue':
         return {
-          style: {
-            display: 'flex',
-            padding: 'var(--2) var(--8-tags)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 'var(--4-icon-text)',
-            borderRadius: 'var(--rounded-full-button)',
-            background: 'var(--fill-badge-red-muted)',
-            color: 'var(--text-error-default)',
-            textAlign: 'center' as const,
-            fontFamily: 'Montserrat',
-            fontSize: '12px',
-            fontStyle: 'normal',
-            fontWeight: '500',
-            lineHeight: '132%',
-            border: 'none',
-            width: 'fit-content'
-          },
-          className: ''
+          backgroundColor: '#321a1a',
+          color: '#f87171'
         };
-      case 'yellow':
+      case 'deadline-warning':
         return {
-          style: {
-            display: 'flex',
-            padding: 'var(--2) var(--8-tags)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 'var(--4-icon-text)',
-            borderRadius: 'var(--rounded-full-button)',
-            background: 'var(--fill-badge-yellow-muted)',
-            color: 'var(--yellow-500)',
-            textAlign: 'center' as const,
-            fontFamily: 'Montserrat',
-            fontSize: '12px',
-            fontStyle: 'normal',
-            fontWeight: '500',
-            lineHeight: '132%',
-            border: 'none',
-            width: 'fit-content'
-          },
-          className: ''
+          backgroundColor: '#302608',
+          color: '#facc15'
         };
-      case 'green':
+      case 'deadline-normal':
         return {
-          style: {
-            display: 'flex',
-            padding: 'var(--2) var(--8-tags)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 'var(--4-icon-text)',
-            borderRadius: 'var(--rounded-full-button)',
-            background: 'var(--alpha-2a-press-selected)',
-            backdropFilter: 'blur(20px)',
-            color: 'var(--text-base-secondary)',
-            textAlign: 'center' as const,
-            fontFamily: 'Montserrat',
-            fontSize: '12px',
-            fontStyle: 'normal',
-            fontWeight: '500',
-            lineHeight: '132%',
-            border: 'none',
-            width: 'fit-content'
-          },
-          className: ''
+          backgroundColor: 'rgba(0, 0, 0, 0.25)',
+          color: '#f7f6f2',
+          backdropFilter: 'blur(20px)'
         };
+      case 'deadline-empty':
       default:
-        return { style: {}, className: '' };
+        return {
+          backgroundColor: 'transparent',
+          color: '#979795'
+        };
     }
   };
 
-  const customStyle = getCustomStyle();
+  const styles = getDeadlineStyles();
 
   return (
-    <Badge 
-      variant={badgeInfo.variant}
-      className={`${customStyle.className} ${className}`}
-      style={customStyle.style}
-      title={deadline ? new Date(deadline).toLocaleDateString('en-US', { 
-        weekday: 'long',
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      }) : undefined}
+    <span 
+      className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium h-5 ${className}`}
+      style={styles}
     >
-      {badgeInfo.label}
-    </Badge>
+      {deadlineText}
+    </span>
   );
 }

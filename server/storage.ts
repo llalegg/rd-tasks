@@ -1,4 +1,4 @@
-import { users, tasks, athletes, type User, type Task, type Athlete, type InsertUser, type InsertTask, type InsertAthlete } from "@shared/schema";
+import { users, tasks, athletes, taskComments, type User, type Task, type Athlete, type TaskComment, type InsertUser, type InsertTask, type InsertAthlete, type InsertTaskComment } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -20,6 +20,11 @@ export interface IStorage {
   getAllAthletes(): Promise<Athlete[]>;
   getAthlete(id: string): Promise<Athlete | undefined>;
   createAthlete(athlete: InsertAthlete): Promise<Athlete>;
+  
+  // Comment methods
+  getTaskComments(taskId: string): Promise<TaskComment[]>;
+  createTaskComment(comment: InsertTaskComment): Promise<TaskComment>;
+  deleteTaskComment(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -70,11 +75,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
+    // First check if task exists
+    const existingTask = await this.getTask(id);
+    if (!existingTask) {
+      throw new Error(`Task with id ${id} not found`);
+    }
+
+    // Filter out undefined values and ensure we don't overwrite required fields with null/undefined
+    const filteredUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([_, value]) => value !== undefined)
+    );
+
     const [task] = await db
       .update(tasks)
-      .set({ ...updates, updatedAt: new Date() })
+      .set({ ...filteredUpdates, updatedAt: new Date() })
       .where(eq(tasks.id, id))
       .returning();
+    
+    if (!task) {
+      throw new Error(`Failed to update task with id ${id}`);
+    }
+    
     return task;
   }
 
@@ -98,6 +119,23 @@ export class DatabaseStorage implements IStorage {
       .values({ ...insertAthlete, id: crypto.randomUUID() })
       .returning();
     return athlete;
+  }
+
+  // Comment methods
+  async getTaskComments(taskId: string): Promise<TaskComment[]> {
+    return await db.select().from(taskComments).where(eq(taskComments.taskId, taskId));
+  }
+
+  async createTaskComment(insertComment: InsertTaskComment): Promise<TaskComment> {
+    const [comment] = await db
+      .insert(taskComments)
+      .values({ ...insertComment, id: crypto.randomUUID() })
+      .returning();
+    return comment;
+  }
+
+  async deleteTaskComment(id: string): Promise<void> {
+    await db.delete(taskComments).where(eq(taskComments.id, id));
   }
 }
 

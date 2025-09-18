@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Task } from "@shared/schema";
 import { Button } from "@/components/ui/button";
@@ -7,20 +7,111 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Filter, Edit, X, ChevronDown, Check } from "lucide-react";
+import { Plus, Search, Filter, Edit, X, ChevronDown, Check, SlidersHorizontal } from "lucide-react";
 import TaskList from "./TaskList";
-import TaskForm from "./TaskForm";
 import TaskPanelContent from "./TaskPanelContent";
 import TaskViewModal from "./TaskViewModal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+// Filter Dropdown Component
+const FilterDropdown = ({ 
+  label, 
+  options, 
+  value, 
+  onChange,
+  isOpen,
+  onToggle,
+  onClose
+}: { 
+  label: string; 
+  options: { value: string; label: string }[]; 
+  value: string[];
+  onChange: (value: string[]) => void;
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+}) => {
+  
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      if (isOpen) onClose();
+    };
+    if (isOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isOpen, onClose]);
+
+  const handleOptionToggle = (optionValue: string) => {
+    if (value.includes(optionValue)) {
+      onChange(value.filter(v => v !== optionValue));
+    } else {
+      onChange([...value, optionValue]);
+    }
+  };
+
+  const clearAll = () => {
+    onChange([]);
+    onClose();
+  };
+  
+  return (
+    <div className="relative">
+      <button 
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle();
+        }}
+        className="flex items-center gap-1.5 px-3 py-2 border border-[#292928] rounded-full bg-transparent text-[#979795] text-xs font-medium cursor-pointer transition-all duration-200 hover:bg-[#292928]"
+      >
+        <span>{label}</span>
+        {value.length > 0 && (
+          <div className="bg-white text-black rounded-full px-1.5 py-0.5 text-xs font-semibold min-w-[18px] h-5 flex items-center justify-center shadow-sm">
+            {value.length}
+          </div>
+        )}
+        <ChevronDown className="w-4 h-4" />
+      </button>
+      
+      {isOpen && (
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-full mt-1 left-0 bg-[#292928] border border-[#3D3D3C] rounded-lg shadow-lg z-50 min-w-[140px]"
+        >
+          <div className="py-1">
+            <button
+              onClick={clearAll}
+              className="w-full text-left px-3 py-2 text-xs text-[#f7f6f2] hover:bg-[#3a3a38] transition-colors border-b border-[#3D3D3C] mb-1"
+            >
+              Clear All
+            </button>
+            {options.map((option) => (
+              <div
+                key={option.value}
+                onClick={() => handleOptionToggle(option.value)}
+                className="flex items-center px-3 py-2 text-xs text-[#f7f6f2] hover:bg-[#3a3a38] transition-colors cursor-pointer"
+              >
+                <Checkbox
+                  checked={value.includes(option.value)}
+                  onCheckedChange={() => handleOptionToggle(option.value)}
+                  className="mr-2 h-3 w-3"
+                />
+                <span>{option.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function TaskManager() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [viewTask, setViewTask] = useState<Task | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,6 +121,10 @@ export default function TaskManager() {
   const [creatorFilters, setCreatorFilters] = useState<string[]>([]);
   const [athleteFilters, setAthleteFilters] = useState<string[]>([]);
   const [hideCompleted, setHideCompleted] = useState(true);
+  const [assigneeFilter, setAssigneeFilter] = useState<string[]>([]);
+  const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -40,9 +135,11 @@ export default function TaskManager() {
 
 
   const formatTaskType = (type: string) => {
-    return type.split('.').map(part => 
-      part.charAt(0).toUpperCase() + part.slice(1)
-    ).join(' ');
+    // Handle camelCase words by splitting on capital letters
+    return type
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
+      .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+      .replace(/\b\w/g, str => str.toUpperCase()); // Capitalize each word
   };
 
   // Fetch users from API
@@ -57,23 +154,31 @@ export default function TaskManager() {
     queryFn: () => fetch('/api/athletes').then(res => res.json()),
   });
 
+  // Get unique assignees from current tasks
+  const availableAssignees = Array.from(new Set(tasks.map((task: Task) => task.assigneeId)))
+    .map(id => users.find((u: any) => u.id === id))
+    .filter(Boolean);
+
   // Filter and sort tasks based on search query and filters
   const filteredTasks = tasks.filter((task: Task) => {
-    const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase());
     
     // Hide completed tasks if option is enabled
     if (hideCompleted && task.status === 'completed') return false;
     
-    // Apply status filters
-    const matchesStatus = statusFilters.length === 0 || statusFilters.includes(task.status);
+    // Apply quick filters
+    const matchesAssignee = assigneeFilter.length === 0 || assigneeFilter.includes(task.assigneeId);
+    const matchesPriority = priorityFilter.length === 0 || priorityFilter.includes(task.priority);
+    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(task.status);
+    
+    // Apply other filters
+    const matchesStatusFilters = statusFilters.length === 0 || statusFilters.includes(task.status);
     const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
     const matchesCreator = creatorFilters.length === 0 || creatorFilters.includes(task.creatorId);
-    const matchesPriority = true;
     const matchesAthlete = athleteFilters.length === 0 || 
       (task.relatedAthleteIds && task.relatedAthleteIds.some((id: string) => athleteFilters.includes(id)));
     
-    return matchesSearch && matchesStatus && matchesType && matchesCreator && matchesPriority && matchesAthlete;
+    return matchesSearch && matchesAssignee && matchesPriority && matchesStatus && matchesStatusFilters && matchesType && matchesCreator && matchesAthlete;
   }).sort((a: Task, b: Task) => {
     if (sortBy === 'deadline') {
       if (!a.deadline && !b.deadline) return 0;
@@ -107,16 +212,6 @@ export default function TaskManager() {
     },
   });
 
-  // Create task mutation
-  const createTaskMutation = useMutation({
-    mutationFn: async (taskData: Partial<Task>) => {
-      return apiRequest('POST', '/api/tasks', taskData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
-      setIsFormOpen(false);
-    },
-  });
 
   // Delete task mutation
   const deleteTaskMutation = useMutation({
@@ -134,50 +229,40 @@ export default function TaskManager() {
     setIsViewModalOpen(true);
   };
 
-  const handleTaskEdit = (task: Task) => {
-    setSelectedTask(task);
-    setFormMode('edit');
-    setIsFormOpen(true);
-    setIsViewModalOpen(false);
+  const handleAddTask = () => {
+    // Create a default new task
+    const newTask: Task = {
+      id: 'new-' + Date.now(), // Temporary ID
+      name: 'New task',
+      description: '',
+      type: 'generaltodo',
+      status: 'new',
+      priority: 'medium',
+      deadline: undefined,
+      assigneeId: '',
+      creatorId: '1', // Default creator ID
+      relatedAthleteIds: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    setViewTask(newTask);
+    setIsViewModalOpen(true);
   };
+
 
   const handleStatusUpdate = (taskId: string, newStatus: Task['status']) => {
 
     updateTaskMutation.mutate({ taskId, status: newStatus });
   };
 
-  const handleCreateTask = () => {
-    setFormMode('create');
-    setSelectedTask(null);
-    setIsFormOpen(true);
-  };
 
 
-  const handleEditTask = (task: Task) => {
-    setFormMode('edit');
-    setSelectedTask(task);
-    setIsFormOpen(true);
-  };
 
   const handleDeleteTask = (taskId: string) => {
     deleteTaskMutation.mutate(taskId);
   };
 
-  const handleFormSubmit = (taskData: Partial<Task>) => {
-    if (formMode === 'create') {
-      createTaskMutation.mutate({
-        ...taskData,
-        status: selectedTask?.status || 'new' as Task['status'],
-        creatorId: '1', // Default creator ID
-      });
-    } else if (formMode === 'edit' && selectedTask) {
-      updateTaskMutation.mutate({ 
-        taskId: selectedTask.id, 
-        ...taskData
-      });
-      setIsFormOpen(false);
-    }
-  };
 
   const getStatusColor = (status: Task['status']) => {
     switch (status) {
@@ -191,7 +276,7 @@ export default function TaskManager() {
 
   const getStatusLabel = (status: Task['status']) => {
     switch (status) {
-      case 'new': return 'To-Do';
+      case 'new': return 'New';
       case 'in_progress': return 'In Progress';
       case 'pending': return 'Pending';
       case 'completed': return 'Completed';
@@ -214,124 +299,83 @@ export default function TaskManager() {
   const statusOptions: Task['status'][] = ['new', 'in_progress', 'pending', 'completed'];
 
   return (
-    <div className="min-h-screen bg-background flex md:ml-[80px] pb-[64px] md:pb-0">
+    <div className="min-h-screen bg-transparent flex md:ml-[80px] pb-[64px] md:pb-0">
       {/* Main Content Area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out ${
         selectedTask ? 'md:pr-[500px]' : ''
       }`}>
         {/* Header */}
-        <header className={`bg-background fixed top-0 left-0 z-40 md:ml-[80px] transition-all duration-300 ${selectedTask ? 'right-[500px]' : 'right-0'}`}>
-          <div className="w-full px-3 md:px-5">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-3 md:py-0 md:h-16 gap-3 md:gap-4">
-              {/* Left Side - Title */}
-              <div className="flex items-center justify-between w-full md:w-auto">
-                <div className="flex-shrink-0">
-                  <h1 className="text-lg md:text-xl font-semibold text-foreground">To-Do's</h1>
-                </div>
-                
-              </div>
-              
-              {/* Right Side - Search, Filters, View Toggle and Add Button */}
-              <div className="flex items-center space-x-2 md:space-x-3 w-full md:w-auto">
-                {/* Search Input */}
-                <div className="flex p-0 items-center gap-[10px] flex-1 md:flex-none md:w-64 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
-                  <Input
-                    placeholder="Search tasks"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="text-sm h-8 px-3 py-2 rounded-lg bg-[#292928] border-[#292928] w-full"
-                    style={{ paddingLeft: '32px' }}
-                  />
-                </div>
-                
-                {/* List View Controls */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setHideCompleted(!hideCompleted)}
-                  className="h-8 px-3 rounded-[9999px] bg-[#292928] border-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0"
-                >
-                  {hideCompleted ? 'Show' : 'Hide'} Completed
-                </Button>
-                <Select value={sortBy} onValueChange={(value: 'deadline') => setSortBy(value)}>
-                      <SelectTrigger className="w-36 h-8 bg-[#292928] border-[#292928] text-[#F7F6F2] text-[12px] font-medium rounded-[9999px] text-left">
-                        <SelectValue placeholder="Sort by" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#292928] border-none">
-                        <SelectItem value="deadline" className="text-[12px] hover:bg-muted/50 text-left">Sort by deadline</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                {/* Status Filter */}
-                <div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="secondary" size="sm" className="h-8 px-3 rounded-[9999px] bg-[#292928] text-[#F7F6F2] hover:bg-[#3D3D3C] text-[12px] font-medium flex-shrink-0">
-                      <Filter className="w-4 h-4" style={{ marginRight: '6px' }} />
-                      <span className="hidden sm:inline">
-                        {statusFilters.length > 0 ? `Status (${statusFilters.length})` : 'Status'}
-                      </span>
-                      <ChevronDown className="w-3 h-3 ml-1" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 p-3 bg-[#292928] border-[#3D3D3C]" align="end">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-[#F7F6F2]">Filter by Status</h4>
-                        {statusFilters.length > 0 && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={clearStatusFilters}
-                            className="h-6 px-2 text-[10px] text-[#979795] hover:text-[#F7F6F2]"
-                          >
-                            Clear
-                          </Button>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        {statusOptions.map((status) => (
-                          <div key={status} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`status-${status}`}
-                              checked={statusFilters.includes(status)}
-                              onCheckedChange={(checked) => handleStatusFilterChange(status, checked === true)}
-                              className="border-[#585856] data-[state=checked]:bg-[#E5E4E1] data-[state=checked]:border-[#E5E4E1]"
-                            />
-                            <label
-                              htmlFor={`status-${status}`}
-                              className="text-sm text-[#F7F6F2] cursor-pointer"
-                            >
-                              {getStatusLabel(status)}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                </div>
-
-                {/* Add Button */}
-                <div className="hidden md:flex items-center space-x-3">
-                  <Button onClick={handleCreateTask} className="flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
-                    Add Task
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Mobile Add Button */}
-              <div className="md:hidden w-full">
-                <Button onClick={handleCreateTask} className="w-full flex h-8 px-3 py-2 justify-center items-center rounded-[9999px] bg-[#E5E4E1] text-[#000000] hover:bg-[#CFCECA] font-semibold text-[12px]">
-                  Add Task
-                </Button>
-              </div>
+        <header className={`fixed top-0 left-0 right-0 z-40 md:left-[80px] transition-all duration-300 ${selectedTask ? 'md:right-[500px]' : 'right-0'} flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-5 py-4 md:py-5 bg-transparent min-h-[72px] gap-4 md:gap-0`}>
+          <div className="flex items-center">
+            <h1 className="text-2xl font-semibold text-[#f7f6f2] font-montserrat leading-[1.32]">Tasks</h1>
+          </div>
+          
+          <div className="flex items-center gap-2 md:gap-3 flex-wrap w-full md:w-auto justify-start md:justify-end">
+            <FilterDropdown 
+              label="Assignee" 
+              options={availableAssignees.map((user: any) => ({ value: user.id, label: user.name }))}
+              value={assigneeFilter}
+              onChange={setAssigneeFilter}
+              isOpen={openDropdown === 'assignee'}
+              onToggle={() => setOpenDropdown(openDropdown === 'assignee' ? null : 'assignee')}
+              onClose={() => setOpenDropdown(null)}
+            />
+            <FilterDropdown 
+              label="Priority" 
+              options={[
+                { value: 'low', label: 'Low' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'high', label: 'High' }
+              ]}
+              value={priorityFilter}
+              onChange={setPriorityFilter}
+              isOpen={openDropdown === 'priority'}
+              onToggle={() => setOpenDropdown(openDropdown === 'priority' ? null : 'priority')}
+              onClose={() => setOpenDropdown(null)}
+            />
+            <FilterDropdown 
+              label="Status" 
+              options={[
+                { value: 'new', label: 'New' },
+                { value: 'in_progress', label: 'In Progress' },
+                { value: 'pending', label: 'Pending' },
+                { value: 'completed', label: 'Completed' }
+              ]}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              isOpen={openDropdown === 'status'}
+              onToggle={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
+              onClose={() => setOpenDropdown(null)}
+            />
+            
+            <div className="flex items-center gap-2.5 px-3 py-2 bg-[#292928] rounded-lg h-8 w-full sm:w-auto sm:min-w-[160px] md:min-w-[200px] max-w-[280px]">
+              <Search className="w-4 h-4 text-[#f7f6f2]" />
+              <Input
+                type="text"
+                placeholder="Search by task name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none outline-none text-[#f7f6f2] text-sm font-montserrat flex-1 placeholder-[#979795] focus:ring-0 focus:outline-none p-0 h-auto"
+              />
             </div>
+            
+            <Button className="flex items-center gap-2 px-3 py-2 bg-[#292928] border-none rounded-full text-[#f7f6f2] text-xs font-medium cursor-pointer h-8 min-w-[86px] justify-center transition-all duration-200 hover:bg-[#3a3a38]">
+              <SlidersHorizontal className="w-4 h-4" />
+              <span className="hidden sm:inline">Filters</span>
+            </Button>
+
+            <Button
+              onClick={handleAddTask}
+              className="bg-white hover:bg-gray-100 text-black font-medium px-3 py-2 rounded-full text-xs h-8 min-w-[86px] justify-center transition-all duration-200"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Add Task</span>
+            </Button>
+            
           </div>
         </header>
         {/* Main Content */}
-        <main className="w-full px-3 md:px-5 py-4 md:py-8 pt-16 md:pt-20">
+        <main className="w-full p-4 md:p-5 pt-[120px] md:pt-[88px]">
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
@@ -341,7 +385,6 @@ export default function TaskManager() {
               tasks={filteredTasks} 
               onTaskClick={handleTaskClick}
               onStatusUpdate={handleStatusUpdate}
-              onEditTask={handleEditTask}
               onDeleteTask={handleDeleteTask}
             />
           )}
@@ -354,14 +397,6 @@ export default function TaskManager() {
           {/* Panel Header */}
           <div className="flex items-center justify-end p-4 bg-transparent">
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleEditTask(selectedTask)}
-                className="h-7 w-7 p-0"
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
               <Button
                 variant="ghost"
                 size="sm"
@@ -383,14 +418,6 @@ export default function TaskManager() {
         </div>
       )}
 
-      {/* Task Form */}
-      <TaskForm
-        task={selectedTask}
-        isOpen={isFormOpen}
-        mode={formMode}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleFormSubmit}
-      />
 
       {/* Task View Modal */}
       <TaskViewModal
@@ -400,7 +427,8 @@ export default function TaskManager() {
           setIsViewModalOpen(false);
           setViewTask(null);
         }}
-        onEdit={handleTaskEdit}
+        onStatusUpdate={handleStatusUpdate}
+        onDeleteTask={handleDeleteTask}
       />
     </div>
   );

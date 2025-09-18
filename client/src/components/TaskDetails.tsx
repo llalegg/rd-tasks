@@ -1,4 +1,5 @@
 import { Task, User, Athlete } from "@shared/schema";
+import { TaskWithRelations } from "@/data/mockData";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,14 +13,12 @@ import UserAvatar from "./UserAvatar";
 import { useToast } from "@/hooks/use-toast";
 
 interface TaskDetailsProps {
-  task: Task;
+  task: TaskWithRelations;
   onStatusUpdate: (taskId: string, newStatus: Task['status']) => void;
-  onEdit?: (task: Task) => void;
-  showEditButton?: boolean;
   layout?: 'sidebar' | 'modal';
 }
 
-export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButton = true, layout = 'sidebar' }: TaskDetailsProps) {
+export default function TaskDetails({ task, onStatusUpdate, layout = 'sidebar' }: TaskDetailsProps) {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<Task['status'] | null>(null);
   const { toast } = useToast();
@@ -43,9 +42,11 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
     : [];
 
   const formatTaskType = (type: string) => {
-    return type.split('.').map(part => 
-      part.charAt(0).toUpperCase() + part.slice(1)
-    ).join(' ');
+    // Handle camelCase words by splitting on capital letters
+    return type
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
+      .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+      .replace(/\b\w/g, str => str.toUpperCase()); // Capitalize each word
   };
 
   const formatDate = (dateString: string | Date) => {
@@ -60,7 +61,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
 
   const getStatusLabel = (status: Task['status']) => {
     switch (status) {
-      case 'new': return 'To-Do';
+      case 'new': return 'New';
       case 'in_progress': return 'In Progress';
       case 'pending': return 'Pending';
       case 'completed': return 'Completed';
@@ -113,18 +114,6 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
         <Badge variant="outline" className="mb-2 text-xs">
           {formatTaskType(task.type)}
         </Badge>
-        {showEditButton && onEdit && (
-          <div className="mt-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onEdit(task)}
-              className="h-8 px-3 text-xs"
-            >
-              Edit
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Description */}
@@ -167,7 +156,7 @@ export default function TaskDetails({ task, onStatusUpdate, onEdit, showEditButt
           <SelectContent className="bg-[#292928] border-none">
             <SelectItem value="new" className="hover:bg-muted/50">
               <div className="flex items-center gap-2">
-                <span>To-Do</span>
+                <span>New</span>
               </div>
             </SelectItem>
             <SelectItem value="in_progress" className="hover:bg-muted/50">

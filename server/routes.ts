@@ -2,6 +2,10 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertTaskSchema, insertUserSchema, insertAthleteSchema } from "@shared/schema";
+import { db } from "./db";
+import { users, tasks, athletes, taskAthletes } from "@shared/schema";
+import { eq, and } from "drizzle-orm";
+import { mockUsers, mockAthletes, mockTasks, mockTaskAthletes } from "../client/src/data/mockData";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Task routes
@@ -38,10 +42,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/tasks/:id", async (req, res) => {
     try {
+      console.log('Updating task:', req.params.id, 'with data:', req.body);
       const task = await storage.updateTask(req.params.id, req.body);
       res.json(task);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update task" });
+      console.error('Failed to update task:', error);
+      res.status(500).json({ error: "Failed to update task", details: error.message });
     }
   });
 
@@ -51,6 +57,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete task" });
+    }
+  });
+
+  // Seed database endpoint
+  app.post("/api/seed", async (req, res) => {
+    try {
+      console.log("🌱 Seeding database...");
+      
+      // Clear existing data
+      await db.delete(taskAthletes);
+      await db.delete(tasks);
+      await db.delete(athletes);
+      await db.delete(users);
+      
+      // Insert users
+      console.log("📝 Inserting users...");
+      await db.insert(users).values(mockUsers);
+      
+      // Insert athletes
+      console.log("🏃 Inserting athletes...");
+      await db.insert(athletes).values(mockAthletes);
+      
+      // Insert tasks
+      console.log("📋 Inserting tasks...");
+      const tasksToInsert = mockTasks.map(({ relatedAthleteIds, ...task }) => task);
+      await db.insert(tasks).values(tasksToInsert);
+      
+      // Insert task-athlete relationships
+      console.log("🔗 Inserting task-athlete relationships...");
+      await db.insert(taskAthletes).values(mockTaskAthletes);
+      
+      console.log("✅ Database seeded successfully!");
+      res.json({ message: "Database seeded successfully!" });
+    } catch (error) {
+      console.error("❌ Error seeding database:", error);
+      res.status(500).json({ error: "Failed to seed database" });
     }
   });
 

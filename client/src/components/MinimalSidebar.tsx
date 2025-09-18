@@ -1,14 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { 
-  Barbell, 
+  Dumbbell, 
   CheckSquare, 
   Users, 
-  ChatTeardrop, 
-  PhoneCall, 
-  Vault, 
-  Books
-} from "@phosphor-icons/react";
+  MessageCircle, 
+  Phone, 
+  Shield, 
+  BookOpen
+} from "lucide-react";
 import logoImage from '@assets/Logo_1752265131424.png';
 
 export function MinimalSidebar() {
@@ -23,17 +23,17 @@ export function MinimalSidebar() {
 
       {/* Navigation Items */}
       <div className="flex-1 flex flex-row md:flex-col items-center justify-center gap-2 md:gap-[16px] px-4">
-        {/* To-Dos */}
+        {/* Tasks */}
         <div className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg bg-[rgba(255,255,255,0.04)] text-[#F7F6F2]">
-          <CheckSquare className="w-6 h-6" weight="regular" />
+          <CheckSquare className="w-6 h-6" />
           <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
-            To-Dos
+            Tasks
           </span>
         </div>
 
         {/* Athletes */}
         <div className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg text-[#585856]">
-          <Users className="w-6 h-6" weight="regular" />
+          <Users className="w-6 h-6" />
           <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
             Athletes
           </span>
@@ -41,7 +41,7 @@ export function MinimalSidebar() {
 
         {/* Messages */}
         <div className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg text-[#585856]">
-          <ChatTeardrop className="w-6 h-6" weight="regular" />
+          <MessageCircle className="w-6 h-6" />
           <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
             Messages
           </span>
@@ -49,7 +49,7 @@ export function MinimalSidebar() {
 
         {/* Calls */}
         <div className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg text-[#585856]">
-          <PhoneCall className="w-6 h-6" weight="regular" />
+          <Phone className="w-6 h-6" />
           <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
             Calls
           </span>
@@ -57,7 +57,7 @@ export function MinimalSidebar() {
 
         {/* Vault */}
         <div className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg text-[#585856]">
-          <Vault className="w-6 h-6" weight="regular" />
+          <Shield className="w-6 h-6" />
           <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
             Vault
           </span>
@@ -65,7 +65,7 @@ export function MinimalSidebar() {
 
         {/* Libraries */}
         <Link href="/" className="flex flex-col justify-center items-center w-20 md:w-[66px] h-[48px] md:h-[68px] p-2 md:p-3 rounded-lg cursor-pointer text-[#585856] hover:bg-[rgba(255,255,255,0.04)] transition-colors">
-          <Books className="w-6 h-6" weight="regular" />
+          <BookOpen className="w-6 h-6" />
           <span className="text-center font-montserrat text-[10px] font-medium leading-[120%] mt-1">
             Libraries
           </span>
