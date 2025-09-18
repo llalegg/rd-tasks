@@ -107,7 +107,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       status?: Task['status'];
       priority?: string;
       deadline?: string | null;
-      assigneeId?: string;
+      assigneeId?: string | null;
       type?: string;
       relatedAthleteIds?: string[];
     }) => {
@@ -115,18 +115,24 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       
       if (isNewTask) {
         // For new tasks, create them instead of updating
-        const fullTaskData = {
+        const fullTaskData: any = {
           name: updateData.name || task.name,
-          description: updateData.description || task.description || '',
           type: task.type,
           status: updateData.status || task.status,
           priority: (updateData.priority || task.priority) as 'low' | 'medium' | 'high',
-          deadline: updateData.deadline !== undefined ? (updateData.deadline ? new Date(updateData.deadline) : null) : (task.deadline ? new Date(task.deadline) : null),
-          assigneeId: updateData.assigneeId || task.assigneeId,
-          creatorId: task.creatorId,
-          comment: task.comment,
+          // Provide defaults for fields that are still required in DB but optional in our logic
+          description: updateData.description || task.description || '',
+          assigneeId: updateData.assigneeId || task.assigneeId || '1', // Default assignee
+          creatorId: task.creatorId || '1', // Default creator
           relatedAthleteIds: updateData.relatedAthleteIds || task.relatedAthleteIds || []
         };
+        
+        if (updateData.deadline !== undefined) {
+          fullTaskData.deadline = updateData.deadline ? new Date(updateData.deadline) : null;
+        } else if (task.deadline) {
+          fullTaskData.deadline = new Date(task.deadline);
+        }
+        
         return await createTaskMutation.mutateAsync(fullTaskData);
       }
       
@@ -220,7 +226,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         {
           id: '1',
           action: 'Task created',
-          userId: task.creatorId,
+          userId: task.creatorId || '1',
           userName: 'John Withington',
           createdAt: new Date(task.createdAt).toISOString()
         },
@@ -230,7 +236,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
           field: 'status',
           oldValue: 'pending',
           newValue: 'new',
-          userId: task.assigneeId,
+          userId: task.assigneeId || '1',
           userName: 'Sarah Johnson',
           createdAt: new Date(task.updatedAt || task.createdAt).toISOString()
         }
@@ -436,8 +442,10 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   const handleAssigneeChange = (assigneeId: string) => {
     if (task) {
-      // Don't set assigneeId to empty string as it's required in the schema
-      if (assigneeId && assigneeId !== 'unassigned') {
+      // assigneeId is now optional, so we can set it to null for 'unassigned'
+      if (assigneeId === 'unassigned') {
+        updateTaskMutation.mutate({ assigneeId: null });
+      } else {
         updateTaskMutation.mutate({ assigneeId });
       }
     }

@@ -238,13 +238,13 @@ export default function TaskManager() {
     const newTask: Task = {
       id: 'new-' + Date.now(), // Temporary ID
       name: 'New task',
-      description: '',
-      type: 'injury',
+      description: '', // Optional field, can be empty
+      type: 'injury', // Using 'injury' as it works with current DB
       status: 'new',
       priority: 'medium',
       deadline: undefined,
-      assigneeId: '1', // Default assignee
-      creatorId: '1', // Default creator ID
+      assigneeId: undefined, // Now optional
+      creatorId: undefined, // Now optional
       relatedAthleteIds: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

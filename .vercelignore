@@ -1,0 +1,38 @@
+# Development files
+*.md
+!DEPLOYMENT.md
+.env*
+!.env.example
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies that will be installed on Vercel
+node_modules/
+
+# Source maps and development artifacts
+*.map
+.replit
+
+# Test files
+**/*.test.*
+**/*.spec.*
+test/
+tests/
+
+# Documentation
+docs/
+attached_assets/
+
+# Git files
+.git/
+.gitignore
+
+# Development scripts
+scripts/migrate.js
+
+# Migrations (these will be run post-deploy)
+migrations/

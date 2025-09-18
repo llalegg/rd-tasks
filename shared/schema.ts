@@ -91,10 +91,10 @@ export const tasks = pgTable('tasks', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   type: taskTypeEnum('type').notNull(),
-  description: text('description').notNull(),
-  assigneeId: text('assignee_id').references(() => users.id).notNull(),
-  creatorId: text('creator_id').references(() => users.id).notNull(),
-  deadline: timestamp('deadline'), // Changed from text to timestamp
+  description: text('description'), // Made optional
+  assigneeId: text('assignee_id').references(() => users.id), // Made optional
+  creatorId: text('creator_id').references(() => users.id), // Made optional
+  deadline: timestamp('deadline'), // Already optional
   status: taskStatusEnum('status').notNull().default('new'),
   priority: taskPriorityEnum('priority').notNull().default('medium'),
   comment: text('comment'),
@@ -182,6 +182,9 @@ export const taskCommentsRelations = relations(taskComments, ({ one }) => ({
 // Zod schemas
 export const insertTaskSchema = createInsertSchema(tasks, {
   id: z.string().optional(),
+  description: z.string().optional(),
+  assigneeId: z.string().optional(),
+  creatorId: z.string().optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 }).omit({ id: true, createdAt: true, updatedAt: true });
