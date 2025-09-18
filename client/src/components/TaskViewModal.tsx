@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Task, User, Athlete } from "@shared/schema";
+import { Task, User, Athlete, InsertTask } from "@shared/schema";
 import { TaskWithRelations, taskTypes } from "@/data/mockData";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
@@ -78,8 +78,9 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   // Create task mutation
   const createTaskMutation = useMutation({
-    mutationFn: async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
-      return await apiRequest('POST', '/api/tasks', taskData);
+    mutationFn: async (taskData: InsertTask & { relatedAthleteIds?: string[] }) => {
+      const response = await apiRequest('POST', '/api/tasks', taskData);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
@@ -105,12 +106,13 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       description?: string; 
       status?: Task['status'];
       priority?: string;
-      deadline?: string;
+      deadline?: string | null;
       assigneeId?: string;
       type?: string;
       relatedAthleteIds?: string[];
     }) => {
       if (!task) throw new Error('No task');
+      
       if (isNewTask) {
         // For new tasks, create them instead of updating
         const fullTaskData = {
@@ -127,8 +129,10 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         };
         return await createTaskMutation.mutateAsync(fullTaskData);
       }
+      
       const response = await apiRequest('PUT', `/api/tasks/${task.id}`, updateData);
-      return await response.json();
+      const updatedTask = await response.json();
+      return updatedTask;
     },
     onSuccess: (updatedTask: any) => {
       // Update the specific task in the cache instead of invalidating all queries
@@ -137,12 +141,22 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         return oldData.map((t: any) => t.id === updatedTask.id ? updatedTask : t);
       });
       
-      // Reduced toast notifications to avoid spam
+      // Only close modal if this was a new task creation
+      if (isNewTask) {
+        toast({
+          title: "Success",
+          description: "Task created successfully",
+        });
+        onClose(); // Close modal only for new task creation
+      }
+      
+      // For regular updates, just show a subtle success indication
+      // (no toast to avoid spam during frequent updates)
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to update task",
+        description: error.message || "Failed to update task",
         variant: "destructive",
       });
     },
@@ -338,6 +352,16 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     <Circle className="w-4 h-4" style={{ color: '#ff8254' }} />
   );
 
+  const formatDateForInput = (dateValue: string | Date | null | undefined) => {
+    if (!dateValue) return '';
+    try {
+      const date = new Date(dateValue);
+      return isNaN(date.getTime()) ? '' : date.toISOString().split('T')[0];
+    } catch {
+      return '';
+    }
+  };
+
   const getStatusLabel = (status: Task['status']) => {
     switch (status) {
       case 'new': return 'New';
@@ -382,7 +406,25 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   const handleDeadlineChange = (deadline: string | undefined) => {
     if (task) {
-      updateTaskMutation.mutate({ deadline });
+      // Convert deadline string to proper format, null to clear, or undefined to not change
+      let deadlineValue: string | null | undefined;
+      if (deadline === '' || deadline === undefined) {
+        deadlineValue = null; // Clear the deadline
+      } else {
+        try {
+          const date = new Date(deadline);
+          // Check if the date is valid
+          if (isNaN(date.getTime())) {
+            console.error('Invalid date:', deadline);
+            return;
+          }
+          deadlineValue = date.toISOString();
+        } catch (error) {
+          console.error('Error parsing date:', deadline, error);
+          return;
+        }
+      }
+      updateTaskMutation.mutate({ deadline: deadlineValue });
     }
   };
 
@@ -394,7 +436,10 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   const handleAssigneeChange = (assigneeId: string) => {
     if (task) {
-      updateTaskMutation.mutate({ assigneeId });
+      // Don't set assigneeId to empty string as it's required in the schema
+      if (assigneeId && assigneeId !== 'unassigned') {
+        updateTaskMutation.mutate({ assigneeId });
+      }
     }
   };
 
@@ -823,7 +868,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                     <div className="text-sm font-medium text-[#979795]">Deadline</div>
                     <input
                       type="date"
-                      value={task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : ''}
+                      value={formatDateForInput(task.deadline)}
                       onChange={(e) => handleDeadlineChange(e.target.value === '' ? undefined : e.target.value)}
                       className="bg-[#292928] border border-[#3d3d3c] text-sm text-[#f7f6f2] rounded-lg px-3 py-2 h-9 cursor-pointer outline-none"
                       placeholder="No deadline"
@@ -1277,42 +1322,46 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
             <div className="flex flex-col gap-4">
               <div className="text-sm font-semibold text-[#f7f6f2] leading-[1.46] h-8 flex items-center">Properties</div>
               
-              <div className="flex flex-col gap-1">
-                <Select value={task.priority || 'medium'} onValueChange={handlePriorityChange}>
-                  <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
-                    <div className="text-xs font-medium text-[#979795] leading-[1.32] w-[108px] flex-shrink-0">Priority</div>
-                    <div className="flex-1 flex items-center gap-1">
-                      {getPriorityBadge(task.priority || 'medium')}
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                    <SelectItem value="high" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                      <div className="flex items-center gap-2">
-                        <ChevronUp className="w-4 h-4" style={{ color: '#f87171' }} />
-                        High
+              <div className="flex flex-col gap-3">
+                {/* Priority */}
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Priority</div>
+                  <Select value={task.priority || 'medium'} onValueChange={handlePriorityChange}>
+                    <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
+                      <div className="flex-1 flex items-center gap-1">
+                        {getPriorityBadge(task.priority || 'medium')}
                       </div>
-                    </SelectItem>
-                    <SelectItem value="medium" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                      <div className="flex items-center gap-2">
-                        <ChevronDown className="w-4 h-4" style={{ color: '#3f83f8' }} />
-                        Medium
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="low" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                      <div className="flex items-center gap-2">
-                        <Minus className="w-4 h-4" style={{ color: '#979795' }} />
-                        Low
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#292928] border-[#3d3d3c]">
+                      <SelectItem value="high" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
+                        <div className="flex items-center gap-2">
+                          <ChevronUp className="w-4 h-4" style={{ color: '#f87171' }} />
+                          High
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="medium" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
+                        <div className="flex items-center gap-2">
+                          <ChevronDown className="w-4 h-4" style={{ color: '#3f83f8' }} />
+                          Medium
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="low" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
+                        <div className="flex items-center gap-2">
+                          <Minus className="w-4 h-4" style={{ color: '#979795' }} />
+                          Low
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] w-[108px] flex-shrink-0">Deadline</div>
-                  <div className="flex-1 flex items-center gap-1">
+                {/* Deadline */}
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Deadline</div>
+                  <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
                     <input
                       type="date"
-                      value={task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : ''}
+                      value={formatDateForInput(task.deadline)}
                       onChange={(e) => handleDeadlineChange(e.target.value === '' ? undefined : e.target.value)}
                       className="bg-transparent border-none text-xs font-normal text-[#f7f6f2] leading-[1.32] cursor-pointer outline-none w-full"
                       placeholder="No deadline"
@@ -1320,65 +1369,73 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   </div>
                 </div>
 
-                <Select value={task.type} onValueChange={handleTypeChange}>
-                  <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
-                    <div className="text-xs font-medium text-[#979795] leading-[1.32] w-[108px] flex-shrink-0">Type</div>
-                    <div className="flex-1 flex items-center gap-1">
-                      {getTypeBadge(task.type)}
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                    {taskTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value} className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {/* Type */}
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Type</div>
+                  <Select value={task.type} onValueChange={handleTypeChange}>
+                    <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
+                      <div className="flex-1 flex items-center gap-1">
+                        {getTypeBadge(task.type)}
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#292928] border-[#3d3d3c]">
+                      {taskTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value} className="text-[#f7f6f2] focus:bg-[#3a3a38]">
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                <Select value={task.assigneeId || 'unassigned'} onValueChange={(value) => handleAssigneeChange(value === 'unassigned' ? '' : value)}>
-                  <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
-                    <div className="text-xs font-medium text-[#979795] leading-[1.32] w-[108px] flex-shrink-0">Assignee</div>
-                    <div className="flex-1 flex items-center gap-1">
-                      {assignee ? (
-                        <div className="flex items-center gap-1">
-                          <div className="w-5 h-5 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white border border-[#292928]">
-                            {assignee.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                {/* Assignee */}
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Assignee</div>
+                  <Select value={task.assigneeId || 'unassigned'} onValueChange={(value) => handleAssigneeChange(value === 'unassigned' ? '' : value)}>
+                    <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
+                      <div className="flex-1 flex items-center gap-1">
+                        {assignee ? (
+                          <div className="flex items-center gap-1">
+                            <div className="w-5 h-5 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white border border-[#292928]">
+                              {assignee.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                            </div>
+                            <div className="text-xs font-medium text-[#f7f6f2] leading-[1.32] overflow-hidden text-ellipsis whitespace-nowrap">{assignee.name}</div>
                           </div>
-                          <div className="text-xs font-medium text-[#f7f6f2] leading-[1.32] overflow-hidden text-ellipsis whitespace-nowrap">{assignee.name}</div>
-                        </div>
-                      ) : (
-                        <div className="text-xs font-normal text-[#979795] leading-[1.32]">Unassigned</div>
-                      )}
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                    <SelectItem value="unassigned" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                      Unassigned
-                    </SelectItem>
-                    {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id} className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
-                            {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                          </div>
-                          {user.name}
-                        </div>
+                        ) : (
+                          <div className="text-xs font-normal text-[#979795] leading-[1.32]">Unassigned</div>
+                        )}
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#292928] border-[#3d3d3c]">
+                      <SelectItem value="unassigned" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
+                        Unassigned
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id} className="text-[#f7f6f2] focus:bg-[#3a3a38]">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
+                              {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                            </div>
+                            {user.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] w-[108px] flex-shrink-0">Created on</div>
-                  <div className="flex-1 flex items-center gap-1">
+                {/* Created on */}
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Created on</div>
+                  <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1">
                     <div className="text-xs font-normal text-[#f7f6f2] leading-[1.32]">{formatDate(task.createdAt)}</div>
                   </div>
                 </div>
 
-                <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] w-[108px] flex-shrink-0">Created by</div>
-                  <div className="flex-1 flex items-center gap-1">
+                {/* Created by */}
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Created by</div>
+                  <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1">
                     {creator ? (
                       <div className="flex items-center gap-1">
                         <div className="w-5 h-5 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white border border-[#292928]">

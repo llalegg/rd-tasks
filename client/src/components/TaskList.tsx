@@ -39,6 +39,8 @@ interface TaskListProps {
   onTaskClick: (task: Task) => void;
   onStatusUpdate?: (taskId: string, newStatus: Task['status']) => void;
   onDeleteTask?: (taskId: string) => void;
+  viewMode?: 'list' | 'cards';
+  isMobile?: boolean;
 }
 
 type SortField = 'deadline' | 'type' | 'name' | 'status' | 'priority';
@@ -83,6 +85,129 @@ const PriorityIndicator = ({ priority }: { priority: string }) => {
       style={{ backgroundColor: styles.bgColor }}
     >
       {styles.icon}
+    </div>
+  );
+};
+
+// Mobile Task Card Component
+const MobileTaskCard = ({ task, users, athletes, onTaskClick }: { 
+  task: Task; 
+  users: any[]; 
+  athletes: any[]; 
+  onTaskClick: (task: Task) => void; 
+}) => {
+  const assignee = users.find((u: any) => u.id === task.assigneeId);
+  const relatedAthletes = (task as any).relatedAthleteIds ? 
+    (task as any).relatedAthleteIds.map((id: string) => athletes.find((a: any) => a.id === id)).filter(Boolean) : [];
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority?.toLowerCase()) {
+      case 'high': return '#f87171';
+      case 'medium': return '#3f83f8';
+      case 'low': return '#979795';
+      default: return '#979795';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'new': return '#ff8254';
+      case 'in_progress': return '#3f83f8';
+      case 'pending': return '#f87171';
+      case 'completed': return '#4ade80';
+      default: return '#ff8254';
+    }
+  };
+
+  const formatDeadline = (deadline: string | Date | undefined) => {
+    if (!deadline) return null;
+    const date = new Date(deadline);
+    const today = new Date();
+    const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Tomorrow';
+    if (diffDays === -1) return 'Yesterday';
+    if (diffDays < 0) return `${Math.abs(diffDays)}d ago`;
+    if (diffDays <= 7) return `${diffDays}d`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  return (
+    <div 
+      onClick={() => onTaskClick(task)}
+      className="bg-[#1C1C1B] border border-[#292928] rounded-xl p-4 cursor-pointer hover:bg-[#2C2C2B] transition-colors"
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 pr-3">
+          <h3 className="text-[#F7F6F2] text-sm font-semibold leading-[1.46] mb-1 line-clamp-2">
+            {task.name}
+          </h3>
+          <div className="flex items-center gap-2">
+            <div 
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: getStatusColor(task.status) }}
+            />
+            <span className="text-xs text-[#979795] capitalize">
+              {task.status.replace('_', ' ')}
+            </span>
+          </div>
+        </div>
+        <div 
+          className="w-3 h-3 rounded-full flex-shrink-0"
+          style={{ backgroundColor: getPriorityColor(task.priority) }}
+        />
+      </div>
+
+      {/* Content */}
+      <div className="space-y-3">
+        {/* Assignee & Athletes */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {assignee ? (
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
+                  {assignee.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                </div>
+                <span className="text-xs text-[#979795]">{assignee.name}</span>
+              </div>
+            ) : (
+              <span className="text-xs text-[#979795]">Unassigned</span>
+            )}
+          </div>
+          
+          {relatedAthletes.length > 0 && (
+            <div className="flex items-center">
+              {relatedAthletes.slice(0, 3).map((athlete: any, index: number) => (
+                <div
+                  key={athlete?.id}
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-black border-opacity-70 ${index > 0 ? '-ml-1' : ''}`}
+                  style={{
+                    backgroundColor: ['#4ade80', '#3b82f6', '#f59e0b'][index % 3]
+                  }}
+                >
+                  {athlete?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                </div>
+              ))}
+              {relatedAthletes.length > 3 && (
+                <div className="w-5 h-5 rounded-full bg-[#3d3d3c] flex items-center justify-center text-xs font-semibold text-[#979795] -ml-1">
+                  +{relatedAthletes.length - 3}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Deadline */}
+        {task.deadline && (
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[#979795]">Deadline</span>
+            <span className="text-xs text-[#f7f6f2]">{formatDeadline(task.deadline)}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -170,8 +295,8 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
   };
 
   const assignee = users.find((u: any) => u.id === task.assigneeId);
-  const relatedAthletes = task.relatedAthleteIds ? 
-    task.relatedAthleteIds.map(id => athletes.find(a => a.id === id)).filter(Boolean) : [];
+  const relatedAthletes = (task as any).relatedAthleteIds ? 
+    (task as any).relatedAthleteIds.map((id: string) => athletes.find((a: any) => a.id === id)).filter(Boolean) : [];
 
   return (
     <div
@@ -207,7 +332,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
         <div className="flex items-center">
           {relatedAthletes.length > 0 ? (
             <div className="flex">
-              {relatedAthletes.slice(0, 4).map((athlete, avatarIndex) => (
+              {relatedAthletes.slice(0, 4).map((athlete: any, avatarIndex: number) => (
                 <div
                   key={athlete?.id}
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-black border-opacity-70 ${avatarIndex > 0 ? '-ml-2' : ''}`}
@@ -215,7 +340,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
                     backgroundColor: ['#4ade80', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'][avatarIndex % 5]
                   }}
                 >
-                  {athlete?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  {athlete?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                 </div>
               ))}
             </div>
@@ -244,7 +369,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
                   className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-black border-opacity-70"
                   style={{ backgroundColor: '#f59e0b' }}
                 >
-                  {assignee.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                            {assignee.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                 </div>
               ) : (
                 <span className="text-[#979795] text-sm">Unassigned</span>
@@ -266,7 +391,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
                     className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-black border-opacity-70"
                     style={{ backgroundColor: '#f59e0b' }}
                   >
-                    {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                   </div>
                   {user.name}
                 </div>
@@ -365,7 +490,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
               <div className="text-xs font-medium text-[#f7f6f2]">Set Deadline</div>
               <Input
                 type="date"
-                value={task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : ''}
+                value={task.deadline ? new Date(task.deadline as string).toISOString().split('T')[0] : ''}
                 onChange={(e) => {
                   e.stopPropagation();
                   onUpdateDeadline(task.id, e.target.value === '' ? undefined : e.target.value);
@@ -462,7 +587,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
   );
 }
 
-export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteTask }: TaskListProps) {
+export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteTask, viewMode = 'list', isMobile = false }: TaskListProps) {
   const [sortField, setSortField] = useState<SortField>('deadline');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [orderedTasks, setOrderedTasks] = useState<Task[]>(tasks);
@@ -582,8 +707,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
   };
 
   const handleUpdateDeadline = (taskId: string, deadline: string | undefined) => {
-    const deadlineDate = deadline ? new Date(deadline) : undefined;
-    updateTaskMutation.mutate({ taskId, updates: { deadline: deadlineDate } });
+    updateTaskMutation.mutate({ taskId, updates: { deadline: deadline ? new Date(deadline) : null } });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
   };
 
@@ -656,63 +780,91 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
     return 0;
   });
 
+  // Mobile card view
+  if (isMobile && viewMode === 'cards') {
+    return (
+      <div className="w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {(isManualOrdering ? orderedTasks : sortedTasks).map((task) => (
+            <MobileTaskCard
+              key={task.id}
+              task={task}
+              users={users}
+              athletes={athletes}
+              onTaskClick={onTaskClick}
+            />
+          ))}
+        </div>
+        {tasks.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="text-[#979795] text-sm mb-2">No tasks found</div>
+            <div className="text-[#585856] text-xs">Create a new task to get started</div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop table view or mobile list view
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="w-full h-[calc(100vh-160px)]">
-        <div className="bg-[#121210] rounded-2xl overflow-hidden w-full max-w-[1320px]">
-          {/* Table Header */}
-          <div className="grid items-center bg-[#121210] h-10 border-b border-[#292928]" style={{gridTemplateColumns: "40px 1fr 196px 120px 88px 120px 120px"}}>
-            {/* Empty space for drag handle */}
-            <div className="flex items-center justify-center w-[40px]"></div>
-            
-            {/* Task Name */}
-            <button 
-              onClick={() => handleSort('name')}
-              className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide hover:text-[#f7f6f2] transition-colors flex-1"
-            >
-              Name
-              {getSortIcon('name')}
-            </button>
-            
-            {/* Related Athletes */}
-            <div className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[196px]">Related athlete(s)</div>
-            
-            {/* Assignee */}
-            <div className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px]">
-              Assignee
+      <div className="w-full">
+        <div className={`bg-[#121210] rounded-2xl overflow-hidden w-full ${isMobile ? '' : 'max-w-[1320px]'}`}>
+          {/* Table Header - Hidden on mobile list view */}
+          {!isMobile && (
+            <div className="grid items-center bg-[#121210] h-10 border-b border-[#292928]" style={{gridTemplateColumns: "40px 1fr 196px 120px 88px 120px 120px"}}>
+              {/* Empty space for drag handle */}
+              <div className="flex items-center justify-center w-[40px]"></div>
+              
+              {/* Task Name */}
+              <button 
+                onClick={() => handleSort('name')}
+                className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide hover:text-[#f7f6f2] transition-colors flex-1"
+              >
+                Name
+                {getSortIcon('name')}
+              </button>
+              
+              {/* Related Athletes */}
+              <div className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[196px]">Related athlete(s)</div>
+              
+              {/* Assignee */}
+              <div className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px]">
+                Assignee
+              </div>
+              
+              {/* Priority */}
+              <button 
+                onClick={() => handleSort('priority')}
+                className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[88px] hover:text-[#f7f6f2] transition-colors"
+              >
+                Priority
+                {getSortIcon('priority')}
+              </button>
+              
+              {/* Deadline */}
+              <button 
+                onClick={() => handleSort('deadline')}
+                className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px] hover:text-[#f7f6f2] transition-colors"
+              >
+                Deadline
+                {getSortIcon('deadline')}
+              </button>
+              
+              {/* Status */}
+              <button 
+                onClick={() => handleSort('status')}
+                className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px] hover:text-[#f7f6f2] transition-colors"
+              >
+                Status
+                {getSortIcon('status')}
+              </button>
             </div>
-            
-            {/* Priority */}
-            <button 
-              onClick={() => handleSort('priority')}
-              className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[88px] hover:text-[#f7f6f2] transition-colors"
-            >
-              Priority
-              {getSortIcon('priority')}
-            </button>
-            
-            {/* Deadline */}
-            <button 
-              onClick={() => handleSort('deadline')}
-              className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px] hover:text-[#f7f6f2] transition-colors"
-            >
-              Deadline
-              {getSortIcon('deadline')}
-            </button>
-            
-            {/* Status */}
-            <button 
-              onClick={() => handleSort('status')}
-              className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px] hover:text-[#f7f6f2] transition-colors"
-            >
-              Status
-              {getSortIcon('status')}
-            </button>
-          </div>
+          )}
 
           {/* Table Body */}
           <div>
@@ -721,23 +873,93 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               strategy={verticalListSortingStrategy}
             >
               {(isManualOrdering ? orderedTasks : sortedTasks).map((task) => (
-                <SortableTaskRow
-                  key={task.id}
-                  task={task}
-                  users={users}
-                  athletes={athletes}
-                  onTaskClick={onTaskClick}
-                  openDropdowns={openDropdowns}
-                  onToggleDropdown={toggleDropdown}
-                  onUpdatePriority={handleUpdatePriority}
-                  onUpdateStatus={handleUpdateStatus}
-                  onUpdateDeadline={handleUpdateDeadline}
-                  onUpdateAssignee={handleUpdateAssignee}
-                />
+                isMobile ? (
+                  // Mobile simplified row
+                  <div
+                    key={task.id}
+                    onClick={() => onTaskClick(task)}
+                    className="flex items-center justify-between p-4 border-b border-[#292928] bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer"
+                  >
+                    <div className="flex-1">
+                      <div className="text-[#F7F6F2] text-sm font-semibold mb-1">{task.name}</div>
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-2 h-2 rounded-full"
+                          style={{ 
+                            backgroundColor: task.status === 'new' ? '#ff8254' : 
+                                           task.status === 'in_progress' ? '#3f83f8' : 
+                                           task.status === 'pending' ? '#f87171' : 
+                                           task.status === 'completed' ? '#4ade80' : '#ff8254'
+                          }}
+                        />
+                        <span className="text-xs text-[#979795] capitalize">
+                          {task.status.replace('_', ' ')}
+                        </span>
+                        {task.deadline && (
+                          <>
+                            <span className="text-xs text-[#585856]">•</span>
+                            <span className="text-xs text-[#979795]">
+                              {(() => {
+                                const date = new Date(task.deadline);
+                                const today = new Date();
+                                const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                                
+                                if (diffDays === 0) return 'Today';
+                                if (diffDays === 1) return 'Tomorrow';
+                                if (diffDays === -1) return 'Yesterday';
+                                if (diffDays < 0) return `${Math.abs(diffDays)}d ago`;
+                                if (diffDays <= 7) return `${diffDays}d`;
+                                
+                                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                              })()}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const assignee = users.find((u: any) => u.id === task.assigneeId);
+                        return assignee ? (
+                          <div className="w-6 h-6 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
+                            {assignee.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                          </div>
+                        ) : null;
+                      })()}
+                      <div 
+                        className="w-3 h-3 rounded-full"
+                        style={{ 
+                          backgroundColor: task.priority === 'high' ? '#f87171' : 
+                                         task.priority === 'medium' ? '#3f83f8' : '#979795'
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <SortableTaskRow
+                    key={task.id}
+                    task={task}
+                    users={users}
+                    athletes={athletes}
+                    onTaskClick={onTaskClick}
+                    openDropdowns={openDropdowns}
+                    onToggleDropdown={toggleDropdown}
+                    onUpdatePriority={handleUpdatePriority}
+                    onUpdateStatus={handleUpdateStatus}
+                    onUpdateDeadline={handleUpdateDeadline}
+                    onUpdateAssignee={handleUpdateAssignee}
+                  />
+                )
               ))}
             </SortableContext>
           </div>
         </div>
+        {tasks.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="text-[#979795] text-sm mb-2">No tasks found</div>
+            <div className="text-[#585856] text-xs">Create a new task to get started</div>
+          </div>
+        )}
       </div>
     </DndContext>
   );

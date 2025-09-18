@@ -1,6 +1,6 @@
-import { users, tasks, athletes, taskComments, type User, type Task, type Athlete, type TaskComment, type InsertUser, type InsertTask, type InsertAthlete, type InsertTaskComment } from "@shared/schema";
+import { users, tasks, athletes, taskComments, taskAthletes, type User, type Task, type Athlete, type TaskComment, type InsertUser, type InsertTask, type InsertAthlete, type InsertTaskComment } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -10,10 +10,10 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   
   // Task methods
-  getAllTasks(): Promise<Task[]>;
-  getTask(id: string): Promise<Task | undefined>;
-  createTask(task: InsertTask): Promise<Task>;
-  updateTask(id: string, updates: Partial<Task>): Promise<Task>;
+  getAllTasks(): Promise<(Task & { relatedAthleteIds: string[] })[]>;
+  getTask(id: string): Promise<(Task & { relatedAthleteIds: string[] }) | undefined>;
+  createTask(task: InsertTask & { relatedAthleteIds?: string[] }): Promise<Task & { relatedAthleteIds: string[] }>;
+  updateTask(id: string, updates: Partial<Task & { relatedAthleteIds?: string[] }>): Promise<Task & { relatedAthleteIds: string[] }>;
   deleteTask(id: string): Promise<void>;
   
   // Athlete methods
@@ -52,51 +52,141 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Task methods
-  async getAllTasks(): Promise<Task[]> {
-    return await db.select().from(tasks);
+  async getAllTasks(): Promise<(Task & { relatedAthleteIds: string[] })[]> {
+    // Get all tasks
+    const allTasks = await db.select().from(tasks);
+    
+    // Get all task-athlete relationships
+    const allTaskAthletes = await db.select().from(taskAthletes);
+    
+    // Combine tasks with their athlete relationships
+    const tasksWithAthletes = allTasks.map(task => ({
+      ...task,
+      relatedAthleteIds: allTaskAthletes
+        .filter(ta => ta.taskId === task.id)
+        .map(ta => ta.athleteId)
+    }));
+    
+    return tasksWithAthletes;
   }
 
-  async getTask(id: string): Promise<Task | undefined> {
+  async getTask(id: string): Promise<(Task & { relatedAthleteIds: string[] }) | undefined> {
     const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
-    return task || undefined;
+    if (!task) return undefined;
+    
+    // Get athlete relationships for this task
+    const taskAthleteRelations = await db.select().from(taskAthletes).where(eq(taskAthletes.taskId, id));
+    
+    return {
+      ...task,
+      relatedAthleteIds: taskAthleteRelations.map(ta => ta.athleteId)
+    };
   }
 
-  async createTask(insertTask: InsertTask): Promise<Task> {
+  async createTask(insertTask: InsertTask & { relatedAthleteIds?: string[] }): Promise<Task & { relatedAthleteIds: string[] }> {
+    const { relatedAthleteIds, ...taskData } = insertTask;
+    
+    const taskId = crypto.randomUUID();
     const [task] = await db
       .insert(tasks)
       .values({ 
-        ...insertTask, 
-        id: crypto.randomUUID(),
+        ...taskData, 
+        id: taskId,
         createdAt: new Date(),
         updatedAt: new Date()
       })
       .returning();
-    return task;
+    
+    // Handle athlete relationships if provided
+    if (relatedAthleteIds && relatedAthleteIds.length > 0) {
+      const athleteRelations = relatedAthleteIds.map(athleteId => ({
+        taskId,
+        athleteId
+      }));
+      await db.insert(taskAthletes).values(athleteRelations);
+    }
+    
+    return {
+      ...task,
+      relatedAthleteIds: relatedAthleteIds || []
+    };
   }
 
-  async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
+  async updateTask(id: string, updates: Partial<Task & { relatedAthleteIds?: string[] }>): Promise<Task & { relatedAthleteIds: string[] }> {
     // First check if task exists
     const existingTask = await this.getTask(id);
     if (!existingTask) {
       throw new Error(`Task with id ${id} not found`);
     }
 
+    // Extract relatedAthleteIds and deadline for special handling
+    const { relatedAthleteIds, deadline, ...taskUpdates } = updates;
+
     // Filter out undefined values and ensure we don't overwrite required fields with null/undefined
     const filteredUpdates = Object.fromEntries(
-      Object.entries(updates).filter(([_, value]) => value !== undefined)
+      Object.entries(taskUpdates).filter(([_, value]) => value !== undefined)
     );
 
-    const [task] = await db
-      .update(tasks)
-      .set({ ...filteredUpdates, updatedAt: new Date() })
-      .where(eq(tasks.id, id))
-      .returning();
-    
-    if (!task) {
-      throw new Error(`Failed to update task with id ${id}`);
+    // Handle deadline separately if it's being updated
+    if (deadline !== undefined) {
+      if (deadline === null) {
+        filteredUpdates.deadline = null;
+      } else if (typeof deadline === 'string') {
+        // For string dates, convert to Date object explicitly
+        const dateObj = new Date(deadline);
+        if (isNaN(dateObj.getTime())) {
+          throw new Error(`Invalid deadline date: ${deadline}`);
+        }
+        filteredUpdates.deadline = dateObj;
+      } else {
+        // If it's already a Date object or other type, use as-is
+        filteredUpdates.deadline = deadline;
+      }
     }
-    
-    return task;
+
+    try {
+      // Update the task itself
+      // Separate the updatedAt to avoid any issues
+      const updateSet = { ...filteredUpdates };
+      updateSet.updatedAt = new Date();
+      
+      const [task] = await db
+        .update(tasks)
+        .set(updateSet)
+        .where(eq(tasks.id, id))
+        .returning();
+      
+      if (!task) {
+        throw new Error(`Failed to update task with id ${id} - no task returned`);
+      }
+
+      // Handle athlete relationships if provided
+      if (relatedAthleteIds !== undefined) {
+        // Delete existing relationships
+        await db.delete(taskAthletes).where(eq(taskAthletes.taskId, id));
+        
+        // Insert new relationships
+        if (relatedAthleteIds.length > 0) {
+          const athleteRelations = relatedAthleteIds.map(athleteId => ({
+            taskId: id,
+            athleteId
+          }));
+          await db.insert(taskAthletes).values(athleteRelations);
+        }
+      }
+      
+      // Get the current athlete relationships
+      const currentTaskAthletes = await db.select().from(taskAthletes).where(eq(taskAthletes.taskId, id));
+      const currentRelatedAthleteIds = currentTaskAthletes.map(ta => ta.athleteId);
+      
+      return {
+        ...task,
+        relatedAthleteIds: currentRelatedAthleteIds
+      };
+    } catch (dbError) {
+      console.error('Database error updating task:', dbError);
+      throw new Error(`Database error updating task: ${dbError.message}`);
+    }
   }
 
   async deleteTask(id: string): Promise<void> {

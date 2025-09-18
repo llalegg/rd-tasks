@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Filter, Edit, X, ChevronDown, Check, SlidersHorizontal } from "lucide-react";
+import { Plus, Search, Filter, Edit, X, ChevronDown, Check, SlidersHorizontal, LayoutGrid, List } from "lucide-react";
 import TaskList from "./TaskList";
 import TaskPanelContent from "./TaskPanelContent";
 import TaskViewModal from "./TaskViewModal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Filter Dropdown Component
 const FilterDropdown = ({ 
@@ -111,20 +112,23 @@ const FilterDropdown = ({
 export default function TaskManager() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [viewTask, setViewTask] = useState<Task | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'deadline'>('deadline');
-  const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'pending']);
+  const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'pending', 'completed']);
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [creatorFilters, setCreatorFilters] = useState<string[]>([]);
   const [athleteFilters, setAthleteFilters] = useState<string[]>([]);
-  const [hideCompleted, setHideCompleted] = useState(true);
+  const [hideCompleted, setHideCompleted] = useState(false);
   const [assigneeFilter, setAssigneeFilter] = useState<string[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading, error } = useQuery({
@@ -235,11 +239,11 @@ export default function TaskManager() {
       id: 'new-' + Date.now(), // Temporary ID
       name: 'New task',
       description: '',
-      type: 'generaltodo',
+      type: 'injury',
       status: 'new',
       priority: 'medium',
       deadline: undefined,
-      assigneeId: '',
+      assigneeId: '1', // Default assignee
       creatorId: '1', // Default creator ID
       relatedAthleteIds: [],
       createdAt: new Date().toISOString(),
@@ -299,83 +303,199 @@ export default function TaskManager() {
   const statusOptions: Task['status'][] = ['new', 'in_progress', 'pending', 'completed'];
 
   return (
-    <div className="min-h-screen bg-transparent flex md:ml-[80px] pb-[64px] md:pb-0">
+    <div className="min-h-screen bg-transparent flex md:ml-[80px] pb-[80px] md:pb-0">
       {/* Main Content Area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out ${
-        selectedTask ? 'md:pr-[500px]' : ''
+        selectedTask && !isMobile ? 'md:pr-[500px]' : ''
       }`}>
         {/* Header */}
-        <header className={`fixed top-0 left-0 right-0 z-40 md:left-[80px] transition-all duration-300 ${selectedTask ? 'md:right-[500px]' : 'right-0'} flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-5 py-4 md:py-5 bg-transparent min-h-[72px] gap-4 md:gap-0`}>
-          <div className="flex items-center">
-            <h1 className="text-2xl font-semibold text-[#f7f6f2] font-montserrat leading-[1.32]">Tasks</h1>
-          </div>
-          
-          <div className="flex items-center gap-2 md:gap-3 flex-wrap w-full md:w-auto justify-start md:justify-end">
-            <FilterDropdown 
-              label="Assignee" 
-              options={availableAssignees.map((user: any) => ({ value: user.id, label: user.name }))}
-              value={assigneeFilter}
-              onChange={setAssigneeFilter}
-              isOpen={openDropdown === 'assignee'}
-              onToggle={() => setOpenDropdown(openDropdown === 'assignee' ? null : 'assignee')}
-              onClose={() => setOpenDropdown(null)}
-            />
-            <FilterDropdown 
-              label="Priority" 
-              options={[
-                { value: 'low', label: 'Low' },
-                { value: 'medium', label: 'Medium' },
-                { value: 'high', label: 'High' }
-              ]}
-              value={priorityFilter}
-              onChange={setPriorityFilter}
-              isOpen={openDropdown === 'priority'}
-              onToggle={() => setOpenDropdown(openDropdown === 'priority' ? null : 'priority')}
-              onClose={() => setOpenDropdown(null)}
-            />
-            <FilterDropdown 
-              label="Status" 
-              options={[
-                { value: 'new', label: 'New' },
-                { value: 'in_progress', label: 'In Progress' },
-                { value: 'pending', label: 'Pending' },
-                { value: 'completed', label: 'Completed' }
-              ]}
-              value={statusFilter}
-              onChange={setStatusFilter}
-              isOpen={openDropdown === 'status'}
-              onToggle={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
-              onClose={() => setOpenDropdown(null)}
-            />
-            
-            <div className="flex items-center gap-2.5 px-3 py-2 bg-[#292928] rounded-lg h-8 w-full sm:w-auto sm:min-w-[160px] md:min-w-[200px] max-w-[280px]">
-              <Search className="w-4 h-4 text-[#f7f6f2]" />
-              <Input
-                type="text"
-                placeholder="Search by task name"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-[#f7f6f2] text-sm font-montserrat flex-1 placeholder-[#979795] focus:ring-0 focus:outline-none p-0 h-auto"
-              />
-            </div>
-            
-            <Button className="flex items-center gap-2 px-3 py-2 bg-[#292928] border-none rounded-full text-[#f7f6f2] text-xs font-medium cursor-pointer h-8 min-w-[86px] justify-center transition-all duration-200 hover:bg-[#3a3a38]">
-              <SlidersHorizontal className="w-4 h-4" />
-              <span className="hidden sm:inline">Filters</span>
-            </Button>
+        <header className={`fixed top-0 left-0 right-0 z-40 md:left-[80px] transition-all duration-300 ${selectedTask && !isMobile ? 'md:right-[500px]' : 'right-0'} ${isMobile ? 'bg-[#0a0a09] backdrop-blur-sm border-b border-[#292928]' : 'bg-transparent'}`}>
+          {/* Mobile Header */}
+          {isMobile ? (
+            <>
+              {/* Main header row */}
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-xl font-semibold text-[#f7f6f2] font-montserrat leading-[1.32]">Tasks</h1>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {/* Mobile view toggle */}
+                  <div className="flex items-center bg-[#292928] rounded-lg p-1">
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-1.5 rounded transition-colors ${
+                        viewMode === 'list' ? 'bg-[#3a3a38] text-[#f7f6f2]' : 'text-[#979795]'
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('cards')}
+                      className={`p-1.5 rounded transition-colors ${
+                        viewMode === 'cards' ? 'bg-[#3a3a38] text-[#f7f6f2]' : 'text-[#979795]'
+                      }`}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  {/* Filters toggle for mobile */}
+                  <Button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`h-9 w-9 p-0 rounded-lg transition-all duration-200 ${
+                      showFilters ? 'bg-[#e5e4e1] text-black' : 'bg-[#292928] text-[#f7f6f2] hover:bg-[#3a3a38]'
+                    }`}
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                  </Button>
 
-            <Button
-              onClick={handleAddTask}
-              className="bg-white hover:bg-gray-100 text-black font-medium px-3 py-2 rounded-full text-xs h-8 min-w-[86px] justify-center transition-all duration-200"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Add Task</span>
-            </Button>
-            
-          </div>
+                  <Button
+                    onClick={handleAddTask}
+                    className="bg-white hover:bg-gray-100 text-black font-medium px-3 py-2 rounded-full text-xs h-9 transition-all duration-200"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    <span>Add</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Search bar - always visible on mobile */}
+              <div className="px-4 pb-3">
+                <div className="flex items-center gap-2.5 px-3 py-2.5 bg-[#292928] rounded-lg">
+                  <Search className="w-4 h-4 text-[#979795]" />
+                  <Input
+                    type="text"
+                    placeholder="Search tasks..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-transparent border-none outline-none text-[#f7f6f2] text-sm font-montserrat flex-1 placeholder-[#979795] focus:ring-0 focus:outline-none p-0 h-auto"
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Desktop Header - Original Style */
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-5 py-4 md:py-5 bg-transparent min-h-[72px] gap-4 md:gap-0">
+              <div className="flex items-center">
+                <h1 className="text-2xl font-semibold text-[#f7f6f2] font-montserrat leading-[1.32]">Tasks</h1>
+              </div>
+              
+              <div className="flex items-center gap-2 md:gap-3 flex-wrap w-full md:w-auto justify-start md:justify-end">
+                <FilterDropdown 
+                  label="Assignee" 
+                  options={availableAssignees.map((user: any) => ({ value: user.id, label: user.name }))}
+                  value={assigneeFilter}
+                  onChange={setAssigneeFilter}
+                  isOpen={openDropdown === 'assignee'}
+                  onToggle={() => setOpenDropdown(openDropdown === 'assignee' ? null : 'assignee')}
+                  onClose={() => setOpenDropdown(null)}
+                />
+                <FilterDropdown 
+                  label="Priority" 
+                  options={[
+                    { value: 'low', label: 'Low' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'high', label: 'High' }
+                  ]}
+                  value={priorityFilter}
+                  onChange={setPriorityFilter}
+                  isOpen={openDropdown === 'priority'}
+                  onToggle={() => setOpenDropdown(openDropdown === 'priority' ? null : 'priority')}
+                  onClose={() => setOpenDropdown(null)}
+                />
+                <FilterDropdown 
+                  label="Status" 
+                  options={[
+                    { value: 'new', label: 'New' },
+                    { value: 'in_progress', label: 'In Progress' },
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'completed', label: 'Completed' }
+                  ]}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  isOpen={openDropdown === 'status'}
+                  onToggle={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
+                  onClose={() => setOpenDropdown(null)}
+                />
+                
+                <div className="flex items-center gap-2.5 px-3 py-2 bg-[#292928] rounded-lg h-8 w-full sm:w-auto sm:min-w-[160px] md:min-w-[200px] max-w-[280px]">
+                  <Search className="w-4 h-4 text-[#f7f6f2]" />
+                  <Input
+                    type="text"
+                    placeholder="Search by task name"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-transparent border-none outline-none text-[#f7f6f2] text-sm font-montserrat flex-1 placeholder-[#979795] focus:ring-0 focus:outline-none p-0 h-auto"
+                  />
+                </div>
+                
+                <Button className="flex items-center gap-2 px-3 py-2 bg-[#292928] border-none rounded-full text-[#f7f6f2] text-xs font-medium cursor-pointer h-8 min-w-[86px] justify-center transition-all duration-200 hover:bg-[#3a3a38]">
+                  <SlidersHorizontal className="w-4 h-4" />
+                  <span className="hidden sm:inline">Filters</span>
+                </Button>
+
+                <Button
+                  onClick={handleAddTask}
+                  className="bg-white hover:bg-gray-100 text-black font-medium px-3 py-2 rounded-full text-xs h-8 min-w-[86px] justify-center transition-all duration-200"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Add Task</span>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Mobile filters panel */}
+          {isMobile && showFilters && (
+            <div className="border-t border-[#292928] bg-[#171716] p-4">
+              <div className="flex flex-col gap-3">
+                <FilterDropdown 
+                  label="Assignee" 
+                  options={availableAssignees.map((user: any) => ({ value: user.id, label: user.name }))}
+                  value={assigneeFilter}
+                  onChange={setAssigneeFilter}
+                  isOpen={openDropdown === 'assignee'}
+                  onToggle={() => setOpenDropdown(openDropdown === 'assignee' ? null : 'assignee')}
+                  onClose={() => setOpenDropdown(null)}
+                />
+                <FilterDropdown 
+                  label="Priority" 
+                  options={[
+                    { value: 'low', label: 'Low' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'high', label: 'High' }
+                  ]}
+                  value={priorityFilter}
+                  onChange={setPriorityFilter}
+                  isOpen={openDropdown === 'priority'}
+                  onToggle={() => setOpenDropdown(openDropdown === 'priority' ? null : 'priority')}
+                  onClose={() => setOpenDropdown(null)}
+                />
+                <FilterDropdown 
+                  label="Status" 
+                  options={[
+                    { value: 'new', label: 'New' },
+                    { value: 'in_progress', label: 'In Progress' },
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'completed', label: 'Completed' }
+                  ]}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  isOpen={openDropdown === 'status'}
+                  onToggle={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
+                  onClose={() => setOpenDropdown(null)}
+                />
+              </div>
+            </div>
+          )}
         </header>
         {/* Main Content */}
-        <main className="w-full p-4 md:p-5 pt-[120px] md:pt-[88px]">
+        <main className={`w-full p-4 md:p-5 ${
+          isMobile 
+            ? showFilters ? 'pt-[240px]' : 'pt-[140px]'
+            : 'pt-[120px] md:pt-[88px]'
+        }`}>
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
@@ -386,14 +506,16 @@ export default function TaskManager() {
               onTaskClick={handleTaskClick}
               onStatusUpdate={handleStatusUpdate}
               onDeleteTask={handleDeleteTask}
+              viewMode={isMobile ? viewMode : 'list'}
+              isMobile={isMobile}
             />
           )}
         </main>
       </div>
 
-      {/* Task Detail Panel */}
-      {selectedTask && (
-        <div className="fixed top-0 right-0 w-full md:w-[500px] h-full bg-[#1C1C1B] border-l border-[#292928] z-40 flex flex-col">
+      {/* Task Detail Panel - Hidden on mobile (use modal instead) */}
+      {selectedTask && !isMobile && (
+        <div className="fixed top-0 right-0 w-[500px] h-full bg-[#1C1C1B] border-l border-[#292928] z-40 flex flex-col">
           {/* Panel Header */}
           <div className="flex items-center justify-end p-4 bg-transparent">
             <div className="flex items-center gap-1">

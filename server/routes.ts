@@ -32,17 +32,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/tasks", async (req, res) => {
     try {
-      const validatedTask = insertTaskSchema.parse(req.body);
-      const task = await storage.createTask(validatedTask);
+      // Extract relatedAthleteIds since it's not part of the task schema
+      const { relatedAthleteIds, ...taskData } = req.body;
+      
+      const validatedTask = insertTaskSchema.parse(taskData);
+      
+      // Add back relatedAthleteIds for storage layer
+      const taskWithAthletes = {
+        ...validatedTask,
+        relatedAthleteIds: relatedAthleteIds || []
+      };
+      
+      const task = await storage.createTask(taskWithAthletes);
       res.status(201).json(task);
     } catch (error) {
-      res.status(400).json({ error: "Invalid task data" });
+      console.error('Task creation error:', error);
+      res.status(400).json({ error: "Invalid task data", details: error.message });
     }
   });
 
   app.put("/api/tasks/:id", async (req, res) => {
     try {
-      console.log('Updating task:', req.params.id, 'with data:', req.body);
+      // Validate that the task exists first
+      const existingTask = await storage.getTask(req.params.id);
+      if (!existingTask) {
+        return res.status(404).json({ error: "Task not found" });
+      }
       const task = await storage.updateTask(req.params.id, req.body);
       res.json(task);
     } catch (error) {

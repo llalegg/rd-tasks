@@ -20,10 +20,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="dark min-h-screen bg-background text-foreground font-montserrat">
+        <div className="dark min-h-screen bg-background text-foreground font-montserrat overflow-x-hidden">
           <Toaster />
           <MinimalSidebar />
-          <Router />
+          <div className="pb-16 md:pb-0">
+            <Router />
+          </div>
         </div>
       </TooltipProvider>
     </QueryClientProvider>
