@@ -10,12 +10,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Calendar, User as UserIcon, Target, Clock, AlertCircle, CheckCircle, X, FileText, Plus, Send, MoreVertical, ChevronDown, Edit3, Check, Undo2, Trash2, Circle, ChevronUp, Minus, Search } from "lucide-react";
+import { Calendar, User as UserIcon, Target, Clock, AlertCircle, CheckCircle, X, FileText, Plus, Send, MoreVertical, ChevronDown, Edit3, Check, Undo2, Trash2, Circle, ChevronUp, Minus, Search, Paperclip } from "lucide-react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { InteractiveRow } from "@/components/ui/interactive-row";
+import { PriorityBadge } from "@/components/ui/priority-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 interface TaskViewModalProps {
   task: TaskWithRelations | null;
@@ -55,26 +59,32 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [athleteSearchQuery, setAthleteSearchQuery] = useState('');
   const [showAthleteDropdown, setShowAthleteDropdown] = useState(false);
+  const [localTask, setLocalTask] = useState<Task | null>(null);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
+  // Sync task prop with local state
+  useEffect(() => {
+    setLocalTask(task);
+  }, [task]);
+
   // Always call hooks before any early returns
   // Fetch users for assignee and creator
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ['/api/users'],
-    enabled: isOpen && !!task
+    enabled: isOpen && !!localTask
   });
 
   // Fetch athletes
   const { data: athletes = [] } = useQuery<Athlete[]>({
     queryKey: ['/api/athletes'],
-    enabled: isOpen && !!task
+    enabled: isOpen && !!localTask
   });
 
   // Check if this is a new task
-  const isNewTask = task?.id.startsWith('new-');
+  const isNewTask = localTask?.id?.startsWith('new-');
 
   // Create task mutation
   const createTaskMutation = useMutation({
@@ -111,32 +121,32 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       type?: string;
       relatedAthleteIds?: string[];
     }) => {
-      if (!task) throw new Error('No task');
+      if (!localTask) throw new Error('No task');
       
       if (isNewTask) {
         // For new tasks, create them instead of updating
         const fullTaskData: any = {
-          name: updateData.name || task.name,
-          type: task.type,
-          status: updateData.status || task.status,
-          priority: (updateData.priority || task.priority) as 'low' | 'medium' | 'high',
+          name: updateData.name || localTask.name,
+          type: localTask.type,
+          status: updateData.status || localTask.status,
+          priority: (updateData.priority || localTask.priority) as 'low' | 'medium' | 'high',
           // Provide defaults for fields that are still required in DB but optional in our logic
-          description: updateData.description || task.description || '',
-          assigneeId: updateData.assigneeId || task.assigneeId || '1', // Default assignee
-          creatorId: task.creatorId || '1', // Default creator
-          relatedAthleteIds: updateData.relatedAthleteIds || task.relatedAthleteIds || []
+          description: updateData.description || localTask.description || '',
+          assigneeId: updateData.assigneeId || localTask.assigneeId || '1', // Default assignee
+          creatorId: localTask.creatorId || '1', // Default creator
+          relatedAthleteIds: updateData.relatedAthleteIds || (localTask as any).relatedAthleteIds || []
         };
         
         if (updateData.deadline !== undefined) {
           fullTaskData.deadline = updateData.deadline || null;
-        } else if (task.deadline) {
-          fullTaskData.deadline = task.deadline;
+        } else if (localTask.deadline) {
+          fullTaskData.deadline = localTask.deadline;
         }
         
         return await createTaskMutation.mutateAsync(fullTaskData);
       }
       
-      const response = await apiRequest('PUT', `/api/tasks/${task.id}`, updateData);
+      const response = await apiRequest('PUT', `/api/tasks/${localTask.id}`, updateData);
       const updatedTask = await response.json();
       return updatedTask;
     },
@@ -146,6 +156,9 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         if (!oldData) return oldData;
         return oldData.map((t: any) => t.id === updatedTask.id ? updatedTask : t);
       });
+      
+      // Update local task state to reflect changes immediately
+      setLocalTask(updatedTask);
       
       // Only close modal if this was a new task creation
       if (isNewTask) {
@@ -171,8 +184,8 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   // Delete task mutation
   const deleteTaskMutation = useMutation({
     mutationFn: async () => {
-      if (!task) throw new Error('No task');
-      await apiRequest('DELETE', `/api/tasks/${task.id}`);
+      if (!localTask) throw new Error('No task');
+      await apiRequest('DELETE', `/api/tasks/${localTask.id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
@@ -180,8 +193,8 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         title: "Success",
         description: "Task deleted successfully",
       });
-      if (onDeleteTask && task) {
-        onDeleteTask(task.id);
+      if (onDeleteTask && localTask) {
+        onDeleteTask(localTask.id);
       }
       onClose();
     },
@@ -198,10 +211,10 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   const [lastTaskId, setLastTaskId] = useState<string | null>(null);
   
   useEffect(() => {
-    if (task && task.id !== lastTaskId) {
-      setEditedTitle(task.name);
-      setEditedDescription(task.description || '');
-      setLastTaskId(task.id);
+    if (localTask && localTask.id !== lastTaskId) {
+      setEditedTitle(localTask.name);
+      setEditedDescription(localTask.description || '');
+      setLastTaskId(localTask.id);
       
       // Only load comments for existing tasks, not new ones
       if (!isNewTask) {
@@ -232,9 +245,9 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         {
           id: '1',
           action: 'Task created',
-          userId: task.creatorId || '1',
+          userId: localTask.creatorId || '1',
           userName: 'John Withington',
-          createdAt: new Date(task.createdAt).toISOString()
+          createdAt: new Date(localTask.createdAt).toISOString()
         },
         {
           id: '2',
@@ -242,21 +255,21 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
           field: 'status',
           oldValue: 'pending',
           newValue: 'new',
-          userId: task.assigneeId || '1',
+          userId: localTask.assigneeId || '1',
           userName: 'Sarah Johnson',
-          createdAt: new Date(task.updatedAt || task.createdAt).toISOString()
+          createdAt: new Date(localTask.updatedAt || localTask.createdAt).toISOString()
         }
       ]);
     }
-  }, [task, lastTaskId]);
+  }, [localTask, lastTaskId]);
 
   // Auto-save for title with debounce
   useEffect(() => {
-    if (task && editedTitle && editedTitle.trim() !== '' && !isEditingTitle) {
+    if (localTask && editedTitle && editedTitle.trim() !== '' && !isEditingTitle) {
       // For new tasks, only save if title is different from default
       const shouldSave = isNewTask 
-        ? editedTitle.trim() !== 'New task' && editedTitle.trim() !== task.name
-        : editedTitle.trim() !== task.name;
+        ? editedTitle.trim() !== 'New task' && editedTitle.trim() !== localTask.name
+        : editedTitle.trim() !== localTask.name;
         
       if (shouldSave) {
         const timeoutId = setTimeout(() => {
@@ -267,7 +280,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
             id: Date.now().toString(),
             action: 'Title changed',
             field: 'name',
-            oldValue: task.name,
+            oldValue: localTask.name,
             newValue: editedTitle.trim(),
             userId: '1',
             userName: 'Current User',
@@ -279,11 +292,11 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         return () => clearTimeout(timeoutId);
       }
     }
-  }, [editedTitle, task?.name, isEditingTitle, updateTaskMutation, task, isNewTask]);
+  }, [editedTitle, localTask?.name, isEditingTitle, updateTaskMutation, localTask, isNewTask]);
 
   // Auto-save for description with debounce
   useEffect(() => {
-    if (task && editedDescription !== (task.description || '') && !isEditingDescription) {
+    if (localTask && editedDescription !== (localTask.description || '') && !isEditingDescription) {
       // For new tasks, only save if description is not empty
       const shouldSave = isNewTask 
         ? editedDescription.trim() !== ''
@@ -298,7 +311,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
             id: Date.now().toString(),
             action: 'Description changed',
             field: 'description',
-            oldValue: task.description || '',
+            oldValue: localTask.description || '',
             newValue: editedDescription,
             userId: '1',
             userName: 'Current User',
@@ -310,7 +323,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         return () => clearTimeout(timeoutId);
       }
     }
-  }, [editedDescription, task?.description, isEditingDescription, updateTaskMutation, task, isNewTask]);
+  }, [editedDescription, localTask?.description, isEditingDescription, updateTaskMutation, localTask, isNewTask]);
 
   // Close athlete dropdown when clicking outside
   useEffect(() => {
@@ -327,18 +340,36 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     }
   }, [showAthleteDropdown]);
 
-  const assignee = task ? users.find(u => u.id === task.assigneeId) : null;
-  const creator = task ? users.find(u => u.id === task.creatorId) : null;
-  const relatedAthletes = task?.relatedAthleteIds 
-    ? task.relatedAthleteIds.map(id => athletes.find(a => a.id === id)).filter(Boolean) as Athlete[]
+  const assignee = localTask ? users.find(u => u.id === localTask.assigneeId) : null;
+  const creator = localTask ? users.find(u => u.id === localTask.creatorId) : null;
+  const relatedAthletes = (localTask as any)?.relatedAthleteIds 
+    ? (localTask as any).relatedAthleteIds.map((id: string) => athletes.find(a => a.id === id)).filter(Boolean) as Athlete[]
     : [];
 
   const formatTaskType = (type: string) => {
-    // Handle camelCase words by splitting on capital letters
+    // Create a mapping for better readability
+    const typeMapping: { [key: string]: string } = {
+      'mechanicalanalysis': 'Mechanical Analysis',
+      'datareporting': 'Data Reporting',
+      'injury': 'Injury',
+      'generaltodo': 'General Task',
+      'schedulecall': 'Schedule Call',
+      'coachassignment': 'Coach Assignment',
+      'createprogram': 'Create Program',
+      'assessmentreview': 'Assessment Review'
+    };
+    
+    // Return mapped value or fallback to formatted version
+    if (typeMapping[type]) {
+      return typeMapping[type];
+    }
+    
+    // Fallback: Handle camelCase words by splitting on capital letters
     return type
       .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
       .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-      .replace(/\b\w/g, str => str.toUpperCase()); // Capitalize each word
+      .replace(/\b\w/g, str => str.toUpperCase()) // Capitalize each word
+      .replace(/\btodo\b/gi, 'Task'); // Replace "todo" with "Task" (case insensitive)
   };
 
   const formatDate = (dateString: string | Date) => {
@@ -386,14 +417,14 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   // Handler functions for saving and canceling edits
   const handleSaveTitle = () => {
-    if (task && editedTitle.trim() !== '') {
+    if (localTask && editedTitle.trim() !== '') {
       setIsEditingTitle(false);
       // The auto-save effect will handle the actual saving
     }
   };
 
   const handleSaveDescription = () => {
-    if (task) {
+    if (localTask) {
       setIsEditingDescription(false);
       // The auto-save effect will handle the actual saving
     }
@@ -409,15 +440,23 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     }
   };
 
+  const handleAttachFile = () => {
+    // Mock function - not implemented
+    toast({
+      title: "Attach File",
+      description: "File attachment feature is not yet implemented",
+    });
+  };
+
   // Handlers for property updates
   const handlePriorityChange = (priority: string) => {
-    if (task) {
+    if (localTask) {
       updateTaskMutation.mutate({ priority });
     }
   };
 
   const handleDeadlineChange = (deadline: string | undefined) => {
-    if (task) {
+    if (localTask) {
       // Convert deadline string to proper format, null to clear, or undefined to not change
       let deadlineValue: string | null | undefined;
       if (deadline === '' || deadline === undefined) {
@@ -441,13 +480,13 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   };
 
   const handleTypeChange = (type: string) => {
-    if (task) {
+    if (localTask) {
       updateTaskMutation.mutate({ type });
     }
   };
 
   const handleAssigneeChange = (assigneeId: string) => {
-    if (task) {
+    if (localTask) {
       // assigneeId is now optional, so we can set it to null for 'unassigned'
       if (assigneeId === 'unassigned') {
         updateTaskMutation.mutate({ assigneeId: null });
@@ -459,8 +498,8 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   // Athletic management handlers
   const handleAddAthlete = (athleteId: string) => {
-    if (task && !task.relatedAthleteIds?.includes(athleteId)) {
-      const newAthleteIds = [...(task.relatedAthleteIds || []), athleteId];
+    if (localTask && !(localTask as any).relatedAthleteIds?.includes(athleteId)) {
+      const newAthleteIds = [...((localTask as any).relatedAthleteIds || []), athleteId];
       updateTaskMutation.mutate({ relatedAthleteIds: newAthleteIds });
     }
     setShowAthleteDropdown(false);
@@ -468,8 +507,8 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   };
 
   const handleRemoveAthlete = (athleteId: string) => {
-    if (task) {
-      const newAthleteIds = task.relatedAthleteIds?.filter(id => id !== athleteId) || [];
+    if (localTask) {
+      const newAthleteIds = (localTask as any).relatedAthleteIds?.filter((id: string) => id !== athleteId) || [];
       updateTaskMutation.mutate({ relatedAthleteIds: newAthleteIds });
     }
   };
@@ -643,7 +682,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   );
 
   const handleStatusChange = (newStatus: Task['status']) => {
-    if (task && newStatus !== task.status) {
+    if (localTask && newStatus !== localTask.status) {
       updateTaskMutation.mutate({ status: newStatus });
       
       // Add history entry
@@ -651,7 +690,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         id: Date.now().toString(),
         action: 'Status changed',
         field: 'status',
-        oldValue: getStatusLabel(task.status),
+        oldValue: getStatusLabel(localTask?.status || 'new'),
         newValue: getStatusLabel(newStatus),
         userId: '1', // Current user ID
         userName: 'Current User',
@@ -660,7 +699,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       setHistory(prev => [newHistoryEntry, ...prev]);
       
       if (onStatusUpdate) {
-        onStatusUpdate(task.id, newStatus);
+        onStatusUpdate(localTask?.id || '', newStatus);
       }
     }
   };
@@ -702,14 +741,14 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   };
 
   // Early return after all hooks are called
-  if (!task) {
+  if (!localTask) {
     return null;
   }
 
   // Mobile rendering with Sheet
   if (isMobile) {
     return (
-      <Sheet open={isOpen && !!task} onOpenChange={onClose}>
+      <Sheet open={isOpen && !!localTask} onOpenChange={onClose}>
         <SheetContent 
           side="bottom" 
           className="h-[90vh] p-0 bg-[#1c1c1b] border-none rounded-t-3xl overflow-hidden font-montserrat"
@@ -718,20 +757,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
             {/* Mobile Header */}
             <SheetHeader className="p-4 border-b border-[#292928]">
               <div className="flex items-center justify-between">
-                <Select value={task.status} onValueChange={handleStatusChange}>
-                  <SelectTrigger className="bg-[#292928] border-none rounded-full px-3 py-2 text-[#f7f6f2] text-sm font-medium flex items-center gap-2 cursor-pointer w-auto h-9 font-montserrat hover:bg-[#3a3a38]">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon()}
-                      <span>{getStatusLabel(task.status)}</span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                    <SelectItem value="new" className="text-[#f7f6f2] focus:bg-[#3a3a38]">New</SelectItem>
-                    <SelectItem value="in_progress" className="text-[#f7f6f2] focus:bg-[#3a3a38]">In Progress</SelectItem>
-                    <SelectItem value="pending" className="text-[#f7f6f2] focus:bg-[#3a3a38]">Pending</SelectItem>
-                    <SelectItem value="completed" className="text-[#f7f6f2] focus:bg-[#3a3a38]">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div></div>
                 
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
@@ -782,13 +808,13 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   ) : (
                     <div className="flex items-start gap-2 group">
                       <SheetTitle className="text-lg font-medium text-[#f7f6f2] leading-[1.54] flex-1">
-                        {editedTitle || task.name || "New task"}
+                        {editedTitle || localTask.name || "New task"}
                       </SheetTitle>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => {
-                          setEditedTitle(editedTitle || task.name || "New task");
+                          setEditedTitle(editedTitle || localTask.name || "New task");
                           setIsEditingTitle(true);
                         }}
                         className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)]"
@@ -802,13 +828,21 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                     <div className="text-sm font-medium text-[#585856]">Description</div>
                     {isEditingDescription ? (
                       <div className="flex flex-col gap-2">
-                        <Textarea
-                          value={editedDescription}
-                          onChange={(e) => setEditedDescription(e.target.value)}
-                          className="text-sm font-normal text-[#f7f6f2] bg-[#292928] border-[#3d3d3c] min-h-[80px]"
-                          placeholder="Add a description..."
-                          onBlur={handleSaveDescription}
-                        />
+                        <div className="relative">
+                          <Textarea
+                            value={editedDescription}
+                            onChange={(e) => setEditedDescription(e.target.value)}
+                            className="text-sm font-normal text-[#f7f6f2] bg-[#292928] border-[#3d3d3c] min-h-[80px] pr-10"
+                            placeholder="Add a description..."
+                            onBlur={handleSaveDescription}
+                          />
+                          <button
+                            onClick={handleAttachFile}
+                            className="absolute bottom-2 right-2 w-6 h-6 bg-transparent border-none rounded cursor-pointer flex items-center justify-center text-[#979795] hover:text-[#f7f6f2] transition-colors"
+                          >
+                            <Paperclip className="w-4 h-4" />
+                          </button>
+                        </div>
                         <div className="flex items-center gap-2">
                           <Button
                             size="sm"
@@ -832,7 +866,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                       <div
                         className="text-sm font-normal text-[#f7f6f2] p-3 rounded-lg bg-[#292928] cursor-pointer"
                         onClick={() => {
-                          setEditedDescription(editedDescription || task.description || "");
+                          setEditedDescription(editedDescription || localTask.description || "");
                           setIsEditingDescription(true);
                         }}
                       >
@@ -846,99 +880,85 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
               {/* Mobile Properties */}
               <div className="p-4 border-b border-[#292928]">
                 <div className="text-sm font-semibold text-[#f7f6f2] mb-3">Properties</div>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  {/* Status */}
+                  <InteractiveRow
+                    label="Status"
+                    value={localTask.status}
+                    badge={<StatusBadge status={localTask.status} />}
+                    options={[
+                      { value: 'new', label: 'New' },
+                      { value: 'in_progress', label: 'In Progress' },
+                      { value: 'pending', label: 'Blocked' },
+                      { value: 'completed', label: 'Completed' }
+                    ]}
+                    onValueChange={(value) => handleStatusChange(value as Task['status'])}
+                  />
+
                   {/* Priority */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-[#979795]">Priority</div>
-                    <Select value={task.priority || 'medium'} onValueChange={handlePriorityChange}>
-                      <SelectTrigger className="bg-[#292928] border-none rounded-lg px-3 py-2 h-9 w-auto cursor-pointer hover:bg-[#3a3a38]">
-                        {getPriorityBadge(task.priority || 'medium')}
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                        <SelectItem value="high" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                          <div className="flex items-center gap-2">
-                            <ChevronUp className="w-4 h-4" style={{ color: '#f87171' }} />
-                            High
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="medium" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                          <div className="flex items-center gap-2">
-                            <ChevronDown className="w-4 h-4" style={{ color: '#3f83f8' }} />
-                            Medium
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="low" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                          <div className="flex items-center gap-2">
-                            <Minus className="w-4 h-4" style={{ color: '#979795' }} />
-                            Low
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <InteractiveRow
+                    label="Priority"
+                    value={localTask.priority || 'medium'}
+                    badge={<PriorityBadge priority={(localTask.priority || 'medium') as 'high' | 'medium' | 'low'} />}
+                    options={[
+                      { value: 'high', label: 'High' },
+                      { value: 'medium', label: 'Medium' },
+                      { value: 'low', label: 'Low' }
+                    ]}
+                    onValueChange={handlePriorityChange}
+                  />
 
                   {/* Deadline */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-[#979795]">Deadline</div>
-                    <input
-                      type="date"
-                      value={formatDateForInput(task.deadline)}
-                      onChange={(e) => handleDeadlineChange(e.target.value === '' ? undefined : e.target.value)}
-                      className="bg-[#292928] border border-[#3d3d3c] text-sm text-[#f7f6f2] rounded-lg px-3 py-2 h-9 cursor-pointer outline-none"
-                      placeholder="No deadline"
-                    />
-                  </div>
+                  <InteractiveRow
+                    label="Deadline"
+                    value={localTask.deadline ? localTask.deadline.toString() : 'no-deadline'}
+                    badge={
+                      <DatePicker
+                        value={localTask.deadline ? new Date(localTask.deadline) : null}
+                        onChange={(date) => handleDeadlineChange(date ? date.toISOString() : undefined)}
+                        placeholder="No deadline"
+                        variant="badge"
+                        className="text-sm"
+                      />
+                    }
+                    badgeClickable={true}
+                  />
 
                   {/* Type */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-[#979795]">Type</div>
-                    <Select value={task.type} onValueChange={handleTypeChange}>
-                      <SelectTrigger className="bg-[#292928] border-none rounded-lg px-3 py-2 h-9 w-auto cursor-pointer hover:bg-[#3a3a38]">
-                        {getTypeBadge(task.type)}
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                        {taskTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value} className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <InteractiveRow
+                    label="Type"
+                    value={localTask.type}
+                    badge={getTypeBadge(localTask.type)}
+                    options={taskTypes.map(type => ({
+                      value: type.value,
+                      label: formatTaskType(type.value)
+                    }))}
+                    onValueChange={handleTypeChange}
+                  />
 
                   {/* Assignee */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-[#979795]">Assignee</div>
-                    <Select value={task.assigneeId || 'unassigned'} onValueChange={(value) => handleAssigneeChange(value === 'unassigned' ? '' : value)}>
-                      <SelectTrigger className="bg-[#292928] border-none rounded-lg px-3 py-2 h-9 w-auto cursor-pointer hover:bg-[#3a3a38]">
-                        {assignee ? (
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
-                              {assignee.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                            </div>
-                            <div className="text-sm font-medium text-[#f7f6f2]">{assignee.name}</div>
-                          </div>
-                        ) : (
-                          <div className="text-sm font-normal text-[#979795]">Unassigned</div>
-                        )}
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                        <SelectItem value="unassigned" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                          Unassigned
-                        </SelectItem>
-                        {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id} className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
-                                {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                              </div>
-                              {user.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <InteractiveRow
+                    label="Assignee"
+                    value={localTask.assigneeId || 'unassigned'}
+                    badge={
+                      assignee ? (
+                        <div className="flex items-center gap-2">
+                          <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
+                          <div className="text-sm font-medium text-[#f7f6f2]">{assignee.name}</div>
+                        </div>
+                      ) : (
+                        <div className="text-sm font-normal text-[#979795]">Unassigned</div>
+                      )
+                    }
+                    options={[
+                      { value: 'unassigned', label: 'Unassigned' },
+                      ...users.map(user => ({
+                        value: user.id,
+                        label: user.name
+                      }))
+                    ]}
+                    onValueChange={(value) => handleAssigneeChange(value === 'unassigned' ? '' : value)}
+                  />
                 </div>
               </div>
 
@@ -1122,13 +1142,13 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 ) : (
                   <div className="flex items-center gap-2 flex-1 group">
                     <DialogTitle className="text-lg font-medium text-[#f7f6f2] leading-[1.54]">
-                      {editedTitle || task.name || "New task"}
+                      {editedTitle || localTask.name || "New task"}
                     </DialogTitle>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => {
-                        setEditedTitle(editedTitle || task.name || "New task");
+                        setEditedTitle(editedTitle || localTask.name || "New task");
                         setIsEditingTitle(true);
                       }}
                       className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] transition-opacity"
@@ -1143,13 +1163,21 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 <div className="text-xs font-medium text-[#585856] leading-[1.32]">Description</div>
                 {isEditingDescription ? (
                   <div className="flex flex-col gap-2">
-                    <Textarea
-                      value={editedDescription}
-                      onChange={(e) => setEditedDescription(e.target.value)}
-                      className="text-sm font-normal text-[#f7f6f2] bg-[#292928] border-[#3d3d3c] min-h-[60px]"
-                      placeholder="Add a description..."
-                      onBlur={handleSaveDescription}
-                    />
+                    <div className="relative">
+                      <Textarea
+                        value={editedDescription}
+                        onChange={(e) => setEditedDescription(e.target.value)}
+                        className="text-sm font-normal text-[#f7f6f2] bg-[#292928] border-[#3d3d3c] min-h-[60px] pr-10"
+                        placeholder="Add a description..."
+                        onBlur={handleSaveDescription}
+                      />
+                      <button
+                        onClick={handleAttachFile}
+                        className="absolute bottom-2 right-2 w-6 h-6 bg-transparent border-none rounded cursor-pointer flex items-center justify-center text-[#979795] hover:text-[#f7f6f2] transition-colors"
+                      >
+                        <Paperclip className="w-4 h-4" />
+                      </button>
+                    </div>
                 <div className="flex items-center gap-2">
                       <Button
                         size="sm"
@@ -1173,7 +1201,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   <div
                     className="text-sm font-normal text-[#f7f6f2] leading-[1.46] cursor-pointer group p-2 rounded hover:bg-[#292928] transition-colors"
                     onClick={() => {
-                      setEditedDescription(editedDescription || task.description || "");
+                      setEditedDescription(editedDescription || localTask.description || "");
                       setIsEditingDescription(true);
                     }}
                   >
@@ -1288,20 +1316,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
           <div className="w-[360px] bg-[#171716] p-4 flex flex-col gap-3 border-l border-[#292928] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between">
-              <Select value={task.status} onValueChange={handleStatusChange}>
-                <SelectTrigger className="bg-[#292928] border-none rounded-full px-3 py-2 text-[#f7f6f2] text-xs font-medium flex items-center gap-2 cursor-pointer w-[160px] h-8 font-montserrat hover:bg-[#3a3a38]">
-                  <div className="flex items-center gap-2">
-                    {getStatusIcon()}
-                    <span>{getStatusLabel(task.status)}</span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                  <SelectItem value="new" className="text-[#f7f6f2] focus:bg-[#3a3a38]">New</SelectItem>
-                  <SelectItem value="in_progress" className="text-[#f7f6f2] focus:bg-[#3a3a38]">In Progress</SelectItem>
-                  <SelectItem value="pending" className="text-[#f7f6f2] focus:bg-[#3a3a38]">Pending</SelectItem>
-                  <SelectItem value="completed" className="text-[#f7f6f2] focus:bg-[#3a3a38]">Completed</SelectItem>
-                </SelectContent>
-              </Select>
+              <div></div>
               
               <div className="flex items-center">
                 <DropdownMenu>
@@ -1336,132 +1351,112 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
             <div className="flex flex-col gap-4">
               <div className="text-sm font-semibold text-[#f7f6f2] leading-[1.46] h-8 flex items-center">Properties</div>
               
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                {/* Status */}
+                <InteractiveRow
+                  label="Status"
+                  value={localTask.status}
+                  badge={<StatusBadge status={localTask.status} />}
+                  options={[
+                    { value: 'new', label: 'New' },
+                    { value: 'in_progress', label: 'In Progress' },
+                    { value: 'pending', label: 'Blocked' },
+                    { value: 'completed', label: 'Completed' }
+                  ]}
+                  onValueChange={(value) => handleStatusChange(value as Task['status'])}
+                />
+
                 {/* Priority */}
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Priority</div>
-                  <Select value={task.priority || 'medium'} onValueChange={handlePriorityChange}>
-                    <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
-                      <div className="flex-1 flex items-center gap-1">
-                        {getPriorityBadge(task.priority || 'medium')}
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                      <SelectItem value="high" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                        <div className="flex items-center gap-2">
-                          <ChevronUp className="w-4 h-4" style={{ color: '#f87171' }} />
-                          High
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="medium" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                        <div className="flex items-center gap-2">
-                          <ChevronDown className="w-4 h-4" style={{ color: '#3f83f8' }} />
-                          Medium
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="low" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                        <div className="flex items-center gap-2">
-                          <Minus className="w-4 h-4" style={{ color: '#979795' }} />
-                          Low
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <InteractiveRow
+                  label="Priority"
+                  value={localTask.priority || 'medium'}
+                  badge={<PriorityBadge priority={(localTask.priority || 'medium') as 'high' | 'medium' | 'low'} />}
+                  options={[
+                    { value: 'high', label: 'High' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'low', label: 'Low' }
+                  ]}
+                  onValueChange={handlePriorityChange}
+                />
 
                 {/* Deadline */}
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Deadline</div>
-                  <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
-                    <input
-                      type="date"
-                      value={formatDateForInput(task.deadline)}
-                      onChange={(e) => handleDeadlineChange(e.target.value === '' ? undefined : e.target.value)}
-                      className="bg-transparent border-none text-xs font-normal text-[#f7f6f2] leading-[1.32] cursor-pointer outline-none w-full"
+                <InteractiveRow
+                  label="Deadline"
+                  value={localTask.deadline ? localTask.deadline.toString() : 'no-deadline'}
+                  badge={
+                    <DatePicker
+                      value={localTask.deadline ? new Date(localTask.deadline) : null}
+                      onChange={(date) => handleDeadlineChange(date ? date.toISOString() : undefined)}
                       placeholder="No deadline"
+                      variant="badge"
+                      className="text-xs"
                     />
-                  </div>
-                </div>
+                  }
+                  badgeClickable={true}
+                />
 
                 {/* Type */}
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Type</div>
-                  <Select value={task.type} onValueChange={handleTypeChange}>
-                    <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
-                      <div className="flex-1 flex items-center gap-1">
-                        {getTypeBadge(task.type)}
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                      {taskTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value} className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <InteractiveRow
+                  label="Type"
+                  value={localTask.type}
+                  badge={getTypeBadge(localTask.type)}
+                  options={taskTypes.map(type => ({
+                    value: type.value,
+                    label: formatTaskType(type.value)
+                  }))}
+                  onValueChange={handleTypeChange}
+                />
 
                 {/* Assignee */}
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Assignee</div>
-                  <Select value={task.assigneeId || 'unassigned'} onValueChange={(value) => handleAssigneeChange(value === 'unassigned' ? '' : value)}>
-                    <SelectTrigger className="bg-[#171716] border-none rounded-lg px-2 py-1.5 h-8 flex items-center gap-1 cursor-pointer hover:bg-[#292928] transition-colors">
-                      <div className="flex-1 flex items-center gap-1">
-                        {assignee ? (
-                          <div className="flex items-center gap-1">
-                            <div className="w-5 h-5 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white border border-[#292928]">
-                              {assignee.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                            </div>
-                            <div className="text-xs font-medium text-[#f7f6f2] leading-[1.32] overflow-hidden text-ellipsis whitespace-nowrap">{assignee.name}</div>
-                          </div>
-                        ) : (
-                          <div className="text-xs font-normal text-[#979795] leading-[1.32]">Unassigned</div>
-                        )}
+                <InteractiveRow
+                  label="Assignee"
+                  value={localTask.assigneeId || 'unassigned'}
+                  badge={
+                    assignee ? (
+                      <div className="flex items-center gap-1">
+                        <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
+                        <div className="text-xs font-medium text-[#f7f6f2] leading-[1.32] overflow-hidden text-ellipsis whitespace-nowrap">{assignee.name}</div>
                       </div>
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#292928] border-[#3d3d3c]">
-                      <SelectItem value="unassigned" className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                        Unassigned
-                      </SelectItem>
-                      {users.map((user) => (
-                        <SelectItem key={user.id} value={user.id} className="text-[#f7f6f2] focus:bg-[#3a3a38]">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
-                              {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                            </div>
-                            {user.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    ) : (
+                      <div className="text-xs font-normal text-[#979795] leading-[1.32]">Unassigned</div>
+                    )
+                  }
+                  options={[
+                    { value: 'unassigned', label: 'Unassigned' },
+                    ...users.map(user => ({
+                      value: user.id,
+                      label: user.name
+                    }))
+                  ]}
+                  onValueChange={(value) => handleAssigneeChange(value === 'unassigned' ? '' : value)}
+                />
 
                 {/* Created on */}
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Created on</div>
-                  <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1">
-                    <div className="text-xs font-normal text-[#f7f6f2] leading-[1.32]">{formatDate(task.createdAt)}</div>
-                  </div>
-                </div>
+                <InteractiveRow
+                  label="Created on"
+                  value="created-date"
+                  badge={
+                    <div className="text-xs font-normal text-[#f7f6f2] leading-[1.32]">{formatDate(localTask?.createdAt || new Date().toISOString())}</div>
+                  }
+                  disabled={true}
+                />
 
                 {/* Created by */}
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs font-medium text-[#979795] leading-[1.32] text-left">Created by</div>
-                  <div className="bg-[#171716] rounded-lg px-2 py-1.5 h-8 flex items-center gap-1">
-                    {creator ? (
+                <InteractiveRow
+                  label="Created by"
+                  value="created-by"
+                  badge={
+                    creator ? (
                       <div className="flex items-center gap-1">
-                        <div className="w-5 h-5 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white border border-[#292928]">
-                          {creator.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                        </div>
+                        <UserAvatar userId={creator.id} name={creator.name} size="xs" />
                         <div className="text-xs font-medium text-[#f7f6f2] leading-[1.32] overflow-hidden text-ellipsis whitespace-nowrap">{creator.name}</div>
                       </div>
                     ) : (
                       <div className="text-xs font-normal text-[#979795] leading-[1.32]">Unknown</div>
-                    )}
-                  </div>
-                </div>
+                    )
+                  }
+                  disabled={true}
+                />
               </div>
             </div>
 

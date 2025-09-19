@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Edit, Trash2, Circle, Clock, AlertCircle, CheckCircle, GripVertical, MoreHorizontal, List, ChevronUp, ChevronDown, Minus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,6 +34,21 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import UserAvatar from "./UserAvatar";
+
+// Helper function to format task types
+const formatTaskType = (type: string | undefined) => {
+  if (!type) return '';
+  
+  // Handle specific cases to replace "todo" with "task"
+  if (type === 'generaltodo') return 'General Task';
+  
+  // Handle camelCase words by splitting on capital letters
+  return type
+    .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
+    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+    .replace(/\b\w/g, str => str.toUpperCase()) // Capitalize each word
+    .replace(/\btodo\b/gi, 'Task'); // Replace "todo" with "Task" (case insensitive)
+};
 
 interface TaskListProps {
   tasks: Task[];
@@ -168,9 +184,7 @@ const MobileTaskCard = ({ task, users, athletes, onTaskClick }: {
           <div className="flex items-center gap-2">
             {assignee ? (
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
-                  {assignee.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
-                </div>
+                <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
                 <span className="text-xs text-[#979795]">{assignee.name}</span>
               </div>
             ) : (
@@ -214,52 +228,71 @@ const MobileTaskCard = ({ task, users, athletes, onTaskClick }: {
 
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
-  const getStatusStyles = () => {
+  const getStatusConfig = () => {
     switch (status.toLowerCase()) {
       case 'new':
         return {
           bgColor: '#31180f',
-          textColor: '#ff8254'
+          textColor: '#ff8254',
+          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff8254' stroke-width='1.5' fill='none' d='M9 1v18M1 9l8-8 8 8'/%3E%3C/svg%3E\")",
+          text: 'New'
         };
       case 'in_progress':
         return {
           bgColor: '#162949',
-          textColor: '#3f83f8'
+          textColor: '#3f83f8',
+          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='9' cy='9' r='7' stroke='%233f83f8' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%233f83f8' stroke-width='1.5' fill='none' d='M9 5v4l3 3'/%3E%3C/svg%3E\")",
+          text: 'In progress'
         };
       case 'pending':
         return {
           bgColor: '#321a1a',
-          textColor: '#f87171'
+          textColor: '#f87171',
+          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='8' stroke='%23f87171' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%23f87171' stroke-width='1.5' d='M6 6l8 8M14 6l-8 8'/%3E%3C/svg%3E\")",
+          text: 'Blocked'
         };
       case 'completed':
         return {
           bgColor: '#072a15',
-          textColor: '#4ade80'
+          textColor: '#4ade80',
+          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 16 11' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%234ade80' stroke-width='1.5' fill='none' d='M1 5l4 4 9-9'/%3E%3C/svg%3E\")",
+          text: 'Completed'
         };
       default:
         return {
           bgColor: '#31180f',
-          textColor: '#ff8254'
+          textColor: '#ff8254',
+          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff8254' stroke-width='1.5' fill='none' d='M9 1v18M1 9l8-8 8 8'/%3E%3C/svg%3E\")",
+          text: 'New'
         };
     }
   };
 
-  const styles = getStatusStyles();
-  const displayText = status === 'new' ? 'New' : 
-                     status === 'in_progress' ? 'In Progress' : 
-                     status === 'pending' ? 'Pending' : 
-                     status === 'completed' ? 'Completed' : status;
+  const config = getStatusConfig();
 
   return (
     <span 
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium h-5"
-      style={{ backgroundColor: styles.bgColor, color: styles.textColor }}
+      className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
+      style={{ 
+        backgroundColor: config.bgColor, 
+        color: config.textColor,
+        fontFamily: 'Montserrat',
+        fontWeight: 500,
+        fontSize: '12px',
+        lineHeight: '1.32'
+      }}
     >
-      <span 
-        className="w-2 h-2 rounded-full flex-shrink-0" 
-        style={{ backgroundColor: styles.textColor }}
-      ></span>
-      {displayText}
+      <div 
+        className="w-4 h-4 flex-shrink-0"
+        style={{
+          background: config.textColor,
+          maskImage: config.icon,
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskSize: 'contain'
+        }}
+      />
+      <span>{config.text}</span>
     </span>
   );
 };
@@ -274,7 +307,7 @@ interface SortableTaskRowProps {
   onToggleDropdown: (taskId: string, type: 'priority' | 'status' | 'deadline' | 'assignee') => void;
   onUpdatePriority: (taskId: string, priority: 'low' | 'medium' | 'high') => void;
   onUpdateStatus: (taskId: string, status: Task['status']) => void;
-  onUpdateDeadline: (taskId: string, deadline: string | undefined) => void;
+  onUpdateDeadline: (taskId: string, deadline: Date | null | undefined) => void;
   onUpdateAssignee: (taskId: string, assigneeId: string) => void;
 }
 
@@ -303,9 +336,9 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       ref={setNodeRef}
       style={{
         ...style,
-        gridTemplateColumns: "40px 1fr 196px 120px 88px 120px 140px"
+        gridTemplateColumns: "40px 1fr 200px 196px 120px 88px 120px 140px"
       }}
-      className={`grid items-center border-b border-[#292928] py-3 px-0 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer ${
+      className={`grid items-center border-b border-[#292928] h-12 px-0 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer ${
         isDragging ? 'z-50 shadow-2xl' : ''
       }`}
       onClick={() => onTaskClick(task)}
@@ -325,6 +358,11 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       {/* Task Name */}
       <div className="flex items-center px-4 flex-1">
         <span className="text-[#F7F6F2] text-sm font-semibold leading-[1.46]">{task.name}</span>
+      </div>
+
+      {/* Type */}
+      <div className="flex items-center px-4 w-[200px]">
+        <span className="text-[#979795] text-sm">{formatTaskType(task.type)}</span>
       </div>
 
       {/* Related Athletes */}
@@ -365,12 +403,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
               className="hover:bg-[rgba(255,255,255,0.05)] rounded p-1 transition-colors flex items-center"
             >
               {assignee ? (
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-black border-opacity-70"
-                  style={{ backgroundColor: '#f59e0b' }}
-                >
-                            {assignee.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
-                </div>
+                <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
               ) : (
                 <span className="text-[#979795] text-sm">Unassigned</span>
               )}
@@ -433,36 +466,33 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
                 e.stopPropagation();
                 onUpdatePriority(task.id, 'high');
               }}
-              className="text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer"
+              className={`text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer ${
+                task.priority === 'high' ? 'bg-[#3a3a38]' : ''
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <ChevronUp className="w-4 h-4" style={{ color: '#f87171' }} />
-                High
-              </div>
+              High
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={(e) => {
                 e.stopPropagation();
                 onUpdatePriority(task.id, 'medium');
               }}
-              className="text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer"
+              className={`text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer ${
+                task.priority === 'medium' ? 'bg-[#3a3a38]' : ''
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <ChevronDown className="w-4 h-4" style={{ color: '#3f83f8' }} />
-                Medium
-              </div>
+              Medium
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={(e) => {
                 e.stopPropagation();
                 onUpdatePriority(task.id, 'low');
               }}
-              className="text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer"
+              className={`text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer ${
+                task.priority === 'low' ? 'bg-[#3a3a38]' : ''
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <Minus className="w-4 h-4" style={{ color: '#979795' }} />
-                Low
-              </div>
+              Low
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -470,48 +500,18 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
 
       {/* Deadline */}
       <div className="flex items-center px-4 w-[120px]">
-        <DropdownMenu 
-          open={openDropdowns[task.id] === 'deadline'} 
-          onOpenChange={(open) => !open && onToggleDropdown(task.id, 'deadline')}
+        <div
+          onClick={(e) => e.stopPropagation()}
         >
-          <DropdownMenuTrigger asChild>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleDropdown(task.id, 'deadline');
-              }}
-              className="hover:bg-[rgba(255,255,255,0.05)] rounded p-1 transition-colors"
-            >
-              <DeadlineBadge deadline={task.deadline} />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-[#292928] border-[#3d3d3c] p-2">
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-[#f7f6f2]">Set Deadline</div>
-              <Input
-                type="date"
-                value={task.deadline ? new Date(task.deadline as string).toISOString().split('T')[0] : ''}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  onUpdateDeadline(task.id, e.target.value === '' ? undefined : e.target.value);
-                }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-[#171716] border-[#3d3d3c] text-[#f7f6f2] text-xs h-8"
-              />
-              {task.deadline && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onUpdateDeadline(task.id, undefined);
-                  }}
-                  className="text-xs text-[#979795] hover:text-[#f7f6f2] transition-colors"
-                >
-                  Clear deadline
-                </button>
-              )}
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <DatePicker
+            value={task.deadline ? (task.deadline instanceof Date ? task.deadline : new Date(task.deadline)) : null}
+            onChange={(date) => {
+              onUpdateDeadline(task.id, date);
+            }}
+            placeholder="–"
+            variant="badge"
+          />
+        </div>
       </div>
 
       {/* Status */}
@@ -537,48 +537,44 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
                 e.stopPropagation();
                 onUpdateStatus(task.id, 'new');
               }}
-              className="text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer"
+              className={`text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer ${
+                task.status === 'new' ? 'bg-[#3a3a38]' : ''
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#ff8254]"></span>
-                New
-              </div>
+              New
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={(e) => {
                 e.stopPropagation();
                 onUpdateStatus(task.id, 'in_progress');
               }}
-              className="text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer"
+              className={`text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer ${
+                task.status === 'in_progress' ? 'bg-[#3a3a38]' : ''
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#3f83f8]"></span>
-                In Progress
-              </div>
+              In progress
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={(e) => {
                 e.stopPropagation();
                 onUpdateStatus(task.id, 'pending');
               }}
-              className="text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer"
+              className={`text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer ${
+                task.status === 'pending' ? 'bg-[#3a3a38]' : ''
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#f87171]"></span>
-                Pending
-              </div>
+              Blocked
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={(e) => {
                 e.stopPropagation();
                 onUpdateStatus(task.id, 'completed');
               }}
-              className="text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer"
+              className={`text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer ${
+                task.status === 'completed' ? 'bg-[#3a3a38]' : ''
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#4ade80]"></span>
-                Completed
-              </div>
+              Completed
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -621,7 +617,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
 
         const newOrder = arrayMove(items, oldIndex, newIndex);
         
-        // TODO: Send reorder request to backend
+        // Note: Send reorder request to backend
         console.log('Task reordered:', { 
           taskId: active.id, 
           fromIndex: oldIndex, 
@@ -668,13 +664,6 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
     },
   });
 
-  const formatTaskType = (type: string) => {
-    // Handle camelCase words by splitting on capital letters
-    return type
-      .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
-      .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-      .replace(/\b\w/g, str => str.toUpperCase()); // Capitalize each word
-  };
 
   const formatStatus = (status: string) => {
     return status.split('_').map(word => 
@@ -706,8 +695,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
     }
   };
 
-  const handleUpdateDeadline = (taskId: string, deadline: string | undefined) => {
-    updateTaskMutation.mutate({ taskId, updates: { deadline: deadline ? new Date(deadline) : null } });
+  const handleUpdateDeadline = (taskId: string, deadline: Date | null | undefined) => {
+    updateTaskMutation.mutate({ taskId, updates: { deadline } });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
   };
 
@@ -758,8 +747,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
         bValue = b.name.toLowerCase();
         break;
       case 'type':
-        aValue = a.type.toLowerCase();
-        bValue = b.type.toLowerCase();
+        aValue = a.type?.toLowerCase() || '';
+        bValue = b.type?.toLowerCase() || '';
         break;
       case 'status':
         aValue = a.status.toLowerCase();
@@ -816,119 +805,90 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
         <div className={`bg-[#121210] rounded-2xl overflow-hidden w-full ${isMobile ? '' : 'max-w-[1320px]'}`}>
           {/* Table Header - Hidden on mobile list view */}
           {!isMobile && (
-            <div className="grid items-center bg-[#121210] h-10 border-b border-[#292928]" style={{gridTemplateColumns: "40px 1fr 196px 120px 88px 120px 140px"}}>
-              {/* Empty space for drag handle */}
-              <div className="flex items-center justify-center w-[40px]"></div>
+            <div className="table-header flex items-center justify-flex-start w-full h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium" style={{fontFamily: 'Montserrat', fontSize: '12px', fontWeight: 500, lineHeight: '132%'}}>
+              {/* First cell with list icon */}
+              <div className="cell cell-first flex items-center justify-center relative h-10 px-0 pl-3 w-10 min-w-10 bg-[#121210]">
+                <div className="list-icon w-4 h-4 bg-[#585856]" style={{
+                  mask: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23585856' stroke-width='1' d='M1 1h16M1 6h16M1 11h16'/%3E%3C/svg%3E\") no-repeat center",
+                  maskSize: 'contain'
+                }}></div>
+                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0 ml-2"></div>
+              </div>
               
               {/* Task Name */}
-              <button 
-                onClick={() => handleSort('name')}
-                className="flex items-center px-4 hover:text-[#f7f6f2] transition-colors flex-1"
-                style={{
-                  overflow: 'hidden',
-                  color: '#BCBBB7',
-                  textOverflow: 'ellipsis',
-                  fontFamily: 'Montserrat',
-                  fontSize: '12px',
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '132%'
-                }}
-              >
-                Name
-                {getSortIcon('name')}
-              </button>
+              <div className="cell cell-name flex items-center justify-between flex-grow max-w-[720px] h-10 px-4 bg-[#121210] relative">
+                <button 
+                  onClick={() => handleSort('name')}
+                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                >
+                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Name</span>
+                  {getSortIcon('name')}
+                </button>
+                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
+              </div>
+              
+              {/* Type */}
+              <div className="cell cell-type flex items-center justify-between w-[200px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+                <button 
+                  onClick={() => handleSort('type')}
+                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                >
+                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Type</span>
+                  {getSortIcon('type')}
+                </button>
+                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
+              </div>
               
               {/* Related Athletes */}
-              <div 
-                className="flex items-center px-4 w-[196px]"
-                style={{
-                  overflow: 'hidden',
-                  color: '#BCBBB7',
-                  textOverflow: 'ellipsis',
-                  fontFamily: 'Montserrat',
-                  fontSize: '12px',
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '132%'
-                }}
-              >
-                Related athlete(s)
+              <div className="cell cell-athlete flex items-center justify-between w-[196px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+                <div className="cell-content flex items-center gap-1 flex-grow">
+                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Related athlete(s)</span>
+                </div>
+                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
               </div>
               
               {/* Assignee */}
-              <div 
-                className="flex items-center px-4 w-[120px]"
-                style={{
-                  overflow: 'hidden',
-                  color: '#BCBBB7',
-                  textOverflow: 'ellipsis',
-                  fontFamily: 'Montserrat',
-                  fontSize: '12px',
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '132%'
-                }}
-              >
-                Assignee
+              <div className="cell cell-assignee flex items-center justify-between w-[120px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+                <div className="cell-content flex items-center gap-1 flex-grow">
+                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Assignee</span>
+                </div>
+                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
               </div>
               
               {/* Priority */}
-              <button 
-                onClick={() => handleSort('priority')}
-                className="flex items-center px-4 w-[88px] hover:text-[#f7f6f2] transition-colors"
-                style={{
-                  overflow: 'hidden',
-                  color: '#BCBBB7',
-                  textOverflow: 'ellipsis',
-                  fontFamily: 'Montserrat',
-                  fontSize: '12px',
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '132%'
-                }}
-              >
-                Priority
-                {getSortIcon('priority')}
-              </button>
+              <div className="cell cell-priority flex items-center justify-between min-w-fit max-w-[720px] h-10 px-4 bg-[#121210] relative">
+                <button 
+                  onClick={() => handleSort('priority')}
+                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                >
+                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Priority</span>
+                  {getSortIcon('priority')}
+                </button>
+                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
+              </div>
               
               {/* Deadline */}
-              <button 
-                onClick={() => handleSort('deadline')}
-                className="flex items-center px-4 w-[120px] hover:text-[#f7f6f2] transition-colors"
-                style={{
-                  overflow: 'hidden',
-                  color: '#BCBBB7',
-                  textOverflow: 'ellipsis',
-                  fontFamily: 'Montserrat',
-                  fontSize: '12px',
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '132%'
-                }}
-              >
-                Deadline
-                {getSortIcon('deadline')}
-              </button>
+              <div className="cell cell-deadline flex items-center justify-between w-[120px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+                <button 
+                  onClick={() => handleSort('deadline')}
+                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                >
+                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Deadline</span>
+                  {getSortIcon('deadline')}
+                </button>
+                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
+              </div>
               
               {/* Status */}
-              <button 
-                onClick={() => handleSort('status')}
-                className="flex items-center px-4 w-[140px] hover:text-[#f7f6f2] transition-colors"
-                style={{
-                  overflow: 'hidden',
-                  color: '#BCBBB7',
-                  textOverflow: 'ellipsis',
-                  fontFamily: 'Montserrat',
-                  fontSize: '12px',
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '132%'
-                }}
-              >
-                Status
-                {getSortIcon('status')}
-              </button>
+              <div className="cell cell-status flex items-center justify-between w-[120px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+                <button 
+                  onClick={() => handleSort('status')}
+                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                >
+                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Status</span>
+                  {getSortIcon('status')}
+                </button>
+              </div>
             </div>
           )}
 
@@ -987,9 +947,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                       {(() => {
                         const assignee = users.find((u: any) => u.id === task.assigneeId);
                         return assignee ? (
-                          <div className="w-6 h-6 rounded-full bg-[#4ade80] flex items-center justify-center text-xs font-semibold text-white">
-                            {assignee.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
-                          </div>
+                          <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
                         ) : null;
                       })()}
                       <div 

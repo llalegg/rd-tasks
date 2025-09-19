@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Filter, Edit, X, ChevronDown, Check, SlidersHorizontal, LayoutGrid, List } from "lucide-react";
+import { Search, Filter, Edit, X, ChevronDown, Check, SlidersHorizontal, LayoutGrid, List } from "lucide-react";
 import TaskList from "./TaskList";
 import TaskPanelContent from "./TaskPanelContent";
 import TaskViewModal from "./TaskViewModal";
@@ -357,7 +357,6 @@ export default function TaskManager() {
                     onClick={handleAddTask}
                     className="bg-white hover:bg-gray-100 text-black font-medium px-3 py-2 rounded-full text-xs h-9 transition-all duration-200"
                   >
-                    <Plus className="w-4 h-4 mr-1" />
                     <span>Add</span>
                   </Button>
                 </div>
@@ -367,7 +366,7 @@ export default function TaskManager() {
               <div className="px-4 pb-3">
                 <div className="flex items-center gap-2.5 px-3 py-2.5 bg-[#292928] rounded-lg">
                   <Search className="w-4 h-4 text-[#979795]" />
-                  <Input
+                  <input
                     type="text"
                     placeholder="Search tasks..."
                     value={searchQuery}
@@ -424,7 +423,7 @@ export default function TaskManager() {
                 
                 <div className="flex items-center gap-2.5 px-3 py-2 bg-[#292928] rounded-lg h-8 w-full sm:w-auto sm:min-w-[160px] md:min-w-[200px] max-w-[280px]">
                   <Search className="w-4 h-4 text-[#f7f6f2]" />
-                  <Input
+                  <input
                     type="text"
                     placeholder="Search by task name"
                     value={searchQuery}
@@ -442,7 +441,6 @@ export default function TaskManager() {
                   onClick={handleAddTask}
                   className="bg-white hover:bg-gray-100 text-black font-medium px-3 py-2 rounded-full text-xs h-8 min-w-[86px] justify-center transition-all duration-200"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
                   <span className="hidden sm:inline">Add Task</span>
                 </Button>
               </div>
@@ -500,8 +498,8 @@ export default function TaskManager() {
             : 'pt-[120px] md:pt-[88px]'
         }`}>
           {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-foreground"></div>
+            <div className="flex justify-center items-center min-h-[50vh]">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
             </div>
           ) : (
             <TaskList 
