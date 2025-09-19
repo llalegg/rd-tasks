@@ -245,7 +245,7 @@ export default function TaskManager() {
       type: 'injury', // Use working type temporarily
       status: 'new',
       priority: 'medium',
-      deadline: undefined,
+      deadline: null, // Optional field - should show en-dash when empty
       assigneeId: defaultAssignee, // Default to first user
       creatorId: defaultAssignee, // Default to first user
       relatedAthleteIds: [],
