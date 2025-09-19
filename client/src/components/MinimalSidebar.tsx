@@ -9,7 +9,8 @@ import {
   Shield, 
   BookOpen
 } from "lucide-react";
-import logoImage from '@assets/Logo_1752265131424.png';
+// Use public asset for better deployment compatibility
+const logoImage = '/logo.png';
 
 export function MinimalSidebar() {
   const [location] = useLocation();
