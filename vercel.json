@@ -1,24 +1,24 @@
 {
   "version": 2,
-  "functions": {
-    "dist/index.js": {
-      "runtime": "@vercel/node@3.0.7"
+  "builds": [
+    {
+      "src": "client/**",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "../dist/public"
+      }
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/dist/index.js"
+      "dest": "/api/[...path]"
     },
     {
       "src": "/(.*)",
       "dest": "/dist/public/$1"
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/public",
+  "buildCommand": "npm run build:client",
   "installCommand": "npm install --production=false"
 }
