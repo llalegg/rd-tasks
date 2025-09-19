@@ -1,5 +1,5 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
 import * as schema from '../shared/schema';
 import dotenv from 'dotenv';
 
@@ -8,11 +8,9 @@ dotenv.config({ path: '.env.local' });
 dotenv.config({ path: '.env.production.local' });
 dotenv.config({ path: '.env.development.local' });
 
-// Fallback to Neon database URL if not set
-if (!process.env.DATABASE_URL) {
-  console.log('Using fallback DATABASE_URL...');
-  process.env.DATABASE_URL = 'postgresql://neondb_owner:npg_QDAz4B6KYZyo@ep-dry-lake-adrd3nf5-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require';
-}
+// Set Neon database URL directly for deployment
+console.log('Setting Neon DATABASE_URL...');
+process.env.DATABASE_URL = 'postgresql://neondb_owner:npg_QDAz4B6KYZyo@ep-dry-lake-adrd3nf5-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require';
 
 console.log('Using DATABASE_URL:', process.env.DATABASE_URL?.substring(0, 50) + '...');
 
@@ -20,8 +18,8 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const db = drizzle(pool, { schema });
+const sql = neon(process.env.DATABASE_URL);
+const db = drizzle({ client: sql, schema });
 
 async function main() {
   console.log('🌱 Starting database seed...');
@@ -31,42 +29,42 @@ async function main() {
     console.log('Recreating database schema...');
     
     // Drop tables in reverse order of dependencies
-    await pool.query('DROP TABLE IF EXISTS task_media CASCADE');
-    await pool.query('DROP TABLE IF EXISTS task_athletes CASCADE');
-    await pool.query('DROP TABLE IF EXISTS task_comments CASCADE');
-    await pool.query('DROP TABLE IF EXISTS task_history CASCADE');
-    await pool.query('DROP TABLE IF EXISTS tasks CASCADE');
-    await pool.query('DROP TABLE IF EXISTS media_files CASCADE');
-    await pool.query('DROP TABLE IF EXISTS athletes CASCADE');
-    await pool.query('DROP TABLE IF EXISTS users CASCADE');
+    await sql`DROP TABLE IF EXISTS task_media CASCADE`;
+    await sql`DROP TABLE IF EXISTS task_athletes CASCADE`;
+    await sql`DROP TABLE IF EXISTS task_comments CASCADE`;
+    await sql`DROP TABLE IF EXISTS task_history CASCADE`;
+    await sql`DROP TABLE IF EXISTS tasks CASCADE`;
+    await sql`DROP TABLE IF EXISTS media_files CASCADE`;
+    await sql`DROP TABLE IF EXISTS athletes CASCADE`;
+    await sql`DROP TABLE IF EXISTS users CASCADE`;
     
     // Drop existing enums
-    await pool.query('DROP TYPE IF EXISTS task_type CASCADE');
-    await pool.query('DROP TYPE IF EXISTS task_status CASCADE');
-    await pool.query('DROP TYPE IF EXISTS task_priority CASCADE');
-    await pool.query('DROP TYPE IF EXISTS user_role CASCADE');
-    await pool.query('DROP TYPE IF EXISTS media_type CASCADE');
-    await pool.query('DROP TYPE IF EXISTS history_action CASCADE');
+    await sql`DROP TYPE IF EXISTS task_type CASCADE`;
+    await sql`DROP TYPE IF EXISTS task_status CASCADE`;
+    await sql`DROP TYPE IF EXISTS task_priority CASCADE`;
+    await sql`DROP TYPE IF EXISTS user_role CASCADE`;
+    await sql`DROP TYPE IF EXISTS media_type CASCADE`;
+    await sql`DROP TYPE IF EXISTS history_action CASCADE`;
     
     // Create enums
-    await pool.query(`CREATE TYPE task_type AS ENUM('mechanicalanalysis', 'datareporting', 'injury', 'generaltodo', 'schedulecall', 'coachassignment', 'createprogram', 'assessmentreview')`);
-    await pool.query(`CREATE TYPE task_status AS ENUM('new', 'in_progress', 'pending', 'completed')`);
-    await pool.query(`CREATE TYPE task_priority AS ENUM('low', 'medium', 'high')`);
-    await pool.query(`CREATE TYPE user_role AS ENUM('admin', 'coach', 'analyst', 'therapist', 'athlete', 'parent', 'staff')`);
-    await pool.query(`CREATE TYPE media_type AS ENUM('description', 'comment')`);
-    await pool.query(`CREATE TYPE history_action AS ENUM('created', 'status_changed', 'comment_added', 'media_added', 'assigned', 'deadline_changed')`);
+    await sql`CREATE TYPE task_type AS ENUM('mechanicalanalysis', 'datareporting', 'injury', 'generaltodo', 'schedulecall', 'coachassignment', 'createprogram', 'assessmentreview')`;
+    await sql`CREATE TYPE task_status AS ENUM('new', 'in_progress', 'pending', 'completed')`;
+    await sql`CREATE TYPE task_priority AS ENUM('low', 'medium', 'high')`;
+    await sql`CREATE TYPE user_role AS ENUM('admin', 'coach', 'analyst', 'therapist', 'athlete', 'parent', 'staff')`;
+    await sql`CREATE TYPE media_type AS ENUM('description', 'comment')`;
+    await sql`CREATE TYPE history_action AS ENUM('created', 'status_changed', 'comment_added', 'media_added', 'assigned', 'deadline_changed')`;
     
     // Create tables
-    await pool.query(`
+    await sql`
       CREATE TABLE users (
         id text PRIMARY KEY,
         name text NOT NULL,
         email text NOT NULL UNIQUE,
         role user_role NOT NULL
       )
-    `);
+    `;
     
-    await pool.query(`
+    await sql`
       CREATE TABLE athletes (
         id text PRIMARY KEY,
         name text NOT NULL,
@@ -74,9 +72,9 @@ async function main() {
         team text,
         position text
       )
-    `);
+    `;
     
-    await pool.query(`
+    await sql`
       CREATE TABLE media_files (
         id text PRIMARY KEY,
         filename text NOT NULL,
@@ -86,9 +84,9 @@ async function main() {
         file_path text NOT NULL,
         uploaded_at timestamp DEFAULT NOW() NOT NULL
       )
-    `);
+    `;
     
-    await pool.query(`
+    await sql`
       CREATE TABLE tasks (
         id text PRIMARY KEY,
         name text NOT NULL,
@@ -103,17 +101,17 @@ async function main() {
         created_at timestamp DEFAULT NOW() NOT NULL,
         updated_at timestamp DEFAULT NOW() NOT NULL
       )
-    `);
+    `;
     
-    await pool.query(`
+    await sql`
       CREATE TABLE task_athletes (
         task_id text REFERENCES tasks(id) NOT NULL,
         athlete_id text REFERENCES athletes(id) NOT NULL,
         PRIMARY KEY (task_id, athlete_id)
       )
-    `);
+    `;
     
-    await pool.query(`
+    await sql`
       CREATE TABLE task_comments (
         id text PRIMARY KEY,
         task_id text REFERENCES tasks(id) NOT NULL,
@@ -122,9 +120,9 @@ async function main() {
         created_at timestamp DEFAULT NOW() NOT NULL,
         updated_at timestamp DEFAULT NOW() NOT NULL
       )
-    `);
+    `;
     
-    await pool.query(`
+    await sql`
       CREATE TABLE task_history (
         id text PRIMARY KEY,
         task_id text REFERENCES tasks(id) NOT NULL,
@@ -134,9 +132,9 @@ async function main() {
         user_id text REFERENCES users(id) NOT NULL,
         created_at timestamp DEFAULT NOW() NOT NULL
       )
-    `);
+    `;
     
-    await pool.query(`
+    await sql`
       CREATE TABLE task_media (
         id text PRIMARY KEY,
         task_id text REFERENCES tasks(id) NOT NULL,
@@ -144,7 +142,7 @@ async function main() {
         media_type media_type NOT NULL,
         created_at timestamp DEFAULT NOW() NOT NULL
       )
-    `);
+    `;
     
     console.log('✅ Database schema created successfully!');
     console.log('Inserting seed data...');
@@ -401,7 +399,8 @@ async function main() {
     console.error('❌ Error seeding database:', error);
     throw error;
   } finally {
-    await pool.end();
+    // Neon HTTP client doesn't need explicit cleanup
+    console.log('🏁 Seed script completed.');
   }
 }
 
