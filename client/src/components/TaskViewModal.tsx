@@ -128,9 +128,9 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         };
         
         if (updateData.deadline !== undefined) {
-          fullTaskData.deadline = updateData.deadline ? new Date(updateData.deadline) : null;
+          fullTaskData.deadline = updateData.deadline || null;
         } else if (task.deadline) {
-          fullTaskData.deadline = new Date(task.deadline);
+          fullTaskData.deadline = task.deadline;
         }
         
         return await createTaskMutation.mutateAsync(fullTaskData);

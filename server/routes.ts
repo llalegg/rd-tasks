@@ -35,6 +35,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Extract relatedAthleteIds since it's not part of the task schema
       const { relatedAthleteIds, ...taskData } = req.body;
       
+      // Convert date strings to Date objects if present
+      if (taskData.deadline && typeof taskData.deadline === 'string') {
+        taskData.deadline = new Date(taskData.deadline);
+      }
+      if (taskData.createdAt && typeof taskData.createdAt === 'string') {
+        taskData.createdAt = new Date(taskData.createdAt);
+      }
+      if (taskData.updatedAt && typeof taskData.updatedAt === 'string') {
+        taskData.updatedAt = new Date(taskData.updatedAt);
+      }
+      
       const validatedTask = insertTaskSchema.parse(taskData);
       
       // Add back relatedAthleteIds for storage layer
@@ -53,12 +64,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/tasks/:id", async (req, res) => {
     try {
+      // Convert date strings to Date objects if present
+      const updateData = { ...req.body };
+      if (updateData.deadline && typeof updateData.deadline === 'string') {
+        updateData.deadline = new Date(updateData.deadline);
+      }
+      
       // Validate that the task exists first
       const existingTask = await storage.getTask(req.params.id);
       if (!existingTask) {
         return res.status(404).json({ error: "Task not found" });
       }
-      const task = await storage.updateTask(req.params.id, req.body);
+      const task = await storage.updateTask(req.params.id, updateData);
       res.json(task);
     } catch (error) {
       console.error('Failed to update task:', error);
