@@ -9,18 +9,12 @@ import {
   Shield, 
   BookOpen
 } from "lucide-react";
-// Use public asset for better deployment compatibility
-const logoImage = '/logo.png';
-
 export function MinimalSidebar() {
   const [location] = useLocation();
 
   return (
     <aside className="fixed bottom-0 left-0 right-0 md:right-auto md:top-0 md:bottom-auto h-[64px] md:h-screen w-full md:w-[80px] bg-[#171716] flex flex-row md:flex-col items-center justify-between md:justify-start z-50">
-      {/* Logo - Hidden on mobile */}
-      <div className="hidden md:block w-[64px] h-[64px] pt-6">
-        <img src={logoImage} alt="Logo" className="w-full h-full object-contain" />
-      </div>
+      {/* Logo section removed for deployment compatibility */}
 
       {/* Navigation Items */}
       <div className="flex-1 flex flex-row md:flex-col items-center justify-center gap-2 md:gap-[16px] px-4">
