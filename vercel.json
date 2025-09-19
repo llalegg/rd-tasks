@@ -2,10 +2,10 @@
   "version": 2,
   "builds": [
     {
-      "src": "client/**",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "../dist/public"
+        "distDir": "dist/public"
       }
     }
   ],
@@ -18,7 +18,5 @@
       "src": "/(.*)",
       "dest": "/dist/public/$1"
     }
-  ],
-  "buildCommand": "npm run build:client",
-  "installCommand": "npm install --production=false"
+  ]
 }
