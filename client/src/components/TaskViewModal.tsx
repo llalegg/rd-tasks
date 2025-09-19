@@ -203,23 +203,29 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       setEditedDescription(task.description || '');
       setLastTaskId(task.id);
       
-      // Mock comments data
-      setComments([
-        {
-          id: '1',
-          text: 'This is my comment',
-          authorId: '1',
-          authorName: 'John Withington',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          text: 'This is my comment',
-          authorId: '1',
-          authorName: 'John Withington',
-          createdAt: new Date().toISOString()
-        }
-      ]);
+      // Only load comments for existing tasks, not new ones
+      if (!isNewTask) {
+        // Mock comments data for existing tasks
+        setComments([
+          {
+            id: '1',
+            text: 'This is my comment',
+            authorId: '1',
+            authorName: 'John Withington',
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: '2',
+            text: 'This is my comment',
+            authorId: '1',
+            authorName: 'John Withington',
+            createdAt: new Date().toISOString()
+          }
+        ]);
+      } else {
+        // New tasks start with no comments
+        setComments([]);
+      }
 
       // Mock history data
       setHistory([
