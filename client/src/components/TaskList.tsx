@@ -303,7 +303,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       ref={setNodeRef}
       style={{
         ...style,
-        gridTemplateColumns: "40px 1fr 196px 120px 88px 120px 120px"
+        gridTemplateColumns: "40px 1fr 196px 120px 88px 120px 140px"
       }}
       className={`grid items-center border-b border-[#292928] py-3 px-0 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer ${
         isDragging ? 'z-50 shadow-2xl' : ''
@@ -515,7 +515,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       </div>
 
       {/* Status */}
-      <div className="flex items-center px-4 w-[120px]">
+      <div className="flex items-center px-4 w-[140px]">
         <DropdownMenu 
           open={openDropdowns[task.id] === 'status'} 
           onOpenChange={(open) => !open && onToggleDropdown(task.id, 'status')}
@@ -816,31 +816,77 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
         <div className={`bg-[#121210] rounded-2xl overflow-hidden w-full ${isMobile ? '' : 'max-w-[1320px]'}`}>
           {/* Table Header - Hidden on mobile list view */}
           {!isMobile && (
-            <div className="grid items-center bg-[#121210] h-10 border-b border-[#292928]" style={{gridTemplateColumns: "40px 1fr 196px 120px 88px 120px 120px"}}>
+            <div className="grid items-center bg-[#121210] h-10 border-b border-[#292928]" style={{gridTemplateColumns: "40px 1fr 196px 120px 88px 120px 140px"}}>
               {/* Empty space for drag handle */}
               <div className="flex items-center justify-center w-[40px]"></div>
               
               {/* Task Name */}
               <button 
                 onClick={() => handleSort('name')}
-                className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide hover:text-[#f7f6f2] transition-colors flex-1"
+                className="flex items-center px-4 hover:text-[#f7f6f2] transition-colors flex-1"
+                style={{
+                  overflow: 'hidden',
+                  color: '#BCBBB7',
+                  textOverflow: 'ellipsis',
+                  fontFamily: 'Montserrat',
+                  fontSize: '12px',
+                  fontStyle: 'normal',
+                  fontWeight: 500,
+                  lineHeight: '132%'
+                }}
               >
                 Name
                 {getSortIcon('name')}
               </button>
               
               {/* Related Athletes */}
-              <div className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[196px]">Related athlete(s)</div>
+              <div 
+                className="flex items-center px-4 w-[196px]"
+                style={{
+                  overflow: 'hidden',
+                  color: '#BCBBB7',
+                  textOverflow: 'ellipsis',
+                  fontFamily: 'Montserrat',
+                  fontSize: '12px',
+                  fontStyle: 'normal',
+                  fontWeight: 500,
+                  lineHeight: '132%'
+                }}
+              >
+                Related athlete(s)
+              </div>
               
               {/* Assignee */}
-              <div className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px]">
+              <div 
+                className="flex items-center px-4 w-[120px]"
+                style={{
+                  overflow: 'hidden',
+                  color: '#BCBBB7',
+                  textOverflow: 'ellipsis',
+                  fontFamily: 'Montserrat',
+                  fontSize: '12px',
+                  fontStyle: 'normal',
+                  fontWeight: 500,
+                  lineHeight: '132%'
+                }}
+              >
                 Assignee
               </div>
               
               {/* Priority */}
               <button 
                 onClick={() => handleSort('priority')}
-                className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[88px] hover:text-[#f7f6f2] transition-colors"
+                className="flex items-center px-4 w-[88px] hover:text-[#f7f6f2] transition-colors"
+                style={{
+                  overflow: 'hidden',
+                  color: '#BCBBB7',
+                  textOverflow: 'ellipsis',
+                  fontFamily: 'Montserrat',
+                  fontSize: '12px',
+                  fontStyle: 'normal',
+                  fontWeight: 500,
+                  lineHeight: '132%'
+                }}
               >
                 Priority
                 {getSortIcon('priority')}
@@ -849,7 +895,17 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               {/* Deadline */}
               <button 
                 onClick={() => handleSort('deadline')}
-                className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px] hover:text-[#f7f6f2] transition-colors"
+                className="flex items-center px-4 w-[120px] hover:text-[#f7f6f2] transition-colors"
+                style={{
+                  overflow: 'hidden',
+                  color: '#BCBBB7',
+                  textOverflow: 'ellipsis',
+                  fontFamily: 'Montserrat',
+                  fontSize: '12px',
+                  fontStyle: 'normal',
+                  fontWeight: 500,
+                  lineHeight: '132%'
+                }}
               >
                 Deadline
                 {getSortIcon('deadline')}
@@ -858,7 +914,17 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               {/* Status */}
               <button 
                 onClick={() => handleSort('status')}
-                className="flex items-center px-4 text-xs font-medium text-[#bcbbb7] uppercase tracking-wide w-[120px] hover:text-[#f7f6f2] transition-colors"
+                className="flex items-center px-4 w-[140px] hover:text-[#f7f6f2] transition-colors"
+                style={{
+                  overflow: 'hidden',
+                  color: '#BCBBB7',
+                  textOverflow: 'ellipsis',
+                  fontFamily: 'Montserrat',
+                  fontSize: '12px',
+                  fontStyle: 'normal',
+                  fontWeight: 500,
+                  lineHeight: '132%'
+                }}
               >
                 Status
                 {getSortIcon('status')}
