@@ -16,9 +16,10 @@ interface TaskDetailsProps {
   task: TaskWithRelations;
   onStatusUpdate: (taskId: string, newStatus: Task['status']) => void;
   layout?: 'sidebar' | 'modal';
+  showEditButton?: boolean;
 }
 
-export default function TaskDetails({ task, onStatusUpdate, layout = 'sidebar' }: TaskDetailsProps) {
+export default function TaskDetails({ task, onStatusUpdate, layout = 'sidebar', showEditButton = true }: TaskDetailsProps) {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<Task['status'] | null>(null);
   const { toast } = useToast();
@@ -188,7 +189,7 @@ export default function TaskDetails({ task, onStatusUpdate, layout = 'sidebar' }
         </div>
           {task.deadline ? (
             <div className="flex items-center gap-2">
-              <DeadlineBadge deadline={task.deadline} />
+              <DeadlineBadge deadline={task.deadline instanceof Date ? task.deadline.toISOString() : task.deadline} />
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>

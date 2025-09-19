@@ -171,16 +171,16 @@ export default function TaskManager() {
     if (hideCompleted && task.status === 'completed') return false;
     
     // Apply quick filters
-    const matchesAssignee = assigneeFilter.length === 0 || assigneeFilter.includes(task.assigneeId);
+    const matchesAssignee = assigneeFilter.length === 0 || assigneeFilter.includes(task.assigneeId || '');
     const matchesPriority = priorityFilter.length === 0 || priorityFilter.includes(task.priority);
     const matchesStatus = statusFilter.length === 0 || statusFilter.includes(task.status);
     
     // Apply other filters
     const matchesStatusFilters = statusFilters.length === 0 || statusFilters.includes(task.status);
     const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
-    const matchesCreator = creatorFilters.length === 0 || creatorFilters.includes(task.creatorId);
+    const matchesCreator = creatorFilters.length === 0 || creatorFilters.includes(task.creatorId || '');
     const matchesAthlete = athleteFilters.length === 0 || 
-      (task.relatedAthleteIds && task.relatedAthleteIds.some((id: string) => athleteFilters.includes(id)));
+      ((task as any).relatedAthleteIds && (task as any).relatedAthleteIds.some((id: string) => athleteFilters.includes(id)));
     
     return matchesSearch && matchesAssignee && matchesPriority && matchesStatus && matchesStatusFilters && matchesType && matchesCreator && matchesAthlete;
   }).sort((a: Task, b: Task) => {
@@ -248,10 +248,12 @@ export default function TaskManager() {
       deadline: null, // Optional field - should show en-dash when empty
       assigneeId: defaultAssignee, // Default to first user
       creatorId: defaultAssignee, // Default to first user
-      relatedAthleteIds: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } as any;
+    
+    // Add relatedAthleteIds to the task object
+    (newTask as any).relatedAthleteIds = [];
     
     setViewTask(newTask);
     setIsViewModalOpen(true);

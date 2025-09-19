@@ -185,7 +185,7 @@ export class DatabaseStorage implements IStorage {
       };
     } catch (dbError) {
       console.error('Database error updating task:', dbError);
-      throw new Error(`Database error updating task: ${dbError.message}`);
+      throw new Error(`Database error updating task: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
     }
   }
 

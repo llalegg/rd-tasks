@@ -134,7 +134,7 @@ export function DatePicker({ value, onChange, placeholder = "Pick a date", class
             className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium h-5 cursor-pointer hover:opacity-80 transition-opacity ${className}`}
             style={badgeStyles}
           >
-            {formatDate(value)}
+            {formatDate(value || null)}
           </span>
         ) : (
           <Button
@@ -144,7 +144,7 @@ export function DatePicker({ value, onChange, placeholder = "Pick a date", class
             } ${className}`}
           >
             <Calendar className="mr-2 h-4 w-4" />
-            {formatDate(value)}
+            {formatDate(value || null)}
           </Button>
         )}
       </PopoverTrigger>

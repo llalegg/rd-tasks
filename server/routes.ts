@@ -58,7 +58,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(task);
     } catch (error) {
       console.error('Task creation error:', error);
-      res.status(400).json({ error: "Invalid task data", details: error.message });
+      res.status(400).json({ 
+        error: "Invalid task data", 
+        details: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
@@ -79,7 +82,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(task);
     } catch (error) {
       console.error('Failed to update task:', error);
-      res.status(500).json({ error: "Failed to update task", details: error.message });
+      res.status(500).json({ 
+        error: "Failed to update task", 
+        details: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
