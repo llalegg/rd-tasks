@@ -88,7 +88,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         title: "Success",
         description: "Task created successfully",
       });
-      onClose(); // Close modal after successful creation
+      // Don't automatically close - let the calling code decide
     },
     onError: (error) => {
       toast({
