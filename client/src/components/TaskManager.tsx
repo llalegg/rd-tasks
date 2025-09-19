@@ -242,7 +242,7 @@ export default function TaskManager() {
       id: 'new-' + Date.now(), // Temporary ID
       name: 'New Task', // Pre-filled required field
       description: 'Task description', // Pre-filled required field
-      type: 'generaltodo', // Default to "General to do"
+      type: 'injury', // Use working type temporarily
       status: 'new',
       priority: 'medium',
       deadline: undefined,
