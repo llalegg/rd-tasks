@@ -8,9 +8,11 @@ dotenv.config({ path: '.env.local' });
 dotenv.config({ path: '.env.production.local' });
 dotenv.config({ path: '.env.development.local' });
 
-// Set Neon database URL directly for deployment
-console.log('Setting Neon DATABASE_URL...');
-process.env.DATABASE_URL = 'postgresql://neondb_owner:npg_QDAz4B6KYZyo@ep-dry-lake-adrd3nf5-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require';
+// Use DATABASE_URL from environment
+if (!process.env.DATABASE_URL) {
+  console.log('Setting fallback DATABASE_URL...');
+  process.env.DATABASE_URL = 'postgresql://neondb_owner:npg_QDAz4B6KYZyo@ep-dry-lake-adrd3nf5-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require';
+}
 
 console.log('Using DATABASE_URL:', process.env.DATABASE_URL?.substring(0, 50) + '...');
 
