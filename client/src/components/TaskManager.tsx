@@ -234,17 +234,20 @@ export default function TaskManager() {
   };
 
   const handleAddTask = () => {
-    // Create a default new task
+    // Get first user as default assignee
+    const defaultAssignee = users?.[0]?.id;
+    
+    // Create a default new task with required fields pre-filled
     const newTask: Task = {
       id: 'new-' + Date.now(), // Temporary ID
-      name: 'New task',
-      description: '', // Optional field, can be empty
-      type: 'injury', // Using 'injury' as it works with current DB
+      name: 'New Task', // Pre-filled required field
+      description: 'Task description', // Pre-filled required field
+      type: 'generaltodo', // Default to "General to do"
       status: 'new',
       priority: 'medium',
       deadline: undefined,
-      assigneeId: undefined, // Now optional
-      creatorId: undefined, // Now optional
+      assigneeId: defaultAssignee, // Default to first user
+      creatorId: defaultAssignee, // Default to first user
       relatedAthleteIds: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
