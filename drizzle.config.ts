@@ -1,6 +1,9 @@
 import { defineConfig } from "drizzle-kit";
 
-if (!process.env.DATABASE_URL) {
+// Set the Neon database URL directly for now
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_QDAz4B6KYZyo@ep-dry-lake-adrd3nf5-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require';
+
+if (!DATABASE_URL) {
   throw new Error("DATABASE_URL, ensure the database is provisioned");
 }
 
@@ -9,6 +12,6 @@ export default defineConfig({
   schema: "./shared/schema.ts",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL,
+    url: DATABASE_URL,
   },
 });

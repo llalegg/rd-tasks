@@ -3,8 +3,18 @@ import { Pool } from 'pg';
 import * as schema from '../shared/schema';
 import dotenv from 'dotenv';
 
-// Load environment variables
+// Load environment variables - try multiple sources
+dotenv.config({ path: '.env.local' });
 dotenv.config({ path: '.env.production.local' });
+dotenv.config({ path: '.env.development.local' });
+
+// Fallback to Neon database URL if not set
+if (!process.env.DATABASE_URL) {
+  console.log('Using fallback DATABASE_URL...');
+  process.env.DATABASE_URL = 'postgresql://neondb_owner:npg_QDAz4B6KYZyo@ep-dry-lake-adrd3nf5-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require';
+}
+
+console.log('Using DATABASE_URL:', process.env.DATABASE_URL?.substring(0, 50) + '...');
 
 if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is required');
@@ -17,14 +27,127 @@ async function main() {
   console.log('🌱 Starting database seed...');
 
   try {
-    // Clear existing data (optional - remove in production)
-    console.log('Clearing existing data...');
-    await db.delete(schema.taskAthletes);
-    await db.delete(schema.taskComments);
-    await db.delete(schema.taskHistory);
-    await db.delete(schema.tasks);
-    await db.delete(schema.athletes);
-    await db.delete(schema.users);
+    // Drop and recreate tables to ensure clean schema
+    console.log('Recreating database schema...');
+    
+    // Drop tables in reverse order of dependencies
+    await pool.query('DROP TABLE IF EXISTS task_media CASCADE');
+    await pool.query('DROP TABLE IF EXISTS task_athletes CASCADE');
+    await pool.query('DROP TABLE IF EXISTS task_comments CASCADE');
+    await pool.query('DROP TABLE IF EXISTS task_history CASCADE');
+    await pool.query('DROP TABLE IF EXISTS tasks CASCADE');
+    await pool.query('DROP TABLE IF EXISTS media_files CASCADE');
+    await pool.query('DROP TABLE IF EXISTS athletes CASCADE');
+    await pool.query('DROP TABLE IF EXISTS users CASCADE');
+    
+    // Drop existing enums
+    await pool.query('DROP TYPE IF EXISTS task_type CASCADE');
+    await pool.query('DROP TYPE IF EXISTS task_status CASCADE');
+    await pool.query('DROP TYPE IF EXISTS task_priority CASCADE');
+    await pool.query('DROP TYPE IF EXISTS user_role CASCADE');
+    await pool.query('DROP TYPE IF EXISTS media_type CASCADE');
+    await pool.query('DROP TYPE IF EXISTS history_action CASCADE');
+    
+    // Create enums
+    await pool.query(`CREATE TYPE task_type AS ENUM('mechanicalanalysis', 'datareporting', 'injury', 'generaltodo', 'schedulecall', 'coachassignment', 'createprogram', 'assessmentreview')`);
+    await pool.query(`CREATE TYPE task_status AS ENUM('new', 'in_progress', 'pending', 'completed')`);
+    await pool.query(`CREATE TYPE task_priority AS ENUM('low', 'medium', 'high')`);
+    await pool.query(`CREATE TYPE user_role AS ENUM('admin', 'coach', 'analyst', 'therapist', 'athlete', 'parent', 'staff')`);
+    await pool.query(`CREATE TYPE media_type AS ENUM('description', 'comment')`);
+    await pool.query(`CREATE TYPE history_action AS ENUM('created', 'status_changed', 'comment_added', 'media_added', 'assigned', 'deadline_changed')`);
+    
+    // Create tables
+    await pool.query(`
+      CREATE TABLE users (
+        id text PRIMARY KEY,
+        name text NOT NULL,
+        email text NOT NULL UNIQUE,
+        role user_role NOT NULL
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE athletes (
+        id text PRIMARY KEY,
+        name text NOT NULL,
+        sport text NOT NULL,
+        team text,
+        position text
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE media_files (
+        id text PRIMARY KEY,
+        filename text NOT NULL,
+        original_name text NOT NULL,
+        mime_type text NOT NULL,
+        file_size integer NOT NULL,
+        file_path text NOT NULL,
+        uploaded_at timestamp DEFAULT NOW() NOT NULL
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE tasks (
+        id text PRIMARY KEY,
+        name text NOT NULL,
+        type task_type NOT NULL,
+        description text,
+        assignee_id text REFERENCES users(id),
+        creator_id text REFERENCES users(id),
+        deadline timestamp,
+        status task_status NOT NULL DEFAULT 'new',
+        priority task_priority NOT NULL DEFAULT 'medium',
+        comment text,
+        created_at timestamp DEFAULT NOW() NOT NULL,
+        updated_at timestamp DEFAULT NOW() NOT NULL
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE task_athletes (
+        task_id text REFERENCES tasks(id) NOT NULL,
+        athlete_id text REFERENCES athletes(id) NOT NULL,
+        PRIMARY KEY (task_id, athlete_id)
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE task_comments (
+        id text PRIMARY KEY,
+        task_id text REFERENCES tasks(id) NOT NULL,
+        text text NOT NULL,
+        author_id text REFERENCES users(id) NOT NULL,
+        created_at timestamp DEFAULT NOW() NOT NULL,
+        updated_at timestamp DEFAULT NOW() NOT NULL
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE task_history (
+        id text PRIMARY KEY,
+        task_id text REFERENCES tasks(id) NOT NULL,
+        action history_action NOT NULL,
+        old_value text,
+        new_value text,
+        user_id text REFERENCES users(id) NOT NULL,
+        created_at timestamp DEFAULT NOW() NOT NULL
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE task_media (
+        id text PRIMARY KEY,
+        task_id text REFERENCES tasks(id) NOT NULL,
+        media_id text REFERENCES media_files(id) NOT NULL,
+        media_type media_type NOT NULL,
+        created_at timestamp DEFAULT NOW() NOT NULL
+      )
+    `);
+    
+    console.log('✅ Database schema created successfully!');
+    console.log('Inserting seed data...');
 
     // Seed Users
     console.log('Seeding users...');
