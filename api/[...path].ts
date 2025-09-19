@@ -22,9 +22,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const expressReq = req as any;
     const expressRes = res as any;
 
-    // Set the URL to match the API path
-    expressReq.url = req.url || '';
+    // Set the URL to match the API path - ensure it starts with /api
+    let url = req.url || '';
+    if (!url.startsWith('/api')) {
+      url = '/api' + url;
+    }
+    
+    expressReq.url = url;
     expressReq.method = req.method || 'GET';
+    
+    // Copy query parameters
+    expressReq.query = req.query || {};
+    
+    // Copy body
+    expressReq.body = req.body || {};
 
     // Handle the request with Express
     app(expressReq, expressRes);
