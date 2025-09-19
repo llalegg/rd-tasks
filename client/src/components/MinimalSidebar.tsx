@@ -14,7 +14,7 @@ export function MinimalSidebar() {
 
   return (
     <aside className="fixed bottom-0 left-0 right-0 md:right-auto md:top-0 md:bottom-auto h-[64px] md:h-screen w-full md:w-[80px] bg-[#171716] flex flex-row md:flex-col items-center justify-between md:justify-start z-50">
-      {/* Logo section removed for deployment compatibility */}
+      {/* Logo section removed for deployment compatibility - force cache clear */}
 
       {/* Navigation Items */}
       <div className="flex-1 flex flex-row md:flex-col items-center justify-center gap-2 md:gap-[16px] px-4">
