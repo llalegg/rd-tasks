@@ -120,7 +120,7 @@ export default function TaskManager() {
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [creatorFilters, setCreatorFilters] = useState<string[]>([]);
   const [athleteFilters, setAthleteFilters] = useState<string[]>([]);
-  const [hideCompleted, setHideCompleted] = useState(false);
+  const [hideCompleted, setHideCompleted] = useState(true);
   const [assigneeFilter, setAssigneeFilter] = useState<string[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
