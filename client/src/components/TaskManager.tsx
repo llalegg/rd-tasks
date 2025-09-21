@@ -109,7 +109,6 @@ const FilterDropdown = ({
 };
 
 export default function TaskManager() {
-  const queryClient = useQueryClient();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
