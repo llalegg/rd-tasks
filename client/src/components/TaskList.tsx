@@ -34,6 +34,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import UserAvatar from "./UserAvatar";
+import { TypeBadge } from "@/components/ui/type-badge";
 
 // Helper function to format task types
 const formatTaskType = (type: string | undefined) => {
@@ -362,7 +363,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
 
       {/* Type */}
       <div className="flex items-center px-4 w-[200px]">
-        <span className="text-[#979795] text-sm">{formatTaskType(task.type)}</span>
+        <TypeBadge type={task.type} />
       </div>
 
       {/* Related Athletes */}

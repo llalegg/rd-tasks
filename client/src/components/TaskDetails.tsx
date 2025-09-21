@@ -2,6 +2,7 @@ import { Task, User, Athlete } from "@shared/schema";
 import { TaskWithRelations } from "@/data/mockData";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { TypeBadge } from "@/components/ui/type-badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -112,9 +113,7 @@ export default function TaskDetails({ task, onStatusUpdate, layout = 'sidebar', 
       {/* Task Title */}
       <div className="flex-1 min-w-0">
         <h1 className={`${titleSize} font-semibold mb-2 pr-4`}>{task.name}</h1>
-        <Badge variant="outline" className="mb-2 text-xs">
-          {formatTaskType(task.type)}
-        </Badge>
+        <TypeBadge type={task.type} className="mb-2" />
       </div>
 
       {/* Description */}

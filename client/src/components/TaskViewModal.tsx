@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getCoaches, getAthletes, getPerson } from "@/data/prototypeData";
 import { InteractiveRow } from "@/components/ui/interactive-row";
+import { TypeBadge } from "@/components/ui/type-badge";
 import UserAvatar from "./UserAvatar";
 
 interface TaskViewModalProps {
@@ -273,11 +274,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   };
 
   const getTypeBadge = (type: string) => {
-    return (
-      <div className="backdrop-blur-md bg-black/25 px-2 py-0.5 rounded-full">
-        <span className="text-xs font-medium text-[#f7f6f2]">Mechanical Analysis</span>
-      </div>
-    );
+    return <TypeBadge type={type} />;
   };
 
   const getDeadlineBadge = (deadline: string | Date | null) => {
