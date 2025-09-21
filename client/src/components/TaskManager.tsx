@@ -11,6 +11,10 @@ import TaskList from "./TaskList";
 import TaskPanelContent from "./TaskPanelContent";
 import TaskViewModal from "./TaskViewModal";
 import FiltersSideSheet from "./FiltersSideSheet";
+import { MobileLayout } from "./MobileLayout";
+import { MobileTaskList } from "./MobileTaskList";
+import { MobileNavBar } from "./MobileNavBar";
+import { MobileTaskView } from "./MobileTaskView";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { prototypeTasks, prototypePeople, getCoaches, getAthletes } from "@/data/prototypeData";
@@ -340,6 +344,42 @@ export default function TaskManager() {
     localStorage.setItem('taskManualOrder', JSON.stringify(taskIds));
   };
 
+
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-[#0d0d0c] flex flex-col">
+        <MobileLayout>
+          <MobileTaskList 
+            tasks={filteredTasks}
+            users={users}
+            onTaskClick={handleTaskClick}
+          />
+        </MobileLayout>
+        
+        {/* Mobile Bottom Navigation */}
+        <div className="fixed bottom-0 left-0 right-0 z-50">
+          <MobileNavBar />
+        </div>
+
+        {/* Mobile Task View */}
+        <MobileTaskView
+          task={viewTask}
+          isOpen={isViewModalOpen}
+          onClose={() => {
+            setIsViewModalOpen(false);
+            setViewTask(null);
+          }}
+          onStatusUpdate={handleStatusUpdate}
+          onDeleteTask={handleDeleteTask}
+          users={users}
+          athletes={athletes}
+        />
+      </div>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
     <div className="min-h-screen bg-transparent flex md:ml-[80px] pb-[80px] md:pb-0">
       {/* Main Content Area */}
