@@ -349,7 +349,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
               ))}
             </div>
           ) : (
-            <span className="text-[#979795] text-sm">None</span>
+            <span className="text-[#979795] text-sm">–</span>
           )}
         </div>
       </div>
