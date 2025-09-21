@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface PortalTooltipProps {
@@ -12,6 +12,7 @@ export function PortalTooltip({ userId, user, displayName, children }: PortalToo
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const triggerRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Format role with proper capitalization
   const formatRole = (role: string) => {
@@ -19,6 +20,15 @@ export function PortalTooltip({ userId, user, displayName, children }: PortalToo
   };
 
   const userRole = user?.role ? formatRole(user.role) : 'Team Member';
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const getProfileImage = (userId: string) => {
     const imageIds = {
@@ -46,7 +56,14 @@ export function PortalTooltip({ userId, user, displayName, children }: PortalToo
     console.log('Chat with user:', displayName);
   };
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = useCallback(() => {
+    console.log('PortalTooltip: Mouse enter triggered for', displayName);
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       setPosition({
@@ -55,30 +72,35 @@ export function PortalTooltip({ userId, user, displayName, children }: PortalToo
       });
       setIsVisible(true);
     }
-  };
+  }, [displayName]);
 
-  const handleMouseLeave = () => {
-    // Add a small delay to allow moving from trigger to tooltip
-    setTimeout(() => {
+  const handleMouseLeave = useCallback(() => {
+    // Add a small delay to allow moving to tooltip
+    timeoutRef.current = setTimeout(() => {
       setIsVisible(false);
-    }, 100);
-  };
+    }, 150);
+  }, []);
 
-  const handleTooltipMouseEnter = () => {
+  const handleTooltipMouseEnter = useCallback(() => {
+    // Clear timeout when entering tooltip
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     setIsVisible(true);
-  };
+  }, []);
 
-  const handleTooltipMouseLeave = () => {
+  const handleTooltipMouseLeave = useCallback(() => {
     setIsVisible(false);
-  };
+  }, []);
 
-  const tooltip = isVisible ? (
+  const tooltip = isVisible && displayName ? (
     <div
       style={{
         position: 'fixed',
-        left: position.x - 100, // Center the 200px tooltip
-        top: position.y - 90, // Position above the trigger
-        zIndex: 2147483647, // Maximum z-index
+        left: Math.max(10, Math.min(window.innerWidth - 210, position.x - 100)), // Center the 200px tooltip with bounds
+        top: Math.max(10, position.y - 120), // Position above the trigger with bounds
+        zIndex: 999999, // High z-index but not maximum
         pointerEvents: 'auto', // Allow interaction with chat button
         fontFamily: 'Montserrat, sans-serif',
       }}
@@ -137,7 +159,8 @@ export function PortalTooltip({ userId, user, displayName, children }: PortalToo
         ref={triggerRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="cursor-pointer"
+        className="cursor-pointer inline-block"
+        style={{ display: 'inline-block' }}
       >
         {children}
       </div>

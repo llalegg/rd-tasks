@@ -66,7 +66,7 @@ type SortDirection = 'asc' | 'desc';
 
 // Priority Indicator Component - Icon Only for Table
 const PriorityIndicator = ({ priority }: { priority: string }) => {
-  return <PriorityBadge priority={priority as Task['priority']} />;
+  return <PriorityBadge priority={priority as Task['priority']} showText={false} />;
 };
 
 // Mobile Task Card Component
@@ -253,7 +253,9 @@ const StatusBadge = ({ status }: { status: string }) => {
           maskImage: config.icon,
           maskRepeat: 'no-repeat',
           maskPosition: 'center',
-          maskSize: 'contain'
+          maskSize: 'contain',
+          width: '16px',
+          height: '16px'
         }}
       />
       <span>{config.text}</span>

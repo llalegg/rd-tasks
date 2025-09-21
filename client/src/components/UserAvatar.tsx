@@ -12,7 +12,7 @@ interface UserAvatarProps {
 
 export default function UserAvatar({ userId, name, size = "sm", showTooltip = true }: UserAvatarProps) {
   // Fetch user data from API
-  const { data: user } = useQuery({
+  const { data: user, isLoading } = useQuery({
     queryKey: ['/api/users', userId],
     queryFn: () => fetch(`/api/users/${userId}`).then(res => res.json()),
     enabled: !!userId,

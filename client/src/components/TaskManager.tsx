@@ -10,6 +10,7 @@ import { Search, Filter, Edit, X, ChevronDown, Check, SlidersHorizontal, LayoutG
 import TaskList from "./TaskList";
 import TaskPanelContent from "./TaskPanelContent";
 import TaskViewModal from "./TaskViewModal";
+import FiltersSideSheet from "./FiltersSideSheet";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { prototypeTasks, prototypePeople, getCoaches, getAthletes } from "@/data/prototypeData";
@@ -129,7 +130,7 @@ export default function TaskManager() {
   const [showFilters, setShowFilters] = useState(false);
 
   // Use prototype data for tasks
-  const [tasks, setTasks] = useState<Task[]>(prototypeTasks);
+  const [tasks, setTasks] = useState<Task[]>(prototypeTasks as any);
   const isLoading = false;
   const error = null;
 
@@ -152,6 +153,14 @@ export default function TaskManager() {
     .map(id => users.find((u: any) => u.id === id))
     .filter(Boolean);
 
+  // Get unique creators from current tasks
+  const availableCreators = Array.from(new Set(tasks.map((task: Task) => task.creatorId)))
+    .map(id => users.find((u: any) => u.id === id))
+    .filter(Boolean);
+
+  // Get available athletes
+  const availableAthletes = getAthletes();
+
   // Filter and sort tasks based on search query and filters
   const filteredTasks = tasks.filter((task: Task) => {
     const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -166,7 +175,7 @@ export default function TaskManager() {
     
     // Apply other filters
     const matchesStatusFilters = statusFilters.length === 0 || statusFilters.includes(task.status);
-    const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
+    const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type as any);
     const matchesCreator = creatorFilters.length === 0 || creatorFilters.includes(task.creatorId || '');
     const matchesAthlete = athleteFilters.length === 0 || 
       ((task as any).relatedAthleteIds && (task as any).relatedAthleteIds.some((id: string) => athleteFilters.includes(id)));
@@ -222,7 +231,7 @@ export default function TaskManager() {
       id: 'task_' + Date.now(), // Generate unique ID
       name: 'New Task',
       description: 'Task description',
-      type: 'general',
+      type: 'generaltodo',
       status: 'new',
       priority: 'medium',
       deadline: null,
@@ -230,7 +239,7 @@ export default function TaskManager() {
       creatorId: defaultAssignee,
       createdAt: new Date(),
       updatedAt: new Date(),
-      relatedAthleteIds: []
+      ...({ relatedAthleteIds: [] } as any)
     };
     
     // Add to tasks list immediately
@@ -263,7 +272,7 @@ export default function TaskManager() {
     switch (status) {
       case 'new': return 'bg-blue-500';
       case 'in_progress': return 'bg-yellow-500';
-      case 'pending': return 'bg-orange-500';
+      case 'blocked': return 'bg-orange-500';
       case 'completed': return 'bg-green-500';
       default: return 'bg-gray-500';
     }
@@ -273,7 +282,7 @@ export default function TaskManager() {
     switch (status) {
       case 'new': return 'New';
       case 'in_progress': return 'In Progress';
-      case 'pending': return 'Pending';
+      case 'blocked': return 'Blocked';
       case 'completed': return 'Completed';
       default: return status;
     }
@@ -291,7 +300,24 @@ export default function TaskManager() {
     setStatusFilters([]);
   };
 
-  const statusOptions: Task['status'][] = ['new', 'in_progress', 'pending', 'completed'];
+  const statusOptions: Task['status'][] = ['new', 'in_progress', 'blocked', 'completed'];
+
+  // Additional filter handlers for side sheet
+  const handleTypeFilterChange = (value: string[]) => {
+    setTypeFilters(value);
+  };
+
+  const handleCreatorFilterChange = (value: string[]) => {
+    setCreatorFilters(value);
+  };
+
+  const handleAthleteFilterChange = (value: string[]) => {
+    setAthleteFilters(value);
+  };
+
+  const handleHideCompletedChange = (checked: boolean) => {
+    setHideCompleted(checked);
+  };
 
   return (
     <div className="min-h-screen bg-transparent flex md:ml-[80px] pb-[80px] md:pb-0">
@@ -331,7 +357,7 @@ export default function TaskManager() {
                     </button>
                   </div>
                   
-                  {/* Filters toggle for mobile */}
+                  {/* Filters toggle */}
                   <Button
                     onClick={() => setShowFilters(!showFilters)}
                     className={`h-9 w-9 p-0 rounded-[9999px] transition-all duration-200 ${
@@ -420,7 +446,12 @@ export default function TaskManager() {
                   />
                 </div>
                 
-                <Button className="flex items-center gap-2 px-3 py-2 bg-[#292928] border-none rounded-[9999px] text-[#f7f6f2] text-xs font-medium cursor-pointer h-8 min-w-[86px] justify-center transition-all duration-200 hover:bg-[#3a3a38]">
+                <Button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`flex items-center gap-2 px-3 py-2 border-none rounded-[9999px] text-xs font-medium cursor-pointer h-8 min-w-[86px] justify-center transition-all duration-200 ${
+                    showFilters ? 'bg-[#e5e4e1] text-black' : 'bg-[#292928] text-[#f7f6f2] hover:bg-[#3a3a38]'
+                  }`}
+                >
                   <SlidersHorizontal className="w-4 h-4" />
                   <span className="hidden sm:inline">Filters</span>
                 </Button>
@@ -435,56 +466,9 @@ export default function TaskManager() {
             </div>
           )}
 
-          {/* Mobile filters panel */}
-          {isMobile && showFilters && (
-            <div className="border-t border-[#292928] bg-[#171716] p-4">
-              <div className="flex flex-col gap-3">
-                <FilterDropdown 
-                  label="Assignee" 
-                  options={availableAssignees.map((user: any) => ({ value: user.id, label: user.name }))}
-                  value={assigneeFilter}
-                  onChange={setAssigneeFilter}
-                  isOpen={openDropdown === 'assignee'}
-                  onToggle={() => setOpenDropdown(openDropdown === 'assignee' ? null : 'assignee')}
-                  onClose={() => setOpenDropdown(null)}
-                />
-                <FilterDropdown 
-                  label="Priority" 
-                  options={[
-                    { value: 'low', label: 'Low' },
-                    { value: 'medium', label: 'Medium' },
-                    { value: 'high', label: 'High' }
-                  ]}
-                  value={priorityFilter}
-                  onChange={setPriorityFilter}
-                  isOpen={openDropdown === 'priority'}
-                  onToggle={() => setOpenDropdown(openDropdown === 'priority' ? null : 'priority')}
-                  onClose={() => setOpenDropdown(null)}
-                />
-                <FilterDropdown 
-                  label="Status" 
-                  options={[
-                    { value: 'new', label: 'New' },
-                    { value: 'in_progress', label: 'In Progress' },
-                    { value: 'blocked', label: 'Blocked' },
-                    { value: 'completed', label: 'Completed' }
-                  ]}
-                  value={statusFilter}
-                  onChange={setStatusFilter}
-                  isOpen={openDropdown === 'status'}
-                  onToggle={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
-                  onClose={() => setOpenDropdown(null)}
-                />
-              </div>
-            </div>
-          )}
         </header>
         {/* Main Content */}
-        <main className={`w-full p-4 md:p-5 ${
-          isMobile 
-            ? showFilters ? 'pt-[240px]' : 'pt-[140px]'
-            : 'pt-[120px] md:pt-[88px]'
-        }`}>
+        <main className="w-full p-4 md:p-5 pt-[120px] md:pt-[88px]">
           {isLoading ? (
             <div className="flex justify-center items-center min-h-[50vh]">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
@@ -540,6 +524,29 @@ export default function TaskManager() {
         }}
         onStatusUpdate={handleStatusUpdate}
         onDeleteTask={handleDeleteTask}
+      />
+
+      {/* Filters Side Sheet */}
+      <FiltersSideSheet
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        assigneeFilter={assigneeFilter}
+        priorityFilter={priorityFilter}
+        statusFilter={statusFilter}
+        typeFilters={typeFilters}
+        creatorFilters={creatorFilters}
+        athleteFilters={athleteFilters}
+        hideCompleted={hideCompleted}
+        onAssigneeFilterChange={setAssigneeFilter}
+        onPriorityFilterChange={setPriorityFilter}
+        onStatusFilterChange={setStatusFilter}
+        onTypeFilterChange={handleTypeFilterChange}
+        onCreatorFilterChange={handleCreatorFilterChange}
+        onAthleteFilterChange={handleAthleteFilterChange}
+        onHideCompletedChange={handleHideCompletedChange}
+        availableAssignees={availableAssignees}
+        availableCreators={availableCreators}
+        availableAthletes={availableAthletes}
       />
     </div>
   );

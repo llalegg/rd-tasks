@@ -14,6 +14,7 @@ import { InteractiveRow } from "@/components/ui/interactive-row";
 import { TypeBadge } from "@/components/ui/type-badge";
 import { PriorityBadge } from "@/components/ui/priority-badge";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import UserAvatar from "./UserAvatar";
 
 interface TaskViewModalProps {
@@ -150,7 +151,8 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   const assignee = getPerson(localTask.assigneeId || '');
   const creator = getPerson(localTask.creatorId || '');
-  const relatedAthletes = localTask.relatedAthleteIds?.map(id => getPerson(id)).filter(Boolean) || [];
+  // Handle prototype data structure - relatedAthleteIds is added for prototyping
+  const relatedAthletes = (localTask as any).relatedAthleteIds?.map((id: string) => getPerson(id)).filter(Boolean) || [];
 
   const handleSaveTitle = () => {
       setIsEditingTitle(false);
@@ -272,7 +274,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   const handleAddAthlete = (athleteId: string) => {
     const athlete = getPerson(athleteId);
-    if (athlete && !localTask.relatedAthleteIds?.includes(athleteId)) {
+    if (athlete && !(localTask as any).relatedAthleteIds?.includes(athleteId)) {
       toast({
         title: "Success",
         description: `${athlete.name} added to task`
@@ -309,22 +311,76 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     });
   };
 
-  // Figma-style badge components
-  const getStatusBadge = (status: Task['status']) => {
-    const statusConfig = {
-      'new': { bg: '#31180f', color: '#ff8254', label: 'New' },
-      'in_progress': { bg: '#1a2e42', color: '#3b82f6', label: 'In Progress' },
-      'blocked': { bg: '#2d1b42', color: '#8b5cf6', label: 'Blocked' },
-      'completed': { bg: '#1a2e1a', color: '#22c55e', label: 'Completed' }
+  // StatusBadge component matching TaskList implementation
+  const StatusBadge = ({ status }: { status: string }) => {
+    const getStatusConfig = () => {
+      switch (status.toLowerCase()) {
+        case 'new':
+          return {
+            bgColor: '#31180f',
+            textColor: '#ff8254',
+            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff8254' stroke-width='1.5' fill='none' d='M9 1v18M1 9l8-8 8 8'/%3E%3C/svg%3E\")",
+            text: 'New'
+          };
+        case 'in_progress':
+          return {
+            bgColor: '#162949',
+            textColor: '#3f83f8',
+            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='9' cy='9' r='7' stroke='%233f83f8' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%233f83f8' stroke-width='1.5' fill='none' d='M9 5v4l3 3'/%3E%3C/svg%3E\")",
+            text: 'In progress'
+          };
+        case 'blocked':
+          return {
+            bgColor: '#321a1a',
+            textColor: '#f87171',
+            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='8' stroke='%23f87171' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%23f87171' stroke-width='1.5' d='M6 6l8 8M14 6l-8 8'/%3E%3C/svg%3E\")",
+            text: 'Blocked'
+          };
+        case 'completed':
+          return {
+            bgColor: '#072a15',
+            textColor: '#4ade80',
+            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 16 11' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%234ade80' stroke-width='1.5' fill='none' d='M1 5l4 4 9-9'/%3E%3C/svg%3E\")",
+            text: 'Completed'
+          };
+        default:
+          return {
+            bgColor: '#31180f',
+            textColor: '#ff8254',
+            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff8254' stroke-width='1.5' fill='none' d='M9 1v18M1 9l8-8 8 8'/%3E%3C/svg%3E\")",
+            text: 'New'
+          };
+      }
     };
-    
-    const config = statusConfig[status] || statusConfig.new;
+
+    const config = getStatusConfig();
 
     return (
-      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: config.bg }}>
-        <Circle className="w-4 h-4" style={{ color: config.color }} />
-        <span className="text-xs font-medium" style={{ color: config.color }}>{config.label}</span>
-      </div>
+      <span 
+        className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
+        style={{ 
+          backgroundColor: config.bgColor, 
+          color: config.textColor,
+          fontFamily: 'Montserrat',
+          fontWeight: 500,
+          fontSize: '12px',
+          lineHeight: '1.32'
+        }}
+      >
+        <div 
+          className="w-4 h-4 flex-shrink-0"
+          style={{
+            background: config.textColor,
+            maskImage: config.icon,
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+            maskSize: 'contain',
+            width: '16px',
+            height: '16px'
+          }}
+        />
+        <span>{config.text}</span>
+      </span>
     );
   };
 
@@ -350,7 +406,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   const filteredAthletes = athletes.filter(athlete =>
     athlete.name.toLowerCase().includes(athleteSearchQuery.toLowerCase()) &&
-    !localTask.relatedAthleteIds?.includes(athlete.id)
+    !(localTask as any).relatedAthleteIds?.includes(athlete.id)
   );
 
   // Mobile rendering
@@ -615,14 +671,14 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 <InteractiveRow
                   label="Status"
                   value={localTask.status}
-                  badge={getStatusBadge(localTask.status)}
+                  badge={<StatusBadge status={localTask.status} />}
                   options={[
                     { value: 'new', label: 'New' },
                     { value: 'in_progress', label: 'In Progress' },
                     { value: 'blocked', label: 'Blocked' },
                     { value: 'completed', label: 'Completed' }
                   ]}
-                  onValueChange={handleStatusChange}
+                  onValueChange={(value) => handleStatusChange(value as Task['status'])}
                 />
 
                 {/* Priority */}
@@ -782,7 +838,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                               <div className="flex flex-col flex-1">
                                 <div className="text-xs font-medium text-[#f7f6f2]">{athlete.name}</div>
                                 <div className="text-[10px] text-[#979795]">
-                                  {athlete.position} • {athlete.team || 'No team'}
+                                  {athlete.position} • {(athlete as any).team || 'No team'}
                               </div>
                             </div>
                           </div>
@@ -800,77 +856,119 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 {/* Athletes List */}
               <div className="flex flex-col gap-0">
                   {/* Sample Athletes from Figma */}
-                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] group">
-                    <div className="flex gap-[8px] items-center flex-1">
-                      <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
-                           style={{backgroundImage: 'url(https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face)'}}>
-                    </div>
-                      <div className="flex flex-col gap-[2px] flex-1">
-                        <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
-                          <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Christopher Harris</p>
+                  <TooltipProvider>
+                    <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] h-[48px] rounded-[8px] group">
+                      <div className="flex gap-[8px] items-center flex-1">
+                        <UserAvatar userId="athlete1" name="Christopher Harris" size="sm" />
+                        <div className="flex flex-col gap-[2px] flex-1">
+                          <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
+                            <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Christopher Harris</p>
+                          </div>
+                          <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
+                            <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
+                          </div>
                         </div>
-                        <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
-                          <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
-                        </div>
+                      </div>
+                      <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
+                              <X className="w-4 h-4 text-[#f7f6f2]" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Remove from task</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
+                              <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Go to Athlete profile</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                     </div>
-                    <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
-                        <X className="w-4 h-4 text-[#f7f6f2]" />
-                      </div>
-                      <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
-                        <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
-                      </div>
-                    </div>
-                    </div>
+                  </TooltipProvider>
                     
-                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] group">
-                    <div className="flex gap-[8px] items-center flex-1">
-                      <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
-                           style={{backgroundImage: 'url(https://images.unsplash.com/photo-1494790108755-2616c6d6d55a?w=32&h=32&fit=crop&crop=face)'}}>
-                    </div>
-                      <div className="flex flex-col gap-[2px] flex-1">
-                        <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
-                          <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Samanta Harris</p>
-                  </div>
-                        <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
-                          <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
-              </div>
-            </div>
-          </div>
-                    <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
-                        <X className="w-4 h-4 text-[#f7f6f2]" />
+                  <TooltipProvider>
+                    <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] h-[48px] rounded-[8px] group">
+                      <div className="flex gap-[8px] items-center flex-1">
+                        <UserAvatar userId="athlete2" name="Samanta Harris" size="sm" />
+                        <div className="flex flex-col gap-[2px] flex-1">
+                          <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
+                            <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Samanta Harris</p>
+                          </div>
+                          <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
+                            <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
-                        <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
+                      <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
+                              <X className="w-4 h-4 text-[#f7f6f2]" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Remove from task</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
+                              <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Go to Athlete profile</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                     </div>
-                  </div>
+                  </TooltipProvider>
 
-                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] group">
-                    <div className="flex gap-[8px] items-center flex-1">
-                      <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
-                           style={{backgroundImage: 'url(https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face)'}}>
+                  <TooltipProvider>
+                    <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] h-[48px] rounded-[8px] group">
+                      <div className="flex gap-[8px] items-center flex-1">
+                        <UserAvatar userId="athlete3" name="Randy Harris" size="sm" />
+                        <div className="flex flex-col gap-[2px] flex-1">
+                          <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
+                            <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Randy Harris</p>
+                          </div>
+                          <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
+                            <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-col gap-[2px] flex-1">
-                        <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
-                          <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Randy Harris</p>
-                        </div>
-                        <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
-                          <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
-                        </div>
+                      <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
+                              <X className="w-4 h-4 text-[#f7f6f2]" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Remove from task</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
+                              <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Go to Athlete profile</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                     </div>
-                    <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
-                        <X className="w-4 h-4 text-[#f7f6f2]" />
-                      </div>
-                      <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
-                        <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
-                      </div>
-                    </div>
-                  </div>
+                  </TooltipProvider>
                 </div>
               </div>
             </div>
