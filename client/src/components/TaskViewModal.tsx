@@ -53,6 +53,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [athleteSearchQuery, setAthleteSearchQuery] = useState('');
   const [showAthleteDropdown, setShowAthleteDropdown] = useState(false);
+  const [showDeadlinePicker, setShowDeadlinePicker] = useState(false);
   const [localTask, setLocalTask] = useState<Task | null>(null);
   
   const { toast } = useToast();
@@ -517,7 +518,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleDeleteTask}
+                      onClick={handleDeleteTask}
                   className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] hover:text-red-400"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -530,7 +531,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 >
                   <X className="w-4 h-4" />
                 </Button>
-              </div>
+            </div>
 
               {/* Metadata */}
               <div className="space-y-1">
