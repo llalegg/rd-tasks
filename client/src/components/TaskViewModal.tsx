@@ -13,6 +13,7 @@ import { getCoaches, getAthletes, getPerson } from "@/data/prototypeData";
 import { InteractiveRow } from "@/components/ui/interactive-row";
 import { TypeBadge } from "@/components/ui/type-badge";
 import { PriorityBadge } from "@/components/ui/priority-badge";
+import { DatePicker } from "@/components/ui/date-picker";
 import UserAvatar from "./UserAvatar";
 
 interface TaskViewModalProps {
@@ -54,6 +55,8 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   const [athleteSearchQuery, setAthleteSearchQuery] = useState('');
   const [showAthleteDropdown, setShowAthleteDropdown] = useState(false);
   const [showDeadlinePicker, setShowDeadlinePicker] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false);
   const [localTask, setLocalTask] = useState<Task | null>(null);
   
   const { toast } = useToast();
@@ -62,6 +65,27 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   // Use prototype data
   const users = getCoaches();
   const athletes = getAthletes();
+
+  // Handle clicking outside athlete dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showAthleteDropdown) {
+        const target = event.target as Element;
+        const dropdown = document.querySelector('[data-athlete-dropdown]');
+        if (dropdown && !dropdown.contains(target)) {
+          setShowAthleteDropdown(false);
+        }
+      }
+    };
+
+    if (showAthleteDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showAthleteDropdown]);
 
   // Sync task prop with local state
   useEffect(() => {
@@ -157,6 +181,46 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       title: "Success",
       description: `Priority changed to ${newPriority}`
     });
+  };
+
+  const handleDeleteTask = () => {
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    if (localTask) {
+      onDeleteTask?.(localTask.id);
+      onClose();
+    }
+    setShowDeleteConfirmation(false);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirmation(false);
+  };
+
+  const hasUnsavedChanges = () => {
+    if (!localTask) return false;
+    return isEditingTitle || isEditingDescription || 
+           (localTask.name !== editedTitle) || 
+           (localTask.description !== editedDescription);
+  };
+
+  const handleClose = () => {
+    if (hasUnsavedChanges()) {
+      setShowUnsavedChangesDialog(true);
+    } else {
+      onClose();
+    }
+  };
+
+  const confirmClose = () => {
+    setShowUnsavedChangesDialog(false);
+    onClose();
+  };
+
+  const cancelClose = () => {
+    setShowUnsavedChangesDialog(false);
   };
 
   const handleAssigneeChange = (newAssigneeId: string) => {
@@ -526,7 +590,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)]"
                 >
                   <X className="w-4 h-4" />
@@ -570,6 +634,20 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   badgeClickable={true}
                   onBadgeClick={() => setShowDeadlinePicker(!showDeadlinePicker)}
                 />
+
+                {/* Date Picker */}
+                {showDeadlinePicker && (
+                  <div className="relative">
+                    <DatePicker
+                      value={localTask.deadline ? (localTask.deadline instanceof Date ? localTask.deadline : new Date(localTask.deadline)) : null}
+                      onChange={(date) => {
+                        setLocalTask(prev => prev ? { ...prev, deadline: date } : null);
+                        setShowDeadlinePicker(false);
+                      }}
+                      placeholder="Select deadline"
+                    />
+                  </div>
+                )}
 
                 {/* Type */}
                 <InteractiveRow
@@ -651,7 +729,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
               {/* Athlete Search Dropdown */}
               {showAthleteDropdown && (
-                  <div className="absolute top-10 right-0 bg-[#1c1c1b] border border-[#3d3d3c] rounded-lg shadow-lg z-50 w-64">
+                  <div data-athlete-dropdown className="absolute top-10 right-0 bg-[#1c1c1b] border border-[#3d3d3c] rounded-lg shadow-lg z-50 w-64">
                   <div className="p-3">
                     <div className="flex items-center gap-2 mb-3">
                       <Search className="w-4 h-4 text-[#979795]" />
@@ -736,6 +814,64 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
           </div>
         </div>
       </DialogContent>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirmation && (
+        <Dialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
+          <DialogContent className="max-w-md bg-[#1c1c1b] border-[#3d3d3c]">
+            <DialogTitle className="text-lg font-semibold text-[#f7f6f2] mb-4">
+              Delete Task
+            </DialogTitle>
+            <p className="text-sm text-[#979795] mb-6">
+              Are you sure you want to delete "{localTask?.name}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="ghost"
+                onClick={cancelDelete}
+                className="text-[#979795] hover:text-[#f7f6f2]"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete
+              </Button>
+        </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Unsaved Changes Dialog */}
+      {showUnsavedChangesDialog && (
+        <Dialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
+          <DialogContent className="max-w-md bg-[#1c1c1b] border-[#3d3d3c]">
+            <DialogTitle className="text-lg font-semibold text-[#f7f6f2] mb-4">
+              Unsaved Changes
+            </DialogTitle>
+            <p className="text-sm text-[#979795] mb-6">
+              You have unsaved changes. Are you sure you want to close without saving?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="ghost"
+                onClick={cancelClose}
+                className="text-[#979795] hover:text-[#f7f6f2]"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmClose}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Close Without Saving
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 }
