@@ -8,6 +8,35 @@ import { eq, and } from "drizzle-orm";
 import { mockUsers, mockAthletes, mockTasks, mockTaskAthletes } from "../client/src/data/mockData";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check and database test endpoint
+  app.get("/api/health", async (req, res) => {
+    try {
+      console.log('Health check - DATABASE_URL exists:', !!process.env.DATABASE_URL);
+      console.log('Health check - DATABASE_URL prefix:', process.env.DATABASE_URL?.substring(0, 50) + '...');
+      
+      // Test database connection
+      const testQuery = await db.select().from(users).limit(1);
+      res.json({ 
+        status: 'ok', 
+        database: 'connected',
+        userCount: testQuery.length,
+        timestamp: new Date().toISOString(),
+        env: {
+          databaseUrl: !!process.env.DATABASE_URL,
+          nodeEnv: process.env.NODE_ENV
+        }
+      });
+    } catch (error) {
+      console.error('Health check error:', error);
+      res.status(500).json({ 
+        status: 'error', 
+        database: 'disconnected',
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Task routes
   app.get("/api/tasks", async (req, res) => {
     try {
