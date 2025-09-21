@@ -358,7 +358,9 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
 
       {/* Task Name */}
       <div className="flex items-center px-4 flex-1">
-        <span className="text-[#F7F6F2] text-sm font-semibold leading-[1.46]">{task.name}</span>
+        <div className="font-semibold text-sm leading-[1.46] text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap font-montserrat w-full">
+          {task.name}
+        </div>
       </div>
 
       {/* Type */}
