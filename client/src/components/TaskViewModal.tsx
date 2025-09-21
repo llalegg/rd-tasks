@@ -533,10 +533,15 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
           {/* Right Sidebar - Metadata */}
           <div className="w-80 bg-[#171716] overflow-y-auto">
             <div className="p-4">
-              {/* Properties Header with Actions */}
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-[#f7f6f2]">Properties</h3>
-                <div className="flex items-center gap-1">
+              {/* Properties Header with Figma Styling */}
+              <div className="bg-[#121210] flex items-center justify-between pl-4 pr-0 py-0 mb-4 h-[40px]">
+                <div className="flex-1 flex items-center gap-1">
+                  <div className="font-medium text-xs leading-[1.32] text-[#bcbbb7] overflow-hidden text-ellipsis whitespace-nowrap font-montserrat">
+                    Properties
+                  </div>
+                </div>
+                <div className="bg-[#292928] w-px h-5 mr-4"></div>
+                <div className="flex items-center gap-1 pr-4">
                   <Button
                     variant="ghost"
                     size="sm"
