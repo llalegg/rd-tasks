@@ -70,22 +70,22 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       setEditedDescription(task.description || '');
       
       // Mock comments and history data
-      setComments([
-        {
-          id: '1',
+        setComments([
+          {
+            id: '1',
           text: 'This task looks good to me, let me know when you need review.',
           authorId: 'coach1',
-          authorName: 'John Withington',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '2',
+            authorName: 'John Withington',
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: '2',
           text: 'Working on this now, should be done by EOD.',
           authorId: 'coach2',
           authorName: 'Sarah Johnson',
-          createdAt: new Date().toISOString()
-        }
-      ]);
+            createdAt: new Date().toISOString()
+          }
+        ]);
 
       setHistory([
         {
@@ -116,7 +116,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   const relatedAthletes = localTask.relatedAthleteIds?.map(id => getPerson(id)).filter(Boolean) || [];
 
   const handleSaveTitle = () => {
-    setIsEditingTitle(false);
+      setIsEditingTitle(false);
     if (editedTitle.trim() !== localTask.name) {
       toast({
         title: "Success",
@@ -126,7 +126,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   };
 
   const handleSaveDescription = () => {
-    setIsEditingDescription(false);
+      setIsEditingDescription(false);
     if (editedDescription !== (localTask.description || '')) {
       toast({
         title: "Success", 
@@ -242,7 +242,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     };
     
     const config = statusConfig[status] || statusConfig.new;
-    
+
     return (
       <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: config.bg }}>
         <Circle className="w-4 h-4" style={{ color: config.color }} />
@@ -308,7 +308,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         <div className="flex h-full">
           {/* Main Content */}
           <div className="flex-1 flex flex-col gap-4 p-6 overflow-y-auto">
-            {/* Header */}
+        {/* Header */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between h-8">
                 {isEditingTitle ? (
@@ -375,7 +375,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                         <Paperclip className="w-4 h-4" />
                       </button>
                     </div>
-                    <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                       <Button
                         size="sm"
                         onClick={handleSaveDescription}
@@ -404,7 +404,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   >
                     {editedDescription || 'Click to add a description...'}
                     <Edit3 className="w-3 h-3 ml-2 inline opacity-0 group-hover:opacity-100 transition-opacity text-[#979795]" />
-                  </div>
+                </div>
                 )}
               </div>
             </div>
@@ -441,14 +441,14 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   {/* Message Input */}
                   <div className="border border-[#3d3d3c] rounded-lg">
                     <div className="p-3 pb-2">
-                      <input
-                        type="text"
+                    <input
+                      type="text"
                         className="bg-transparent border-none outline-none text-[#f7f6f2] text-sm font-montserrat w-full py-2 placeholder-[#585856]"
-                        placeholder="Write a comment"
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && commentText.trim() && handleSendComment()}
-                      />
+                      placeholder="Write a comment"
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && commentText.trim() && handleSendComment()}
+                    />
                     </div>
                     <div className="flex items-center justify-between px-3 pb-2">
                       <button className="w-8 h-8 rounded-full border-none bg-[#292928] flex items-center justify-center cursor-pointer hover:bg-[#3a3a38] transition-colors">
@@ -515,7 +515,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
               {/* Properties Header with Figma Styling */}
               <div className="bg-[#121210] flex items-center justify-between pl-4 pr-0 py-0 mb-4 h-[40px]">
                 <div className="flex-1 flex items-center gap-1">
-                  <div className="font-medium text-xs leading-[1.32] text-[#bcbbb7] overflow-hidden text-ellipsis whitespace-nowrap font-montserrat">
+                  <div className="font-semibold text-sm leading-[1.46] text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap font-montserrat">
                     Properties
                   </div>
                 </div>
@@ -524,7 +524,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleDeleteTask}
+                      onClick={handleDeleteTask}
                     className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] hover:text-red-400"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -532,13 +532,13 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={onClose}
+                  onClick={onClose}
                     className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)]"
-                  >
-                    <X className="w-4 h-4" />
+                >
+                  <X className="w-4 h-4" />
                   </Button>
-                </div>
               </div>
+            </div>
 
               {/* Metadata */}
               <div className="space-y-0">
@@ -641,73 +641,73 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
               <div className="flex items-center py-2 my-2">
                 <div className="flex-1 h-px bg-[#292928]"></div>
+            </div>
+
+            {/* Related Athletes */}
+            <div className="flex flex-col gap-1 relative">
+              <div className="flex items-center justify-between h-8">
+                  <div className="text-sm font-semibold text-[#f7f6f2]">Related athletes</div>
+                <button 
+                  onClick={() => setShowAthleteDropdown(!showAthleteDropdown)}
+                  className="w-8 h-8 bg-transparent border-none rounded-full cursor-pointer flex items-center justify-center text-[#f7f6f2] hover:bg-[rgba(247,246,242,0.1)] transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
 
-              {/* Related Athletes */}
-              <div className="flex flex-col gap-1 relative">
-                <div className="flex items-center justify-between h-8">
-                  <div className="text-sm font-semibold text-[#f7f6f2]">Related athletes</div>
-                  <button 
-                    onClick={() => setShowAthleteDropdown(!showAthleteDropdown)}
-                    className="w-8 h-8 bg-transparent border-none rounded-full cursor-pointer flex items-center justify-center text-[#f7f6f2] hover:bg-[rgba(247,246,242,0.1)] transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Athlete Search Dropdown */}
-                {showAthleteDropdown && (
+              {/* Athlete Search Dropdown */}
+              {showAthleteDropdown && (
                   <div className="absolute top-10 right-0 bg-[#1c1c1b] border border-[#3d3d3c] rounded-lg shadow-lg z-50 w-64">
-                    <div className="p-3">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Search className="w-4 h-4 text-[#979795]" />
-                        <Input
-                          type="text"
-                          placeholder="Search athletes..."
-                          value={athleteSearchQuery}
-                          onChange={(e) => setAthleteSearchQuery(e.target.value)}
+                  <div className="p-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Search className="w-4 h-4 text-[#979795]" />
+                      <Input
+                        type="text"
+                        placeholder="Search athletes..."
+                        value={athleteSearchQuery}
+                        onChange={(e) => setAthleteSearchQuery(e.target.value)}
                           className="bg-[#292928] border-[#3d3d3c] text-[#f7f6f2] text-sm flex-1"
-                          autoFocus
-                        />
-                      </div>
-                      <div className="max-h-48 overflow-y-auto">
-                        {filteredAthletes.length > 0 ? (
-                          filteredAthletes.map((athlete, index) => (
+                        autoFocus
+                      />
+                    </div>
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredAthletes.length > 0 ? (
+                        filteredAthletes.map((athlete, index) => (
+                          <div
+                            key={athlete.id}
+                            onClick={() => handleAddAthlete(athlete.id)}
+                            className="flex items-center gap-3 px-2 py-2 rounded-lg cursor-pointer hover:bg-[#3a3a38] transition-colors"
+                          >
                             <div
-                              key={athlete.id}
-                              onClick={() => handleAddAthlete(athlete.id)}
-                              className="flex items-center gap-3 px-2 py-2 rounded-lg cursor-pointer hover:bg-[#3a3a38] transition-colors"
-                            >
-                              <div
                                 className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-                                style={{
-                                  backgroundColor: ['#4ade80', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'][index % 5]
-                                }}
-                              >
-                                {athlete.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                              </div>
+                              style={{
+                                backgroundColor: ['#4ade80', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'][index % 5]
+                              }}
+                            >
+                              {athlete.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                            </div>
                               <div className="flex flex-col flex-1">
                                 <div className="text-xs font-medium text-[#f7f6f2]">{athlete.name}</div>
                                 <div className="text-[10px] text-[#979795]">
                                   {athlete.position} • {athlete.team || 'No team'}
-                                </div>
                               </div>
                             </div>
-                          ))
-                        ) : (
-                          <div className="text-xs text-[#979795] text-center py-4">
-                            {athleteSearchQuery ? 'No athletes found' : 'All athletes are already added'}
                           </div>
-                        )}
-                      </div>
+                        ))
+                      ) : (
+                        <div className="text-xs text-[#979795] text-center py-4">
+                          {athleteSearchQuery ? 'No athletes found' : 'All athletes are already added'}
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
+                </div>
+              )}
 
                 {/* Athletes List */}
-                <div className="flex flex-col gap-0">
+              <div className="flex flex-col gap-0">
                   {/* Sample Athletes from Figma */}
-                  <div className="flex items-center gap-3 px-2 h-12 rounded-lg">
+                  <div className="bg-[#171716] flex items-center gap-3 px-[8px] h-12 rounded-[8px]">
                     <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
                          style={{backgroundImage: 'url(https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face)'}}>
                     </div>
@@ -715,19 +715,19 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                       <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">Christopher Harris</div>
                       <div className="text-[10px] text-[#979795] overflow-hidden text-ellipsis whitespace-nowrap">Athlete</div>
                     </div>
-                  </div>
-
-                  <div className="bg-[#171716] flex items-center gap-3 px-2 h-12 rounded-lg">
+                    </div>
+                    
+                  <div className="bg-[#171716] flex items-center gap-3 px-[8px] h-12 rounded-[8px]">
                     <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
                          style={{backgroundImage: 'url(https://images.unsplash.com/photo-1494790108755-2616c6d6d55a?w=40&h=40&fit=crop&crop=face)'}}>
                     </div>
                     <div className="flex flex-col flex-1">
                       <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">Samanta Harris</div>
                       <div className="text-[10px] text-[#979795] overflow-hidden text-ellipsis whitespace-nowrap">Athlete</div>
-                    </div>
                   </div>
+              </div>
 
-                  <div className="bg-[#171716] flex items-center gap-3 px-2 h-12 rounded-lg">
+                  <div className="bg-[#171716] flex items-center gap-3 px-[8px] h-12 rounded-[8px]">
                     <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
                          style={{backgroundImage: 'url(https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face)'}}>
                     </div>

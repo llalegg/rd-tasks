@@ -73,13 +73,13 @@ export function InteractiveRow({
     <div 
       ref={rowRef}
       className={`
-        relative bg-transparent rounded-lg p-0 transition-colors duration-200 
+        relative bg-[#171716] rounded-[8px] p-0 transition-colors duration-200 mb-0
         ${!disabled ? 'cursor-pointer hover:bg-[#1c1c1b]' : 'cursor-default'}
       `}
       onClick={handleRowClick}
     >
       {/* Row Content */}
-      <div className="flex items-center justify-between px-2 h-8">
+      <div className="flex items-center justify-between px-[8px] py-[6px] h-8">
         <div className="flex items-center gap-1 flex-1">
           <div 
             className="font-medium text-xs leading-[1.32] text-[#979795] flex-shrink-0"
