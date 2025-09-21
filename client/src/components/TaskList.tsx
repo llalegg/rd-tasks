@@ -276,6 +276,34 @@ interface SortableTaskRowProps {
 }
 
 function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, onToggleDropdown, onUpdatePriority, onUpdateStatus, onUpdateDeadline, onUpdateAssignee }: SortableTaskRowProps) {
+  // Function to get comment count for a task
+  const getCommentCount = (task: Task) => {
+    // For prototype data, return mock comment counts based on task ID
+    if (task.name === 'New Task' && task.description === 'Task description') {
+      return 0; // New tasks have no comments
+    }
+    
+    // Return mock comment counts for existing tasks
+    const mockCounts: { [key: string]: number } = {
+      'task1': 2,
+      'task2': 1,
+      'task3': 3,
+      'task4': 0,
+      'task5': 1,
+      'task6': 2,
+      'task7': 0,
+      'task8': 1,
+      'task9': 2,
+      'task10': 0,
+      'task11': 4,
+      'task12': 1,
+      'task13': 3,
+      'task14': 2,
+      'task15': 1
+    };
+    
+    return mockCounts[task.id] || 0;
+  };
   const {
     attributes,
     listeners,
@@ -300,30 +328,45 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       ref={setNodeRef}
       style={{
         ...style,
-        gridTemplateColumns: "40px 1fr 200px 196px 120px 88px 120px 140px"
+        gridTemplateColumns: "1fr 200px 196px 120px 88px 120px 140px"
       }}
-      className={`grid items-center border-b border-[#292928] h-12 px-0 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer ${
+      className={`group grid items-center border-b border-[#292928] h-12 px-0 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer ${
         isDragging ? 'z-50 shadow-2xl' : ''
       }`}
       onClick={() => onTaskClick(task)}
     >
-      {/* Drag Handle */}
-      <div className="flex items-center justify-center w-[40px]">
-        <button
-          {...attributes}
-          {...listeners}
-          className="text-[#979795] hover:text-[#f7f6f2] cursor-grab active:cursor-grabbing p-1 w-6 h-6 flex items-center justify-center"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <GripVertical className="w-4 h-4" />
-        </button>
-      </div>
 
       {/* Task Name */}
-      <div className="flex items-center pl-4 pr-0 flex-1">
-        <div className="font-semibold text-sm leading-[1.46] text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap font-montserrat w-full">
-          {task.name}
+      <div className="bg-[#1c1c1b] flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 flex-1">
+        <div 
+          {...attributes}
+          {...listeners}
+          className="overflow-clip relative shrink-0 size-[24px] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GripVertical className="w-4 h-4 text-[#585856]" />
         </div>
+        <div className="basis-0 font-['Montserrat:SemiBold',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic overflow-ellipsis overflow-hidden relative shrink-0 text-[#f7f6f2] text-[14px] text-nowrap">
+          <p className="[white-space-collapse:collapse] leading-[1.46] overflow-ellipsis overflow-hidden">{task.name}</p>
+        </div>
+        {/* Comment indicator */}
+        {getCommentCount(task) > 0 && (
+          <div className="box-border content-stretch flex gap-[4px] items-center justify-center px-[8px] py-[2px] relative rounded-[9999px] shrink-0 bg-[#292928]">
+            <div className="relative shrink-0 size-[16px]">
+              <svg className="w-4 h-4 text-[#f7f6f2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </div>
+            <div className="content-stretch flex font-['Montserrat:Medium',_sans-serif] gap-[4px] items-center leading-[0] not-italic relative shrink-0 text-[#f7f6f2] text-[12px] text-nowrap">
+              <div className="relative shrink-0">
+                <p className="leading-[1.32] text-nowrap whitespace-pre">•</p>
+              </div>
+              <div className="relative shrink-0">
+                <p className="leading-[1.32] text-nowrap whitespace-pre">{getCommentCount(task)}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Type */}
