@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Edit, Trash2, Circle, Clock, AlertCircle, CheckCircle, GripVertical, MoreHorizontal, List, ChevronUp, ChevronDown, Minus, ChevronRight, X } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Edit, Trash2, Circle, Clock, AlertCircle, CheckCircle, GripVertical, MoreHorizontal, List, ChevronUp, ChevronDown, Minus, ChevronRight, X, List as ListIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -57,6 +57,7 @@ interface TaskListProps {
   onTaskClick: (task: Task) => void;
   onStatusUpdate?: (taskId: string, newStatus: Task['status']) => void;
   onDeleteTask?: (taskId: string) => void;
+  onManualOrderChange?: (taskIds: string[]) => void;
   viewMode?: 'list' | 'cards';
   isMobile?: boolean;
 }
@@ -594,11 +595,12 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
   );
 }
 
-export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteTask, viewMode = 'list', isMobile = false }: TaskListProps) {
+export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteTask, onManualOrderChange, viewMode = 'list', isMobile = false }: TaskListProps) {
   const [sortField, setSortField] = useState<SortField>('deadline');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [orderedTasks, setOrderedTasks] = useState<Task[]>(tasks);
   const [isManualOrdering, setIsManualOrdering] = useState<boolean>(false);
+  const [manualOrderIds, setManualOrderIds] = useState<string[]>([]);
   const [openDropdowns, setOpenDropdowns] = useState<{[key: string]: 'priority' | 'status' | 'deadline' | 'assignee' | null}>({});
 
   // Sensors for drag and drop
@@ -627,17 +629,50 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
         const newIndex = items.findIndex((item) => item.id === over?.id);
 
         const newOrder = arrayMove(items, oldIndex, newIndex);
+        const newOrderIds = newOrder.map(task => task.id);
         
-        // Note: Send reorder request to backend
+        // Save manual order
+        setManualOrderIds(newOrderIds);
+        
+        // Notify parent component of manual order change
+        if (onManualOrderChange) {
+          onManualOrderChange(newOrderIds);
+        }
+        
         console.log('Task reordered:', { 
           taskId: active.id, 
           fromIndex: oldIndex, 
           toIndex: newIndex,
-          newOrder: newOrder.map(t => t.id)
+          newOrder: newOrderIds
         });
         
         return newOrder;
       });
+    }
+  };
+
+  // Handle manual ordering toggle
+  const handleManualOrderingToggle = () => {
+    if (isManualOrdering) {
+      // Disable manual ordering and restore default sorting
+      setIsManualOrdering(false);
+      setManualOrderIds([]);
+      setOrderedTasks(tasks);
+    } else {
+      // Enable manual ordering and restore saved order
+      if (manualOrderIds.length > 0) {
+        // Restore the saved manual order
+        const restoredOrder = manualOrderIds
+          .map(id => tasks.find(task => task.id === id))
+          .filter(Boolean) as Task[];
+        
+        // Add any new tasks that weren't in the manual order
+        const newTasks = tasks.filter(task => !manualOrderIds.includes(task.id));
+        const finalOrder = [...restoredOrder, ...newTasks];
+        
+        setOrderedTasks(finalOrder);
+      }
+      setIsManualOrdering(true);
     }
   };
 
@@ -804,13 +839,43 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
             >
               {/* Task Name */}
               <div className="flex items-center pl-[8px] pr-[16px]">
-                <button 
-                  onClick={() => handleSort('name')}
-                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
-                >
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Name</span>
-                  {getSortIcon('name')}
-                </button>
+                {/* List Icon */}
+                <div className="flex items-center justify-between pl-[12px] pr-0 py-0 relative shrink-0 size-[40px]">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleManualOrderingToggle();
+                          }}
+                          className="overflow-clip relative shrink-0 size-[16px] hover:bg-[#3a3a38] rounded transition-colors"
+                        >
+                          <ListIcon 
+                            className="w-4 h-4" 
+                            style={{ 
+                              color: isManualOrdering ? '#f7f6f2' : '#585856' 
+                            }} 
+                          />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{isManualOrdering ? 'Disable manual ordering' : 'Enable manual ordering'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <div className="bg-[#292928] h-[20px] shrink-0 w-px" />
+                </div>
+                
+                {/* Name Header */}
+                <div className="flex items-center justify-between pl-[16px] pr-0 flex-1">
+                  <div className="flex gap-[4px] items-center flex-1">
+                    <span className="font-['Montserrat:Medium',_sans-serif] text-[12px] leading-[1.32] text-[#bcbbb7] whitespace-nowrap overflow-hidden text-ellipsis">
+                      Name
+                    </span>
+                    {!isManualOrdering && getSortIcon('name')}
+                  </div>
+                </div>
               </div>
               
               {/* Type */}

@@ -128,11 +128,25 @@ export default function TaskManager() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
   const [showFilters, setShowFilters] = useState(false);
+  const [manualOrderIds, setManualOrderIds] = useState<string[]>([]);
 
   // Use prototype data for tasks
   const [tasks, setTasks] = useState<Task[]>(prototypeTasks as any);
   const isLoading = false;
   const error = null;
+
+  // Load saved manual order from localStorage on mount
+  React.useEffect(() => {
+    const savedOrder = localStorage.getItem('taskManualOrder');
+    if (savedOrder) {
+      try {
+        const orderIds = JSON.parse(savedOrder);
+        setManualOrderIds(orderIds);
+      } catch (error) {
+        console.error('Failed to parse saved manual order:', error);
+      }
+    }
+  }, []);
 
 
 
@@ -319,6 +333,13 @@ export default function TaskManager() {
     setHideCompleted(checked);
   };
 
+  // Handle manual order changes
+  const handleManualOrderChange = (taskIds: string[]) => {
+    setManualOrderIds(taskIds);
+    // Here you would typically save to localStorage or send to backend
+    localStorage.setItem('taskManualOrder', JSON.stringify(taskIds));
+  };
+
   return (
     <div className="min-h-screen bg-transparent flex md:ml-[80px] pb-[80px] md:pb-0">
       {/* Main Content Area */}
@@ -479,6 +500,7 @@ export default function TaskManager() {
               onTaskClick={handleTaskClick}
               onStatusUpdate={handleStatusUpdate}
               onDeleteTask={handleDeleteTask}
+              onManualOrderChange={handleManualOrderChange}
               viewMode={isMobile ? viewMode : 'list'}
               isMobile={isMobile}
             />
