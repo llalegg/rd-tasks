@@ -1,83 +1,74 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import * as schema from "../shared/schema";
-import { tasks, taskAthletes } from "../shared/schema";
-import { eq } from "drizzle-orm";
 
-// Database setup
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
-}
-
-const sql = neon(process.env.DATABASE_URL);
-const db = drizzle({ client: sql, schema });
+const sql = neon(process.env.DATABASE_URL!);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    console.log('Tasks API - Method:', req.method, 'Body:', req.body);
-    
     if (req.method === 'GET') {
-      // Get all tasks
-      const allTasks = await db.select().from(tasks);
-      const tasksWithAthletes = await Promise.all(
-        allTasks.map(async (task) => {
-          const taskAthleteIds = await db
-            .select({ athleteId: taskAthletes.athleteId })
-            .from(taskAthletes)
-            .where(eq(taskAthletes.taskId, task.id));
-          
-          return {
-            ...task,
-            relatedAthleteIds: taskAthleteIds.map(ta => ta.athleteId)
-          };
-        })
-      );
-      res.json(tasksWithAthletes);
+      // Get all tasks with related athletes
+      const tasks = await sql(`
+        SELECT 
+          t.*,
+          COALESCE(
+            ARRAY_AGG(ta.athlete_id) FILTER (WHERE ta.athlete_id IS NOT NULL), 
+            ARRAY[]::text[]
+          ) as related_athlete_ids
+        FROM tasks t
+        LEFT JOIN task_athletes ta ON t.id = ta.task_id
+        GROUP BY t.id, t.name, t.description, t.type, t.status, t.priority, t.deadline, t.assignee_id, t.created_at, t.updated_at
+        ORDER BY t.created_at DESC
+      `);
+      
+      res.json(tasks);
     } 
     else if (req.method === 'POST') {
       // Create new task
       const { relatedAthleteIds, ...taskData } = req.body;
+      const taskId = 'task_' + Date.now();
       
-      // Convert date strings to Date objects if present
-      if (taskData.deadline && typeof taskData.deadline === 'string') {
-        taskData.deadline = new Date(taskData.deadline);
-      }
-      if (taskData.createdAt && typeof taskData.createdAt === 'string') {
-        taskData.createdAt = new Date(taskData.createdAt);
-      }
-      if (taskData.updatedAt && typeof taskData.updatedAt === 'string') {
-        taskData.updatedAt = new Date(taskData.updatedAt);
-      }
-
-      // Create task with auto-generated ID
-      const taskToInsert = {
-        ...taskData,
-        id: crypto.randomUUID(),
-        createdAt: taskData.createdAt || new Date(),
-        updatedAt: taskData.updatedAt || new Date()
-      };
-
-      const [newTask] = await db.insert(tasks).values(taskToInsert).returning();
+      await sql(`
+        INSERT INTO tasks (id, name, description, type, status, priority, deadline, assignee_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `, [
+        taskId,
+        taskData.name || 'New Task',
+        taskData.description || 'Task description',
+        taskData.type || 'general',
+        taskData.status || 'new',
+        taskData.priority || 'medium',
+        taskData.deadline || null,
+        taskData.assigneeId || 'coach1'
+      ]);
       
-      // Handle related athletes
+      // Add related athletes
       if (relatedAthleteIds && relatedAthleteIds.length > 0) {
-        const athleteRelations = relatedAthleteIds.map((athleteId: string) => ({
-          taskId: newTask.id,
-          athleteId: athleteId
-        }));
-        await db.insert(taskAthletes).values(athleteRelations);
+        for (const athleteId of relatedAthleteIds) {
+          await sql(`
+            INSERT INTO task_athletes (task_id, athlete_id)
+            VALUES ($1, $2)
+          `, [taskId, athleteId]);
+        }
       }
 
-      const result = {
-        ...newTask,
-        relatedAthleteIds: relatedAthleteIds || []
-      };
+      // Get the created task
+      const [newTask] = await sql(`
+        SELECT 
+          t.*,
+          COALESCE(
+            ARRAY_AGG(ta.athlete_id) FILTER (WHERE ta.athlete_id IS NOT NULL), 
+            ARRAY[]::text[]
+          ) as related_athlete_ids
+        FROM tasks t
+        LEFT JOIN task_athletes ta ON t.id = ta.task_id
+        WHERE t.id = $1
+        GROUP BY t.id, t.name, t.description, t.type, t.status, t.priority, t.deadline, t.assignee_id, t.created_at, t.updated_at
+      `, [taskId]);
 
-      res.status(201).json(result);
+      res.status(201).json(newTask);
     }
     else {
-      res.status(405).json({ error: `Method ${req.method} not allowed. Supported methods: GET, POST` });
+      res.status(405).json({ error: `Method ${req.method} not allowed` });
     }
     
   } catch (error) {

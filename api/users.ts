@@ -1,27 +1,23 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import * as schema from "../shared/schema";
-import { users } from "../shared/schema";
 
-// Database setup
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
-}
-
-const sql = neon(process.env.DATABASE_URL);
-const db = drizzle({ client: sql, schema });
+const sql = neon(process.env.DATABASE_URL!);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    console.log('Users API - Method:', req.method);
-    
     if (req.method === 'GET') {
-      const allUsers = await db.select().from(users);
-      res.json(allUsers);
+      // Return coaches (since we removed users, but frontend expects this endpoint)
+      const coaches = await sql(`
+        SELECT id, name, type as role, '' as email, '' as avatar
+        FROM people 
+        WHERE type = 'coach'
+        ORDER BY name
+      `);
+      
+      res.json(coaches);
     }
     else {
-      res.status(405).json({ error: 'Method not allowed' });
+      res.status(405).json({ error: `Method ${req.method} not allowed` });
     }
     
   } catch (error) {
