@@ -16,7 +16,7 @@ export const taskTypeEnum = pgEnum('task_type', [
   'createprogram',
   'assessmentreview'
 ]);
-export const taskStatusEnum = pgEnum('task_status', ['new', 'in_progress', 'pending', 'completed']);
+export const taskStatusEnum = pgEnum('task_status', ['new', 'in_progress', 'blocked', 'completed']);
 export const taskPriorityEnum = pgEnum('task_priority', ['low', 'medium', 'high']);
 export const userRoleEnum = pgEnum('user_role', ['admin', 'coach', 'analyst', 'therapist', 'athlete', 'parent', 'staff']);
 export const mediaTypeEnum = pgEnum('media_type', ['description', 'comment']);

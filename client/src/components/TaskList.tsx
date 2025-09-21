@@ -93,7 +93,7 @@ const MobileTaskCard = ({ task, users, athletes, onTaskClick }: {
     switch (status?.toLowerCase()) {
       case 'new': return '#ff8254';
       case 'in_progress': return '#3f83f8';
-      case 'pending': return '#f87171';
+      case 'blocked': return '#f87171';
       case 'completed': return '#4ade80';
       default: return '#ff8254';
     }
@@ -208,7 +208,7 @@ const StatusBadge = ({ status }: { status: string }) => {
           icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='9' cy='9' r='7' stroke='%233f83f8' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%233f83f8' stroke-width='1.5' fill='none' d='M9 5v4l3 3'/%3E%3C/svg%3E\")",
           text: 'In progress'
         };
-      case 'pending':
+      case 'blocked':
         return {
           bgColor: '#321a1a',
           textColor: '#f87171',
@@ -523,10 +523,10 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
             <DropdownMenuItem 
               onClick={(e) => {
                 e.stopPropagation();
-                onUpdateStatus(task.id, 'pending');
+                onUpdateStatus(task.id, 'blocked');
               }}
               className={`text-[#f7f6f2] focus:bg-[#3a3a38] cursor-pointer ${
-                task.status === 'pending' ? 'bg-[#3a3a38]' : ''
+                task.status === 'blocked' ? 'bg-[#3a3a38]' : ''
               }`}
             >
               Blocked
@@ -617,7 +617,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
     switch (status) {
       case 'new': return 'secondary';
       case 'in_progress': return 'default';
-      case 'pending': return 'outline';
+      case 'blocked': return 'outline';
       case 'completed': return 'secondary';
       default: return 'secondary';
     }
@@ -856,7 +856,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                           style={{ 
                             backgroundColor: task.status === 'new' ? '#ff8254' : 
                                            task.status === 'in_progress' ? '#3f83f8' : 
-                                           task.status === 'pending' ? '#f87171' : 
+                                           task.status === 'blocked' ? '#f87171' : 
                                            task.status === 'completed' ? '#4ade80' : '#ff8254'
                           }}
                         />

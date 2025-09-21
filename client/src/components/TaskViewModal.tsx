@@ -271,13 +271,6 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     });
   };
 
-  const handleDeleteTask = () => {
-    if (onDeleteTask) {
-      onDeleteTask(localTask.id);
-      onClose();
-    }
-  };
-
   const formatDate = (dateString: string | Date) => {
     const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return date.toLocaleDateString('en-US', {
@@ -302,7 +295,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     const statusConfig = {
       'new': { bg: '#31180f', color: '#ff8254', label: 'New' },
       'in_progress': { bg: '#1a2e42', color: '#3b82f6', label: 'In Progress' },
-      'pending': { bg: '#2d1b42', color: '#8b5cf6', label: 'Pending' },
+      'blocked': { bg: '#2d1b42', color: '#8b5cf6', label: 'Blocked' },
       'completed': { bg: '#1a2e1a', color: '#22c55e', label: 'Completed' }
     };
     
@@ -607,7 +600,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   options={[
                     { value: 'new', label: 'New' },
                     { value: 'in_progress', label: 'In Progress' },
-                    { value: 'pending', label: 'Pending' },
+                    { value: 'blocked', label: 'Blocked' },
                     { value: 'completed', label: 'Completed' }
                   ]}
                   onValueChange={handleStatusChange}

@@ -116,14 +116,14 @@ export default function TaskManager() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'deadline'>('deadline');
-  const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'pending', 'completed']);
+  const [statusFilters, setStatusFilters] = useState<Task['status'][]>(['new', 'in_progress', 'blocked', 'completed']);
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [creatorFilters, setCreatorFilters] = useState<string[]>([]);
   const [athleteFilters, setAthleteFilters] = useState<string[]>([]);
   const [hideCompleted, setHideCompleted] = useState(true);
   const [assigneeFilter, setAssigneeFilter] = useState<string[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string[]>(['new', 'in_progress', 'blocked']);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
   const [showFilters, setShowFilters] = useState(false);
@@ -399,7 +399,7 @@ export default function TaskManager() {
                   options={[
                     { value: 'new', label: 'New' },
                     { value: 'in_progress', label: 'In Progress' },
-                    { value: 'pending', label: 'Pending' },
+                    { value: 'blocked', label: 'Blocked' },
                     { value: 'completed', label: 'Completed' }
                   ]}
                   value={statusFilter}
@@ -466,7 +466,7 @@ export default function TaskManager() {
                   options={[
                     { value: 'new', label: 'New' },
                     { value: 'in_progress', label: 'In Progress' },
-                    { value: 'pending', label: 'Pending' },
+                    { value: 'blocked', label: 'Blocked' },
                     { value: 'completed', label: 'Completed' }
                   ]}
                   value={statusFilter}
