@@ -94,24 +94,36 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
       setEditedTitle(task.name);
       setEditedDescription(task.description || '');
       
-      // Mock comments and history data
+      // Initialize comments - only add mock comments for existing tasks, not new ones
+      if (task.name === 'New Task' && task.description === 'Task description') {
+        // This is a newly created task - start with no comments
+        setComments([]);
+      } else {
+        // This is an existing task - add some mock comments
         setComments([
           {
             id: '1',
-          text: 'This task looks good to me, let me know when you need review.',
-          authorId: 'coach1',
+            text: 'This task looks good to me, let me know when you need review.',
+            authorId: 'coach1',
             authorName: 'John Withington',
             createdAt: new Date().toISOString()
           },
           {
             id: '2',
-          text: 'Working on this now, should be done by EOD.',
-          authorId: 'coach2',
-          authorName: 'Sarah Johnson',
+            text: 'Working on this now, should be done by EOD.',
+            authorId: 'coach2',
+            authorName: 'Sarah Johnson',
             createdAt: new Date().toISOString()
           }
         ]);
+      }
+    } else {
+      // No task - reset comments and history
+      setComments([]);
+      setHistory([]);
+    }
 
+    if (task) {
       setHistory([
         {
           id: '1',
