@@ -758,7 +758,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               </div>
               
               {/* Task Name */}
-              <div className="cell cell-name flex items-center justify-between flex-grow max-w-[720px] h-10 px-4 bg-[#121210] relative">
+              <div className="cell cell-name flex items-center justify-between flex-grow max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
                 <button 
                   onClick={() => handleSort('name')}
                   className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
@@ -770,7 +770,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               </div>
               
               {/* Type */}
-              <div className="cell cell-type flex items-center justify-between w-[200px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+              <div className="cell cell-type flex items-center justify-between w-[200px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
                 <button 
                   onClick={() => handleSort('type')}
                   className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
@@ -782,7 +782,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               </div>
               
               {/* Related Athletes */}
-              <div className="cell cell-athlete flex items-center justify-between w-[196px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+              <div className="cell cell-athlete flex items-center justify-between w-[196px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
                 <div className="cell-content flex items-center gap-1 flex-grow">
                   <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Related athlete(s)</span>
                 </div>
@@ -790,7 +790,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               </div>
               
               {/* Assignee */}
-              <div className="cell cell-assignee flex items-center justify-between w-[120px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+              <div className="cell cell-assignee flex items-center justify-between w-[120px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
                 <div className="cell-content flex items-center gap-1 flex-grow">
                   <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Assignee</span>
                 </div>
@@ -798,7 +798,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               </div>
               
               {/* Priority */}
-              <div className="cell cell-priority flex items-center justify-between min-w-fit max-w-[720px] h-10 px-4 bg-[#121210] relative">
+              <div className="cell cell-priority flex items-center justify-between min-w-fit max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
                 <button 
                   onClick={() => handleSort('priority')}
                   className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
@@ -810,7 +810,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               </div>
               
               {/* Deadline */}
-              <div className="cell cell-deadline flex items-center justify-between w-[120px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+              <div className="cell cell-deadline flex items-center justify-between w-[120px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
                 <button 
                   onClick={() => handleSort('deadline')}
                   className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
@@ -822,7 +822,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               </div>
               
               {/* Status */}
-              <div className="cell cell-status flex items-center justify-between w-[120px] max-w-[720px] h-10 px-4 bg-[#121210] relative">
+              <div className="cell cell-status flex items-center justify-between w-[120px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
                 <button 
                   onClick={() => handleSort('status')}
                   className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
