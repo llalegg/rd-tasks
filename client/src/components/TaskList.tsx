@@ -787,90 +787,80 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
       onDragEnd={handleDragEnd}
     >
       <div className="w-full">
-        <div className={`bg-[#121210] rounded-2xl overflow-hidden w-full ${isMobile ? '' : 'max-w-[1320px]'}`}>
+        <div className="bg-[#121210] rounded-2xl overflow-hidden w-full">
           {/* Table Header - Hidden on mobile list view */}
           {!isMobile && (
-            <div className="table-header flex items-center justify-flex-start w-full h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium" style={{fontFamily: 'Montserrat', fontSize: '12px', fontWeight: 500, lineHeight: '132%'}}>
-              {/* First cell with list icon */}
-              <div className="cell cell-first flex items-center justify-center relative h-10 px-0 pl-3 w-10 min-w-10 bg-[#121210]">
-                <div className="list-icon w-4 h-4 bg-[#585856]" style={{
-                  mask: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23585856' stroke-width='1' d='M1 1h16M1 6h16M1 11h16'/%3E%3C/svg%3E\") no-repeat center",
-                  maskSize: 'contain'
-                }}></div>
-                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0 ml-2"></div>
-              </div>
-              
+            <div 
+              className="table-header grid items-center w-full h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium" 
+              style={{
+                fontFamily: 'Montserrat', 
+                fontSize: '12px', 
+                fontWeight: 500, 
+                lineHeight: '132%',
+                gridTemplateColumns: "1fr 200px 196px 120px 88px 120px 140px"
+              }}
+            >
               {/* Task Name */}
-              <div className="cell cell-name flex items-center justify-between flex-grow max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
+              <div className="flex items-center pl-[8px] pr-[16px]">
                 <button 
                   onClick={() => handleSort('name')}
-                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                 >
-                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Name</span>
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Name</span>
                   {getSortIcon('name')}
                 </button>
-                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
               </div>
               
               {/* Type */}
-              <div className="cell cell-type flex items-center justify-between w-[200px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
+              <div className="flex items-center pl-4 pr-0">
                 <button 
                   onClick={() => handleSort('type')}
-                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                 >
-                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Type</span>
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Type</span>
                   {getSortIcon('type')}
                 </button>
-                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
               </div>
               
               {/* Related Athletes */}
-              <div className="cell cell-athlete flex items-center justify-between w-[196px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
-                <div className="cell-content flex items-center gap-1 flex-grow">
-                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Related athlete(s)</span>
-                </div>
-                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
+              <div className="flex items-center pl-4 pr-0">
+                <span className="whitespace-nowrap overflow-hidden text-ellipsis">Related athlete(s)</span>
               </div>
               
               {/* Assignee */}
-              <div className="cell cell-assignee flex items-center justify-between w-[120px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
-                <div className="cell-content flex items-center gap-1 flex-grow">
-                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Assignee</span>
-                </div>
-                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
+              <div className="flex items-center pl-4 pr-0">
+                <span className="whitespace-nowrap overflow-hidden text-ellipsis">Assignee</span>
               </div>
               
               {/* Priority */}
-              <div className="cell cell-priority flex items-center justify-between min-w-fit max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
+              <div className="flex items-center pl-4 pr-0">
                 <button 
                   onClick={() => handleSort('priority')}
-                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                 >
-                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Priority</span>
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Priority</span>
                   {getSortIcon('priority')}
                 </button>
-                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
               </div>
               
               {/* Deadline */}
-              <div className="cell cell-deadline flex items-center justify-between w-[120px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
+              <div className="flex items-center pl-4 pr-0">
                 <button 
                   onClick={() => handleSort('deadline')}
-                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                 >
-                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Deadline</span>
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Deadline</span>
                   {getSortIcon('deadline')}
                 </button>
-                <div className="divider w-px h-5 bg-[#292928] flex-shrink-0"></div>
               </div>
               
               {/* Status */}
-              <div className="cell cell-status flex items-center justify-between w-[120px] max-w-[720px] h-10 pl-4 pr-0 bg-[#121210] relative">
+              <div className="flex items-center pl-4 pr-0">
                 <button 
                   onClick={() => handleSort('status')}
-                  className="cell-content flex items-center gap-1 flex-grow hover:text-[#f7f6f2] transition-colors"
+                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                 >
-                  <span className="cell-text whitespace-nowrap overflow-hidden text-ellipsis">Status</span>
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Status</span>
                   {getSortIcon('status')}
                 </button>
               </div>
