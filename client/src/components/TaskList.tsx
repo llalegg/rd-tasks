@@ -337,7 +337,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
     >
 
       {/* Task Name */}
-      <div className="bg-[#1c1c1b] flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 flex-1">
+      <div className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 flex-1">
         <div 
           {...attributes}
           {...listeners}
