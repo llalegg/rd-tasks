@@ -1,8 +1,8 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import * as schema from "../shared/schema.js";
-import { athletes } from "../shared/schema.js";
+import * as schema from "../shared/schema";
+import { athletes } from "../shared/schema";
 
 // Database setup
 if (!process.env.DATABASE_URL) {
