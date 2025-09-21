@@ -4,10 +4,6 @@
   "outputDirectory": "dist/public",
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/[...path]"
-    },
-    {
       "src": "/(.*\\.(js|css|ico|png|jpg|svg|html)$)",
       "dest": "/$1"
     },
