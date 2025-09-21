@@ -35,6 +35,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import UserAvatar from "./UserAvatar";
 import { TypeBadge } from "@/components/ui/type-badge";
+import { PriorityBadge } from "@/components/ui/priority-badge";
 
 // Helper function to format task types
 const formatTaskType = (type: string | undefined) => {
@@ -65,45 +66,7 @@ type SortDirection = 'asc' | 'desc';
 
 // Priority Indicator Component - Icon Only for Table
 const PriorityIndicator = ({ priority }: { priority: string }) => {
-  const getPriorityStyles = () => {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return {
-          bgColor: '#321a1a',
-          textColor: '#f87171',
-          icon: <ChevronUp className="w-4 h-4" style={{ color: '#f87171' }} />
-        };
-      case 'medium':
-        return {
-          bgColor: 'rgba(255, 255, 255, 0.08)',
-          textColor: '#3f83f8',
-          icon: <ChevronDown className="w-4 h-4" style={{ color: '#3f83f8' }} />
-        };
-      case 'low':
-        return {
-          bgColor: 'rgba(255, 255, 255, 0.08)',
-          textColor: '#979795',
-          icon: <Minus className="w-4 h-4" style={{ color: '#979795' }} />
-        };
-      default:
-        return {
-          bgColor: 'rgba(255, 255, 255, 0.08)',
-          textColor: '#979795',
-          icon: <Minus className="w-4 h-4" style={{ color: '#979795' }} />
-        };
-    }
-  };
-
-  const styles = getPriorityStyles();
-
-  return (
-    <div 
-      className="inline-flex items-center justify-center w-5 h-5 rounded-full"
-      style={{ backgroundColor: styles.bgColor }}
-    >
-      {styles.icon}
-    </div>
-  );
+  return <PriorityBadge priority={priority as Task['priority']} />;
 };
 
 // Mobile Task Card Component

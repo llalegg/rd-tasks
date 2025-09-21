@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { getCoaches, getAthletes, getPerson } from "@/data/prototypeData";
 import { InteractiveRow } from "@/components/ui/interactive-row";
 import { TypeBadge } from "@/components/ui/type-badge";
+import { PriorityBadge } from "@/components/ui/priority-badge";
 import UserAvatar from "./UserAvatar";
 
 interface TaskViewModalProps {
@@ -251,26 +252,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   };
 
   const getPriorityBadge = (priority: string) => {
-    const priorityConfig = {
-      'low': { bg: '#1f2937', color: '#6b7280', label: 'Low', icon: '▼' },
-      'medium': { bg: '#302608', color: '#facc15', label: 'Medium', icon: '–' },
-      'high': { bg: '#321a1a', color: '#ef4444', label: 'High', icon: '▲' }
-    };
-    
-    const config = priorityConfig[priority as keyof typeof priorityConfig] || priorityConfig.medium;
-    
-    return (
-      <div className="flex items-center gap-1 px-1 py-0.5 rounded-full" style={{ backgroundColor: config.bg }}>
-        <div className="w-4 h-4 flex items-center justify-center">
-          {priority === 'medium' ? (
-            <div className="w-3 h-1.5 rounded-sm" style={{ backgroundColor: config.color }}></div>
-          ) : (
-            <span className="text-xs" style={{ color: config.color }}>{config.icon}</span>
-          )}
-        </div>
-        <span className="text-xs font-medium" style={{ color: config.color }}>{config.label}</span>
-      </div>
-    );
+    return <PriorityBadge priority={priority as Task['priority']} />;
   };
 
   const getTypeBadge = (type: string) => {

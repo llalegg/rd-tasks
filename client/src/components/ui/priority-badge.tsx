@@ -1,68 +1,58 @@
 import React from 'react';
+import { AlertTriangle, Minus, ArrowDown } from 'lucide-react';
+import { Task } from "@shared/schema";
 
-export interface PriorityBadgeProps {
-  priority: 'high' | 'medium' | 'low';
+interface PriorityBadgeProps {
+  priority: Task['priority'];
+  className?: string;
 }
 
-export function PriorityBadge({ priority }: PriorityBadgeProps) {
-  const getPriorityConfig = () => {
-    switch (priority.toLowerCase()) {
+export const PriorityBadge: React.FC<PriorityBadgeProps> = ({ priority, className }) => {
+  const getPriorityConfig = (priority: Task['priority']) => {
+    switch (priority) {
       case 'high':
         return {
           bgColor: '#321a1a',
-          textColor: '#f87171',
-          iconMask: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 7 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='currentColor' stroke-width='1.5' fill='none' d='M3.5 1v6M1 3.5l2.5-2.5 2.5 2.5'/%3E%3C/svg%3E\")",
-          text: 'High'
+          iconColor: '#f87171',
+          icon: AlertTriangle,
+          label: 'High'
         };
       case 'medium':
         return {
           bgColor: '#302608',
-          textColor: '#facc15',
-          iconMask: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 12 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='currentColor' stroke-width='1.5' fill='none' d='M1 3h10M8 1l3 2-3 2'/%3E%3C/svg%3E\")",
-          text: 'Medium'
+          iconColor: '#facc15',
+          icon: Minus,
+          label: 'Medium'
         };
       case 'low':
         return {
-          bgColor: 'rgba(255, 255, 255, 0.08)',
-          textColor: '#979795',
-          iconMask: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 9 2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='currentColor' stroke-width='1.5' fill='none' d='M1 1h7'/%3E%3C/svg%3E\")",
-          text: 'Low'
+          bgColor: 'rgba(255,255,255,0.08)',
+          iconColor: '#979795',
+          icon: ArrowDown,
+          label: 'Low'
         };
       default:
         return {
           bgColor: '#302608',
-          textColor: '#facc15',
-          iconMask: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 12 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='currentColor' stroke-width='1.5' fill='none' d='M1 3h10M8 1l3 2-3 2'/%3E%3C/svg%3E\")",
-          text: 'Medium'
+          iconColor: '#facc15',
+          icon: Minus,
+          label: 'Medium'
         };
     }
   };
 
-  const config = getPriorityConfig();
+  const config = getPriorityConfig(priority);
+  const IconComponent = config.icon;
 
   return (
-    <div
-      className="inline-flex items-center justify-center gap-1 px-1 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
-      style={{
-        backgroundColor: config.bgColor,
-        color: config.textColor,
-        fontFamily: 'Montserrat, sans-serif',
-        fontWeight: 500,
-        fontSize: '12px',
-        lineHeight: '1.32'
-      }}
+    <div 
+      className={`flex items-center gap-1 px-1 py-0.5 rounded-[9999px] ${className}`}
+      style={{ backgroundColor: config.bgColor }}
     >
-      <div
-        className="w-4 h-4 flex-shrink-0"
-        style={{
-          background: config.textColor,
-          maskImage: config.iconMask,
-          maskRepeat: 'no-repeat',
-          maskPosition: 'center',
-          maskSize: 'contain'
-        }}
+      <IconComponent 
+        className="w-4 h-4 flex-shrink-0" 
+        style={{ color: config.iconColor }}
       />
-      <span>{config.text}</span>
     </div>
   );
-}
+};
