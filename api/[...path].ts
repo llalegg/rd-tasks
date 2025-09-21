@@ -22,17 +22,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const expressReq = req as any;
     const expressRes = res as any;
 
-    // Set the URL to match the API path - ensure it starts with /api
-    let url = req.url || '';
-    if (!url.startsWith('/api')) {
-      url = '/api' + url;
-    }
+    // For Vercel catch-all routes, we need to reconstruct the proper API path
+    // When a request comes to /api/tasks, Vercel routes it to this handler
+    // The req.query.path contains the captured path segments
+    const pathSegments = req.query.path as string[] || [];
+    const url = '/api/' + pathSegments.join('/');
     
     expressReq.url = url;
     expressReq.method = req.method || 'GET';
     
-    // Copy query parameters
-    expressReq.query = req.query || {};
+    // Copy query parameters (excluding the path segments used for routing)
+    const { path, ...restQuery } = req.query || {};
+    expressReq.query = restQuery;
     
     // Copy body
     expressReq.body = req.body || {};
