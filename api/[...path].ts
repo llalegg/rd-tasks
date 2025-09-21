@@ -14,8 +14,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Register routes only once
     if (!routesRegistered) {
+      console.log('Registering Express routes...');
       await registerRoutes(app);
       routesRegistered = true;
+      console.log('Routes registered successfully');
+      
+      // Log all registered routes for debugging
+      console.log('Registered routes:');
+      app._router.stack.forEach((layer: any) => {
+        if (layer.route) {
+          console.log(`${Object.keys(layer.route.methods).join(',').toUpperCase()} ${layer.route.path}`);
+        }
+      });
     }
 
     // Create a mock request/response that Express can handle
@@ -27,6 +37,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // The req.query.path contains the captured path segments
     const pathSegments = req.query.path as string[] || [];
     const url = '/api/' + pathSegments.join('/');
+    
+    // Temporary debug logging for deployment troubleshooting
+    console.log('=== API Handler Debug ===');
+    console.log('Original req.url:', req.url);
+    console.log('req.query:', JSON.stringify(req.query));
+    console.log('pathSegments:', pathSegments);
+    console.log('Reconstructed URL:', url);
+    console.log('Method:', req.method);
+    console.log('========================');
     
     expressReq.url = url;
     expressReq.method = req.method || 'GET';
