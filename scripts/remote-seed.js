@@ -6,8 +6,6 @@
  * to populate the database with initial data.
  */
 
-const https = require('https');
-
 // Replace this with your actual Vercel deployment URL
 const VERCEL_URL = process.argv[2];
 
