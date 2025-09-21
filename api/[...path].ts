@@ -294,7 +294,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // For Vercel catch-all routes, we need to reconstruct the proper API path
     const pathSegments = req.query.path as string[] || [];
-    const url = '/api/' + pathSegments.join('/');
+    let url = '/api/' + pathSegments.join('/');
+    
+    // Handle case where pathSegments is empty (root /api/ request)
+    if (pathSegments.length === 0) {
+      url = '/api/health'; // Default to health check
+    }
+    
+    console.log('Path segments:', pathSegments);
+    console.log('Reconstructed URL:', url);
     
     // Create Express-compatible request/response
     const expressReq = req as any;
