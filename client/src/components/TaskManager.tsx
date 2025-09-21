@@ -334,7 +334,7 @@ export default function TaskManager() {
                   {/* Filters toggle for mobile */}
                   <Button
                     onClick={() => setShowFilters(!showFilters)}
-                    className={`h-9 w-9 p-0 rounded-lg transition-all duration-200 ${
+                    className={`h-9 w-9 p-0 rounded-[9999px] transition-all duration-200 ${
                       showFilters ? 'bg-[#e5e4e1] text-black' : 'bg-[#292928] text-[#f7f6f2] hover:bg-[#3a3a38]'
                     }`}
                   >
@@ -420,7 +420,7 @@ export default function TaskManager() {
                   />
                 </div>
                 
-                <Button className="flex items-center gap-2 px-3 py-2 bg-[#292928] border-none rounded-full text-[#f7f6f2] text-xs font-medium cursor-pointer h-8 min-w-[86px] justify-center transition-all duration-200 hover:bg-[#3a3a38]">
+                <Button className="flex items-center gap-2 px-3 py-2 bg-[#292928] border-none rounded-[9999px] text-[#f7f6f2] text-xs font-medium cursor-pointer h-8 min-w-[86px] justify-center transition-all duration-200 hover:bg-[#3a3a38]">
                   <SlidersHorizontal className="w-4 h-4" />
                   <span className="hidden sm:inline">Filters</span>
                 </Button>

@@ -512,36 +512,28 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
           {/* Right Sidebar - Metadata */}
           <div className="w-80 bg-[#171716] overflow-y-auto">
             <div className="p-4">
-              {/* Properties Header with Figma Styling */}
-              <div className="bg-[#121210] flex items-center justify-between pl-4 pr-0 py-0 mb-4 h-[40px]">
-                <div className="flex-1 flex items-center gap-1">
-                  <div className="font-semibold text-sm leading-[1.46] text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap font-montserrat">
-                    Properties
-                  </div>
-                </div>
-                <div className="bg-[#292928] w-px h-5 mr-4"></div>
-                <div className="flex items-center gap-1 pr-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                      onClick={handleDeleteTask}
-                    className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] hover:text-red-400"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+              {/* Header with Delete/Close buttons */}
+              <div className="flex items-center justify-end gap-1 mb-4 h-[40px]">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDeleteTask}
+                  className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] hover:text-red-400"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={onClose}
-                    className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)]"
+                  className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)]"
                 >
                   <X className="w-4 h-4" />
-                  </Button>
+                </Button>
               </div>
-            </div>
 
               {/* Metadata */}
-              <div className="space-y-0">
+              <div className="space-y-1">
                 {/* Status */}
                 <InteractiveRow
                   label="Status"
@@ -574,7 +566,8 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   label="Deadline"
                   value={localTask.deadline ? localTask.deadline.toString() : 'no-deadline'}
                   badge={getDeadlineBadge(localTask.deadline)}
-                  disabled={true}
+                  badgeClickable={true}
+                  onBadgeClick={() => setShowDeadlinePicker(!showDeadlinePicker)}
                 />
 
                 {/* Type */}

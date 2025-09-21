@@ -320,19 +320,19 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       </div>
 
       {/* Task Name */}
-      <div className="flex items-center px-4 flex-1">
+      <div className="flex items-center pl-4 pr-0 flex-1">
         <div className="font-semibold text-sm leading-[1.46] text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap font-montserrat w-full">
           {task.name}
         </div>
       </div>
 
       {/* Type */}
-      <div className="flex items-center px-4 w-[200px]">
+      <div className="flex items-center pl-4 pr-0 w-[200px]">
         <TypeBadge type={task.type} />
       </div>
 
       {/* Related Athletes */}
-      <div className="flex items-center px-4 w-[196px]">
+      <div className="flex items-center pl-4 pr-0 w-[196px]">
         <div className="flex items-center">
           {relatedAthletes.length > 0 ? (
             <div className="flex">
@@ -355,7 +355,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       </div>
 
       {/* Assignee */}
-      <div className="flex items-center px-4 w-[120px]">
+      <div className="flex items-center pl-4 pr-0 w-[120px]">
         <DropdownMenu 
           open={openDropdowns[task.id] === 'assignee'} 
           onOpenChange={(open) => !open && onToggleDropdown(task.id, 'assignee')}
@@ -410,7 +410,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       </div>
 
       {/* Priority */}
-      <div className="flex items-center px-4 w-[88px]">
+      <div className="flex items-center pl-4 pr-0 w-[88px]">
         <DropdownMenu 
           open={openDropdowns[task.id] === 'priority'} 
           onOpenChange={(open) => !open && onToggleDropdown(task.id, 'priority')}
@@ -465,7 +465,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       </div>
 
       {/* Deadline */}
-      <div className="flex items-center px-4 w-[120px]">
+      <div className="flex items-center pl-4 pr-0 w-[120px]">
         <div
           onClick={(e) => e.stopPropagation()}
         >
@@ -481,7 +481,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       </div>
 
       {/* Status */}
-      <div className="flex items-center px-4 w-[140px]">
+      <div className="flex items-center pl-4 pr-0 w-[140px]">
         <DropdownMenu 
           open={openDropdowns[task.id] === 'status'} 
           onOpenChange={(open) => !open && onToggleDropdown(task.id, 'status')}
@@ -668,11 +668,11 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) {
-      return <ArrowUpDown className="w-4 h-4 ml-1" />;
+      return <ArrowUpDown className="w-4 h-4 ml-1 text-[#3D3D3C]" />;
     }
     return sortDirection === 'asc' ? 
-      <ArrowUp className="w-4 h-4 ml-1" /> : 
-      <ArrowDown className="w-4 h-4 ml-1" />;
+      <ArrowUp className="w-4 h-4 ml-1 text-[#3D3D3C]" /> : 
+      <ArrowDown className="w-4 h-4 ml-1 text-[#3D3D3C]" />;
   };
 
 
