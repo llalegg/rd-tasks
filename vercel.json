@@ -19,8 +19,12 @@
       "dest": "/api/[...path]"
     },
     {
+      "src": "/(.*\\.(js|css|ico|png|jpg|svg|html)$)",
+      "dest": "/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/dist/public/$1"
+      "dest": "/index.html"
     }
   ]
 }
