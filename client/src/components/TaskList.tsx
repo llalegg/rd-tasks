@@ -1,5 +1,5 @@
 import { Task } from "@shared/schema";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { prototypeTasks, getCoaches, getAthletes } from "@/data/prototypeData";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -633,39 +633,15 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
     }
   };
 
-  // Fetch users from API
-  const { data: users = [] } = useQuery({
-    queryKey: ['/api/users'],
-    queryFn: () => fetch('/api/users').then(res => res.json()),
-  });
+  // Use prototype data
+  const users = getCoaches(); // Coaches act as users/assignees
+  const athletes = getAthletes(); // Athletes for task relationships
 
-  // Fetch athletes from API
-  const { data: athletes = [] } = useQuery({
-    queryKey: ['/api/athletes'],
-    queryFn: () => fetch('/api/athletes').then(res => res.json()),
-  });
-
-  const queryClient = useQueryClient();
-
-  // Update task mutation
-  const updateTaskMutation = useMutation({
-    mutationFn: async ({ taskId, updates }: { taskId: string, updates: Partial<Task> }) => {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      if (!response.ok) throw new Error('Failed to update task');
-      return response.json();
-    },
-    onSuccess: (updatedTask) => {
-      // Update the specific task in the cache
-      queryClient.setQueryData(['/api/tasks'], (oldData: any) => {
-        if (!oldData) return oldData;
-        return oldData.map((t: any) => t.id === updatedTask.id ? updatedTask : t);
-      });
-    },
-  });
+  // Simple update functions for prototype
+  const updateTask = (taskId: string, updates: Partial<Task>) => {
+    // In prototype mode, just console log the update
+    console.log('Task update:', taskId, updates);
+  };
 
 
   const formatStatus = (status: string) => {
@@ -686,12 +662,12 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
 
   // Inline update handlers
   const handleUpdatePriority = (taskId: string, priority: 'low' | 'medium' | 'high') => {
-    updateTaskMutation.mutate({ taskId, updates: { priority } });
+    updateTask(taskId, { priority });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
   };
 
   const handleUpdateStatus = (taskId: string, status: Task['status']) => {
-    updateTaskMutation.mutate({ taskId, updates: { status } });
+    updateTask(taskId, { status });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
     if (onStatusUpdate) {
       onStatusUpdate(taskId, status);
@@ -699,12 +675,12 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
   };
 
   const handleUpdateDeadline = (taskId: string, deadline: Date | null | undefined) => {
-    updateTaskMutation.mutate({ taskId, updates: { deadline } });
+    updateTask(taskId, { deadline });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
   };
 
   const handleUpdateAssignee = (taskId: string, assigneeId: string) => {
-    updateTaskMutation.mutate({ taskId, updates: { assigneeId } });
+    updateTask(taskId, { assigneeId });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
   };
 
