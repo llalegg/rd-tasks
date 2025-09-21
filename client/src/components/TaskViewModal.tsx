@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Send, Edit3, Check, Trash2, Search, Paperclip, Circle } from "lucide-react";
+import { X, Plus, Send, Edit3, Check, Trash2, Search, Paperclip, Circle, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getCoaches, getAthletes, getPerson } from "@/data/prototypeData";
@@ -784,33 +784,75 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 {/* Athletes List */}
               <div className="flex flex-col gap-0">
                   {/* Sample Athletes from Figma */}
-                  <div className="bg-[#171716] flex items-center gap-3 px-[8px] h-12 rounded-[8px]">
-                    <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
-                         style={{backgroundImage: 'url(https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face)'}}>
+                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] hover:bg-[#2c2c2b] transition-colors">
+                    <div className="flex gap-[8px] items-center flex-1">
+                      <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
+                           style={{backgroundImage: 'url(https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face)'}}>
+                      </div>
+                      <div className="flex flex-col gap-[2px] flex-1">
+                        <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
+                          <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Christopher Harris</p>
+                        </div>
+                        <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
+                          <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex flex-col flex-1">
-                      <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">Christopher Harris</div>
-                      <div className="text-[10px] text-[#979795] overflow-hidden text-ellipsis whitespace-nowrap">Athlete</div>
+                    <div className="flex gap-[12px] items-center shrink-0">
+                      <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
+                        <X className="w-4 h-4 text-[#f7f6f2]" />
+                      </div>
+                      <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
+                        <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
+                      </div>
                     </div>
-                    </div>
-                    
-                  <div className="bg-[#171716] flex items-center gap-3 px-[8px] h-12 rounded-[8px]">
-                    <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
-                         style={{backgroundImage: 'url(https://images.unsplash.com/photo-1494790108755-2616c6d6d55a?w=40&h=40&fit=crop&crop=face)'}}>
-                    </div>
-                    <div className="flex flex-col flex-1">
-                      <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">Samanta Harris</div>
-                      <div className="text-[10px] text-[#979795] overflow-hidden text-ellipsis whitespace-nowrap">Athlete</div>
                   </div>
-              </div>
-
-                  <div className="bg-[#171716] flex items-center gap-3 px-[8px] h-12 rounded-[8px]">
-                    <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
-                         style={{backgroundImage: 'url(https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face)'}}>
+                    
+                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] hover:bg-[#2c2c2b] transition-colors">
+                    <div className="flex gap-[8px] items-center flex-1">
+                      <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
+                           style={{backgroundImage: 'url(https://images.unsplash.com/photo-1494790108755-2616c6d6d55a?w=32&h=32&fit=crop&crop=face)'}}>
+                      </div>
+                      <div className="flex flex-col gap-[2px] flex-1">
+                        <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
+                          <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Samanta Harris</p>
+                        </div>
+                        <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
+                          <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex flex-col flex-1">
-                      <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">Randy Harris</div>
-                      <div className="text-[10px] text-[#979795] overflow-hidden text-ellipsis whitespace-nowrap">Athlete</div>
+                    <div className="flex gap-[12px] items-center shrink-0">
+                      <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
+                        <X className="w-4 h-4 text-[#f7f6f2]" />
+                      </div>
+                      <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
+                        <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] hover:bg-[#2c2c2b] transition-colors">
+                    <div className="flex gap-[8px] items-center flex-1">
+                      <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
+                           style={{backgroundImage: 'url(https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face)'}}>
+                      </div>
+                      <div className="flex flex-col gap-[2px] flex-1">
+                        <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
+                          <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Randy Harris</p>
+                        </div>
+                        <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
+                          <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-[12px] items-center shrink-0">
+                      <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
+                        <X className="w-4 h-4 text-[#f7f6f2]" />
+                      </div>
+                      <div className="bg-[#3d3d3c] flex items-center justify-center p-[6px] rounded-[9999px] size-[32px] hover:bg-[#4a4a48] transition-colors cursor-pointer">
+                        <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
+                      </div>
                     </div>
                   </div>
                 </div>
