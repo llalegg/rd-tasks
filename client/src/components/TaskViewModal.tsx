@@ -117,11 +117,11 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
           }
         ]);
       }
-    } else {
+      } else {
       // No task - reset comments and history
-      setComments([]);
+        setComments([]);
       setHistory([]);
-    }
+      }
 
     if (task) {
       setHistory([
@@ -192,6 +192,13 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     toast({
       title: "Success",
       description: `Priority changed to ${newPriority}`
+    });
+  };
+
+  const handleTypeChange = (newType: string) => {
+    toast({
+      title: "Success",
+      description: `Type changed to ${newType}`
     });
   };
 
@@ -659,7 +666,16 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   label="Type"
                   value={localTask.type}
                   badge={getTypeBadge(localTask.type)}
-                  disabled={true}
+                  options={[
+                    { value: 'general', label: 'General Task' },
+                    { value: 'recovery', label: 'Recovery' },
+                    { value: 'strength', label: 'Strength Training' },
+                    { value: 'endurance', label: 'Endurance' },
+                    { value: 'analysis', label: 'Analysis' },
+                    { value: 'assessment', label: 'Assessment' },
+                    { value: 'mechanicalanalysis', label: 'Mechanical Analysis' }
+                  ]}
+                  onValueChange={handleTypeChange}
                 />
 
                 {/* Assignee */}
@@ -784,11 +800,11 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 {/* Athletes List */}
               <div className="flex flex-col gap-0">
                   {/* Sample Athletes from Figma */}
-                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] hover:bg-[#2c2c2b] transition-colors">
+                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] group">
                     <div className="flex gap-[8px] items-center flex-1">
                       <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
                            style={{backgroundImage: 'url(https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face)'}}>
-                      </div>
+                    </div>
                       <div className="flex flex-col gap-[2px] flex-1">
                         <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
                           <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Christopher Harris</p>
@@ -798,7 +814,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-[12px] items-center shrink-0">
+                    <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
                         <X className="w-4 h-4 text-[#f7f6f2]" />
                       </div>
@@ -806,23 +822,23 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                         <ChevronRight className="w-4 h-4 text-[#f7f6f2]" />
                       </div>
                     </div>
-                  </div>
+                    </div>
                     
-                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] hover:bg-[#2c2c2b] transition-colors">
+                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] group">
                     <div className="flex gap-[8px] items-center flex-1">
                       <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
                            style={{backgroundImage: 'url(https://images.unsplash.com/photo-1494790108755-2616c6d6d55a?w=32&h=32&fit=crop&crop=face)'}}>
-                      </div>
+                    </div>
                       <div className="flex flex-col gap-[2px] flex-1">
                         <div className="font-['Montserrat:Medium',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#f7f6f2] text-[12px] text-nowrap">
                           <p className="leading-[1.32] overflow-ellipsis overflow-hidden whitespace-pre">Samanta Harris</p>
-                        </div>
+                  </div>
                         <div className="font-['Montserrat:Regular',_sans-serif] leading-[0] overflow-ellipsis overflow-hidden text-[#979795] text-[10px] text-nowrap">
                           <p className="leading-[1.2] overflow-ellipsis overflow-hidden">Athlete</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-[12px] items-center shrink-0">
+              </div>
+            </div>
+          </div>
+                    <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
                         <X className="w-4 h-4 text-[#f7f6f2]" />
                       </div>
@@ -832,7 +848,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                     </div>
                   </div>
 
-                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] hover:bg-[#2c2c2b] transition-colors">
+                  <div className="bg-[#1c1c1b] flex gap-[12px] items-center px-[8px] py-0 rounded-[8px] group">
                     <div className="flex gap-[8px] items-center flex-1">
                       <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70 shrink-0" 
                            style={{backgroundImage: 'url(https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face)'}}>
@@ -846,7 +862,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-[12px] items-center shrink-0">
+                    <div className="flex gap-[12px] items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="flex items-center justify-center rounded-[9999px] size-[32px] hover:bg-[#3d3d3c] transition-colors cursor-pointer">
                         <X className="w-4 h-4 text-[#f7f6f2]" />
                       </div>
@@ -887,7 +903,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 Delete
               </Button>
         </div>
-          </DialogContent>
+      </DialogContent>
         </Dialog>
       )}
 
