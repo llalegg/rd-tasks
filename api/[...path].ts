@@ -12,6 +12,10 @@ let routesRegistered = false;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    // Check database connection
+    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+    console.log('DATABASE_URL prefix:', process.env.DATABASE_URL?.substring(0, 30) + '...');
+    
     // Register routes only once
     if (!routesRegistered) {
       console.log('Registering Express routes...');
