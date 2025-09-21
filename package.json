@@ -14,6 +14,7 @@
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",
+    "db:seed:remote": "node scripts/remote-seed.js",
     "postdeploy": "tsx scripts/seed.ts"
   },
   "dependencies": {
