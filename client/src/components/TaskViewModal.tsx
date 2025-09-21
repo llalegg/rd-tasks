@@ -6,13 +6,11 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, X, Plus, Send, Edit3, Check, Trash2, Search, Paperclip } from "lucide-react";
+import { X, Plus, Send, Edit3, Check, Trash2, Search, Paperclip, Circle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getCoaches, getAthletes, getPerson } from "@/data/prototypeData";
-import { InteractiveRow } from "@/components/ui/interactive-row";
-import { PriorityBadge } from "@/components/ui/priority-badge";
-import { StatusBadge } from "@/components/ui/status-badge";
+// Removed unused imports - using inline styling per Figma design
 import UserAvatar from "./UserAvatar";
 
 interface TaskViewModalProps {
@@ -429,16 +427,18 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
               {activeTab === 'comments' ? (
                 <>
                   {/* Message Input */}
-                  <div className="border border-[#3d3d3c] rounded-lg p-3">
-                    <input
-                      type="text"
-                      className="bg-transparent border-none outline-none text-[#f7f6f2] text-sm font-montserrat w-full py-2 mb-1 placeholder-[#585856]"
-                      placeholder="Write a comment"
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && commentText.trim() && handleSendComment()}
-                    />
-                    <div className="flex items-center justify-between">
+                  <div className="border border-[#3d3d3c] rounded-lg">
+                    <div className="p-3 pb-2">
+                      <input
+                        type="text"
+                        className="bg-transparent border-none outline-none text-[#f7f6f2] text-sm font-montserrat w-full py-2 placeholder-[#585856]"
+                        placeholder="Write a comment"
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && commentText.trim() && handleSendComment()}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between px-3 pb-2">
                       <button className="w-8 h-8 rounded-full border-none bg-[#292928] flex items-center justify-center cursor-pointer hover:bg-[#3a3a38] transition-colors">
                         <Plus className="w-4 h-4 text-[#f7f6f2]" />
                       </button>
@@ -447,11 +447,11 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                         disabled={!commentText.trim()}
                         className={`w-8 h-8 rounded-full border-none flex items-center justify-center transition-colors ${
                           commentText.trim() 
-                            ? 'bg-white hover:bg-[#f3f4f6] cursor-pointer' 
-                            : 'bg-[#374151] cursor-not-allowed'
+                            ? 'bg-[#e5e4e1] hover:bg-[#d5d4d1] cursor-pointer' 
+                            : 'bg-[#322e21] cursor-not-allowed'
                         }`}
                       >
-                        <Send className={`w-4 h-4 ${commentText.trim() ? 'text-black' : 'text-[#6b7280]'}`} />
+                        <Send className={`w-4 h-4 ${commentText.trim() ? 'text-black' : 'text-black'}`} />
                       </button>
                     </div>
                   </div>
@@ -498,138 +498,139 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
           </div>
 
           {/* Right Sidebar - Metadata */}
-          <div className="w-80 bg-[#292928] overflow-y-auto">
-            <div className="p-6">
-              {/* Status and Actions */}
-              <div className="flex items-center gap-3 mb-6">
-                <StatusBadge status={localTask.status} />
-                <div className="flex-1"></div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDeleteTask}
-                  className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] hover:text-red-400"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onClose}
-                  className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)]"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+          <div className="w-80 bg-[#171716] overflow-y-auto">
+            <div className="p-4">
+              {/* Properties Header with Actions */}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-[#f7f6f2]">Properties</h3>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDeleteTask}
+                    className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] hover:text-red-400"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClose}
+                    className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)]"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
 
               {/* Metadata */}
-              <div className="space-y-4">
+              <div className="space-y-1">
                 {/* Status */}
-                <InteractiveRow
-                  label="Status"
-                  value={localTask.status}
-                  badge={<StatusBadge status={localTask.status} />}
-                  options={[
-                    { value: 'new', label: 'New' },
-                    { value: 'in_progress', label: 'In Progress' },
-                    { value: 'pending', label: 'Pending' },
-                    { value: 'completed', label: 'Completed' }
-                  ]}
-                  onValueChange={handleStatusChange}
-                />
+                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
+                  <div className="flex items-center gap-1 w-full">
+                    <div className="text-xs font-medium text-[#979795] w-[108px]">Status</div>
+                    <div className="flex items-start">
+                      <div className="bg-[#31180f] flex items-center gap-1 px-2 py-0.5 rounded-full">
+                        <Circle className="w-4 h-4 text-[#ff8254]" />
+                        <span className="text-xs font-medium text-[#ff8254]">New</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Priority */}
-                <InteractiveRow
-                  label="Priority"
-                  value={localTask.priority}
-                  badge={<PriorityBadge priority={localTask.priority} />}
-                  options={[
-                    { value: 'low', label: 'Low' },
-                    { value: 'medium', label: 'Medium' },
-                    { value: 'high', label: 'High' }
-                  ]}
-                  onValueChange={handlePriorityChange}
-                />
+                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
+                  <div className="flex items-center gap-1 w-full">
+                    <div className="text-xs font-medium text-[#979795] w-[108px]">Priority</div>
+                    <div className="flex items-start">
+                      <div className="bg-[#302608] flex items-center gap-1 px-1 py-0.5 rounded-full">
+                        <div className="w-4 h-4 flex items-center justify-center">
+                          <div className="w-3 h-1.5 bg-yellow-400 rounded-sm"></div>
+                        </div>
+                        <span className="text-xs font-medium text-yellow-400">Medium</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Deadline */}
-                <InteractiveRow
-                  label="Deadline"
-                  value={localTask.deadline ? localTask.deadline.toString() : 'no-deadline'}
-                  badge={
-                    <div className="text-xs font-normal text-[#f7f6f2]">
-                      {localTask.deadline ? formatDate(localTask.deadline) : 'No deadline'}
+                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
+                  <div className="flex items-center gap-1 w-full">
+                    <div className="text-xs font-medium text-[#979795] w-[108px]">Deadline</div>
+                    <div className="flex items-start">
+                      <div className="bg-[#321a1a] px-2 py-0.5 rounded-full">
+                        <span className="text-xs font-medium text-red-400">5 d ago</span>
+                      </div>
                     </div>
-                  }
-                  disabled={true}
-                />
+                  </div>
+                </div>
 
                 {/* Type */}
-                <InteractiveRow
-                  label="Type"
-                  value={localTask.type}
-                  badge={getTypeBadge(localTask.type)}
-                  disabled={true}
-                />
+                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
+                  <div className="flex items-center gap-1 w-full">
+                    <div className="text-xs font-medium text-[#979795] w-[108px]">Type</div>
+                    <div className="flex items-start">
+                      <div className="backdrop-blur-md bg-black/25 px-2 py-0.5 rounded-full">
+                        <span className="text-xs font-medium text-[#f7f6f2]">Mechanical Analysis</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Assignee */}
-                <InteractiveRow
-                  label="Assignee"
-                  value={localTask.assigneeId || 'unassigned'}
-                  badge={
-                    assignee ? (
-                      <div className="flex items-center gap-1">
-                        <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
-                        <div className="text-xs font-medium text-[#f7f6f2]">{assignee.name}</div>
-                      </div>
-                    ) : (
-                      <div className="text-xs font-normal text-[#979795]">Unassigned</div>
-                    )
-                  }
-                  options={[
-                    { value: 'unassigned', label: 'Unassigned' },
-                    ...users.map(user => ({
-                      value: user.id,
-                      label: user.name
-                    }))
-                  ]}
-                  onValueChange={(value) => handleAssigneeChange(value === 'unassigned' ? '' : value)}
-                />
+                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
+                  <div className="flex items-center gap-1 w-full">
+                    <div className="text-xs font-medium text-[#979795] w-[108px]">Assignee</div>
+                    <div className="flex items-center gap-1">
+                      {assignee && (
+                        <>
+                          <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
+                          <span className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">
+                            {assignee.name}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
                 {/* Created on */}
-                <InteractiveRow
-                  label="Created on"
-                  value="created-date"
-                  badge={
-                    <div className="text-xs font-normal text-[#f7f6f2]">
-                      {formatDate(localTask.createdAt)}
+                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
+                  <div className="flex items-center gap-1 w-full">
+                    <div className="text-xs font-medium text-[#979795] w-[108px]">Created on</div>
+                    <div className="flex items-center">
+                      <span className="text-xs font-normal text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">
+                        Jul 20
+                      </span>
                     </div>
-                  }
-                  disabled={true}
-                />
+                  </div>
+                </div>
 
                 {/* Created by */}
-                <InteractiveRow
-                  label="Created by"
-                  value="created-by"
-                  badge={
-                    creator ? (
-                      <div className="flex items-center gap-1">
-                        <UserAvatar userId={creator.id} name={creator.name} size="xs" />
-                        <div className="text-xs font-medium text-[#f7f6f2]">{creator.name}</div>
-                      </div>
-                    ) : (
-                      <div className="text-xs font-normal text-[#979795]">Unknown</div>
-                    )
-                  }
-                  disabled={true}
-                />
+                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
+                  <div className="flex items-center gap-1 w-full">
+                    <div className="text-xs font-medium text-[#979795] w-[108px]">Created by</div>
+                    <div className="flex items-center gap-1">
+                      {creator && (
+                        <>
+                          <UserAvatar userId={creator.id} name={creator.name} size="xs" />
+                          <span className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">
+                            {creator.name}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="h-px bg-[#3d3d3c] my-6"></div>
+              <div className="flex items-center py-2 my-2">
+                <div className="flex-1 h-px bg-[#292928]"></div>
+              </div>
 
               {/* Related Athletes */}
-              <div className="flex flex-col gap-3 relative">
-                <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-1 relative">
+                <div className="flex items-center justify-between h-8">
                   <div className="text-sm font-semibold text-[#f7f6f2]">Related athletes</div>
                   <button 
                     onClick={() => setShowAthleteDropdown(!showAthleteDropdown)}
@@ -689,34 +690,37 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                 )}
 
                 {/* Athletes List */}
-                <div className="flex flex-col gap-1">
-                  {relatedAthletes.map((athlete, index) => (
-                    <div 
-                      key={athlete.id} 
-                      className="flex items-center gap-3 px-2 h-12 rounded-lg hover:bg-[#1c1c1b] group transition-colors"
-                    >
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-                        style={{
-                          backgroundColor: ['#4ade80', '#3b82f6', '#f59e0b'][index % 3]
-                        }}
-                      >
-                        {athlete.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                      </div>
-                      <div className="flex flex-col flex-1">
-                        <div className="text-xs font-medium text-[#f7f6f2]">{athlete.name}</div>
-                        <div className="text-[10px] text-[#979795]">Athlete</div>
-                      </div>
-                      
-                      <button 
-                        className="w-8 h-8 border-none rounded-full cursor-pointer flex items-center justify-center transition-all bg-transparent text-[#979795] hover:bg-[rgba(247,246,242,0.1)] opacity-0 group-hover:opacity-100"
-                        title="Remove athlete"
-                        onClick={() => handleRemoveAthlete(athlete.id)}
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                <div className="flex flex-col gap-0">
+                  {/* Sample Athletes from Figma */}
+                  <div className="flex items-center gap-3 px-2 h-12 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
+                         style={{backgroundImage: 'url(https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face)'}}>
                     </div>
-                  ))}
+                    <div className="flex flex-col flex-1">
+                      <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">Christopher Harris</div>
+                      <div className="text-[10px] text-[#979795] overflow-hidden text-ellipsis whitespace-nowrap">Athlete</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#171716] flex items-center gap-3 px-2 h-12 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
+                         style={{backgroundImage: 'url(https://images.unsplash.com/photo-1494790108755-2616c6d6d55a?w=40&h=40&fit=crop&crop=face)'}}>
+                    </div>
+                    <div className="flex flex-col flex-1">
+                      <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">Samanta Harris</div>
+                      <div className="text-[10px] text-[#979795] overflow-hidden text-ellipsis whitespace-nowrap">Athlete</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#171716] flex items-center gap-3 px-2 h-12 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-center bg-cover border border-black/70" 
+                         style={{backgroundImage: 'url(https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face)'}}>
+                    </div>
+                    <div className="flex flex-col flex-1">
+                      <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">Randy Harris</div>
+                      <div className="text-[10px] text-[#979795] overflow-hidden text-ellipsis whitespace-nowrap">Athlete</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
