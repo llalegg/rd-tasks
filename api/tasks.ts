@@ -6,21 +6,20 @@ const sql = neon(process.env.DATABASE_URL!);
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === 'GET') {
-      // Get all tasks with related athletes
-      const tasks = await sql(`
-        SELECT 
-          t.*,
-          COALESCE(
-            ARRAY_AGG(ta.athlete_id) FILTER (WHERE ta.athlete_id IS NOT NULL), 
-            ARRAY[]::text[]
-          ) as related_athlete_ids
-        FROM tasks t
-        LEFT JOIN task_athletes ta ON t.id = ta.task_id
-        GROUP BY t.id, t.name, t.description, t.type, t.status, t.priority, t.deadline, t.assignee_id, t.created_at, t.updated_at
-        ORDER BY t.created_at DESC
-      `);
+      // Get all tasks (simple version)
+      const tasks = await sql(`SELECT * FROM tasks ORDER BY created_at DESC`);
       
-      res.json(tasks);
+      // Get related athletes for each task
+      const tasksWithAthletes = [];
+      for (const task of tasks) {
+        const athletes = await sql(`SELECT athlete_id FROM task_athletes WHERE task_id = $1`, [task.id]);
+        tasksWithAthletes.push({
+          ...task,
+          relatedAthleteIds: athletes.map((a: any) => a.athlete_id)
+        });
+      }
+      
+      res.json(tasksWithAthletes);
     } 
     else if (req.method === 'POST') {
       // Create new task
@@ -52,20 +51,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // Get the created task
-      const [newTask] = await sql(`
-        SELECT 
-          t.*,
-          COALESCE(
-            ARRAY_AGG(ta.athlete_id) FILTER (WHERE ta.athlete_id IS NOT NULL), 
-            ARRAY[]::text[]
-          ) as related_athlete_ids
-        FROM tasks t
-        LEFT JOIN task_athletes ta ON t.id = ta.task_id
-        WHERE t.id = $1
-        GROUP BY t.id, t.name, t.description, t.type, t.status, t.priority, t.deadline, t.assignee_id, t.created_at, t.updated_at
-      `, [taskId]);
+      const [newTask] = await sql(`SELECT * FROM tasks WHERE id = $1`, [taskId]);
+      const athletes = await sql(`SELECT athlete_id FROM task_athletes WHERE task_id = $1`, [taskId]);
+      
+      const taskWithAthletes = {
+        ...newTask,
+        relatedAthleteIds: athletes.map((a: any) => a.athlete_id)
+      };
 
-      res.status(201).json(newTask);
+      res.status(201).json(taskWithAthletes);
     }
     else {
       res.status(405).json({ error: `Method ${req.method} not allowed` });
