@@ -10,7 +10,7 @@ import { X, Plus, Send, Edit3, Check, Trash2, Search, Paperclip, Circle } from "
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getCoaches, getAthletes, getPerson } from "@/data/prototypeData";
-// Removed unused imports - using inline styling per Figma design
+import { InteractiveRow } from "@/components/ui/interactive-row";
 import UserAvatar from "./UserAvatar";
 
 interface TaskViewModalProps {
@@ -230,32 +230,65 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     });
   };
 
-  const formatTaskType = (type: string) => {
-    const typeMapping: { [key: string]: string } = {
-      'general': 'General Task',
-      'recovery': 'Recovery',
-      'strength': 'Strength Training',
-      'endurance': 'Endurance',
-      'analysis': 'Analysis',
-      'assessment': 'Assessment'
+  // Figma-style badge components
+  const getStatusBadge = (status: Task['status']) => {
+    const statusConfig = {
+      'new': { bg: '#31180f', color: '#ff8254', label: 'New' },
+      'in_progress': { bg: '#1a2e42', color: '#3b82f6', label: 'In Progress' },
+      'pending': { bg: '#2d1b42', color: '#8b5cf6', label: 'Pending' },
+      'completed': { bg: '#1a2e1a', color: '#22c55e', label: 'Completed' }
     };
-    return typeMapping[type] || type.charAt(0).toUpperCase() + type.slice(1);
+    
+    const config = statusConfig[status] || statusConfig.new;
+    
+    return (
+      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: config.bg }}>
+        <Circle className="w-4 h-4" style={{ color: config.color }} />
+        <span className="text-xs font-medium" style={{ color: config.color }}>{config.label}</span>
+      </div>
+    );
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    const priorityConfig = {
+      'low': { bg: '#1f2937', color: '#6b7280', label: 'Low', icon: '▼' },
+      'medium': { bg: '#302608', color: '#facc15', label: 'Medium', icon: '–' },
+      'high': { bg: '#321a1a', color: '#ef4444', label: 'High', icon: '▲' }
+    };
+    
+    const config = priorityConfig[priority as keyof typeof priorityConfig] || priorityConfig.medium;
+    
+    return (
+      <div className="flex items-center gap-1 px-1 py-0.5 rounded-full" style={{ backgroundColor: config.bg }}>
+        <div className="w-4 h-4 flex items-center justify-center">
+          {priority === 'medium' ? (
+            <div className="w-3 h-1.5 rounded-sm" style={{ backgroundColor: config.color }}></div>
+          ) : (
+            <span className="text-xs" style={{ color: config.color }}>{config.icon}</span>
+          )}
+        </div>
+        <span className="text-xs font-medium" style={{ color: config.color }}>{config.label}</span>
+      </div>
+    );
   };
 
   const getTypeBadge = (type: string) => {
-    const colors: { [key: string]: string } = {
-      'general': 'bg-gray-100 text-gray-800',
-      'recovery': 'bg-green-100 text-green-800',
-      'strength': 'bg-red-100 text-red-800',
-      'endurance': 'bg-blue-100 text-blue-800',
-      'analysis': 'bg-purple-100 text-purple-800',
-      'assessment': 'bg-yellow-100 text-yellow-800'
-    };
+    return (
+      <div className="backdrop-blur-md bg-black/25 px-2 py-0.5 rounded-full">
+        <span className="text-xs font-medium text-[#f7f6f2]">Mechanical Analysis</span>
+      </div>
+    );
+  };
+
+  const getDeadlineBadge = (deadline: string | Date | null) => {
+    if (!deadline) {
+      return <span className="text-xs font-normal text-[#979795]">No deadline</span>;
+    }
     
     return (
-      <Badge className={colors[type] || colors.general}>
-        {formatTaskType(type)}
-      </Badge>
+      <div className="bg-[#321a1a] px-2 py-0.5 rounded-full">
+        <span className="text-xs font-medium text-red-400">5 d ago</span>
+      </div>
     );
   };
 
@@ -524,104 +557,102 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
               </div>
 
               {/* Metadata */}
-              <div className="space-y-1">
+              <div className="space-y-0">
                 {/* Status */}
-                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
-                  <div className="flex items-center gap-1 w-full">
-                    <div className="text-xs font-medium text-[#979795] w-[108px]">Status</div>
-                    <div className="flex items-start">
-                      <div className="bg-[#31180f] flex items-center gap-1 px-2 py-0.5 rounded-full">
-                        <Circle className="w-4 h-4 text-[#ff8254]" />
-                        <span className="text-xs font-medium text-[#ff8254]">New</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <InteractiveRow
+                  label="Status"
+                  value={localTask.status}
+                  badge={getStatusBadge(localTask.status)}
+                  options={[
+                    { value: 'new', label: 'New' },
+                    { value: 'in_progress', label: 'In Progress' },
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'completed', label: 'Completed' }
+                  ]}
+                  onValueChange={handleStatusChange}
+                />
 
                 {/* Priority */}
-                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
-                  <div className="flex items-center gap-1 w-full">
-                    <div className="text-xs font-medium text-[#979795] w-[108px]">Priority</div>
-                    <div className="flex items-start">
-                      <div className="bg-[#302608] flex items-center gap-1 px-1 py-0.5 rounded-full">
-                        <div className="w-4 h-4 flex items-center justify-center">
-                          <div className="w-3 h-1.5 bg-yellow-400 rounded-sm"></div>
-                        </div>
-                        <span className="text-xs font-medium text-yellow-400">Medium</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <InteractiveRow
+                  label="Priority"
+                  value={localTask.priority}
+                  badge={getPriorityBadge(localTask.priority)}
+                  options={[
+                    { value: 'low', label: 'Low' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'high', label: 'High' }
+                  ]}
+                  onValueChange={handlePriorityChange}
+                />
 
                 {/* Deadline */}
-                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
-                  <div className="flex items-center gap-1 w-full">
-                    <div className="text-xs font-medium text-[#979795] w-[108px]">Deadline</div>
-                    <div className="flex items-start">
-                      <div className="bg-[#321a1a] px-2 py-0.5 rounded-full">
-                        <span className="text-xs font-medium text-red-400">5 d ago</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <InteractiveRow
+                  label="Deadline"
+                  value={localTask.deadline ? localTask.deadline.toString() : 'no-deadline'}
+                  badge={getDeadlineBadge(localTask.deadline)}
+                  disabled={true}
+                />
 
                 {/* Type */}
-                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
-                  <div className="flex items-center gap-1 w-full">
-                    <div className="text-xs font-medium text-[#979795] w-[108px]">Type</div>
-                    <div className="flex items-start">
-                      <div className="backdrop-blur-md bg-black/25 px-2 py-0.5 rounded-full">
-                        <span className="text-xs font-medium text-[#f7f6f2]">Mechanical Analysis</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <InteractiveRow
+                  label="Type"
+                  value={localTask.type}
+                  badge={getTypeBadge(localTask.type)}
+                  disabled={true}
+                />
 
                 {/* Assignee */}
-                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
-                  <div className="flex items-center gap-1 w-full">
-                    <div className="text-xs font-medium text-[#979795] w-[108px]">Assignee</div>
-                    <div className="flex items-center gap-1">
-                      {assignee && (
-                        <>
-                          <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
-                          <span className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">
-                            {assignee.name}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <InteractiveRow
+                  label="Assignee"
+                  value={localTask.assigneeId || 'unassigned'}
+                  badge={
+                    assignee ? (
+                      <div className="flex items-center gap-1">
+                        <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
+                        <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">{assignee.name}</div>
+                      </div>
+                    ) : (
+                      <div className="text-xs font-normal text-[#979795]">Unassigned</div>
+                    )
+                  }
+                  options={[
+                    { value: 'unassigned', label: 'Unassigned' },
+                    ...users.map(user => ({
+                      value: user.id,
+                      label: user.name
+                    }))
+                  ]}
+                  onValueChange={(value) => handleAssigneeChange(value === 'unassigned' ? '' : value)}
+                />
 
                 {/* Created on */}
-                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
-                  <div className="flex items-center gap-1 w-full">
-                    <div className="text-xs font-medium text-[#979795] w-[108px]">Created on</div>
-                    <div className="flex items-center">
-                      <span className="text-xs font-normal text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">
-                        Jul 20
-                      </span>
+                <InteractiveRow
+                  label="Created on"
+                  value="created-date"
+                  badge={
+                    <div className="text-xs font-normal text-[#f7f6f2]">
+                      Jul 20
                     </div>
-                  </div>
-                </div>
+                  }
+                  disabled={true}
+                />
 
                 {/* Created by */}
-                <div className="bg-[#171716] h-8 flex items-center px-2 py-1.5 rounded-lg">
-                  <div className="flex items-center gap-1 w-full">
-                    <div className="text-xs font-medium text-[#979795] w-[108px]">Created by</div>
-                    <div className="flex items-center gap-1">
-                      {creator && (
-                        <>
-                          <UserAvatar userId={creator.id} name={creator.name} size="xs" />
-                          <span className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">
-                            {creator.name}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <InteractiveRow
+                  label="Created by"
+                  value="created-by"
+                  badge={
+                    creator ? (
+                      <div className="flex items-center gap-1">
+                        <UserAvatar userId={creator.id} name={creator.name} size="xs" />
+                        <div className="text-xs font-medium text-[#f7f6f2] overflow-hidden text-ellipsis whitespace-nowrap">{creator.name}</div>
+                      </div>
+                    ) : (
+                      <div className="text-xs font-normal text-[#979795]">Unknown</div>
+                    )
+                  }
+                  disabled={true}
+                />
               </div>
 
               <div className="flex items-center py-2 my-2">
