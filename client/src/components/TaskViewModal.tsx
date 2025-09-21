@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Task, User, Athlete, InsertTask } from "@shared/schema";
-import { TaskWithRelations, taskTypes } from "@/data/mockData";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -13,13 +11,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Calendar, User as UserIcon, Target, Clock, AlertCircle, CheckCircle, X, FileText, Plus, Send, MoreVertical, ChevronDown, Edit3, Check, Undo2, Trash2, Circle, ChevronUp, Minus, Search, Paperclip } from "lucide-react";
 import DeadlineBadge from "./DeadlineBadge";
 import UserAvatar from "./UserAvatar";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { InteractiveRow } from "@/components/ui/interactive-row";
 import { PriorityBadge } from "@/components/ui/priority-badge";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { getCoaches, getAthletes, getPerson } from "@/data/prototypeData";
 
 interface TaskViewModalProps {
   task: TaskWithRelations | null;

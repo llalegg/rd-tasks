@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useMemo } from "react";
 import { Task } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +10,9 @@ import { Search, Filter, Edit, X, ChevronDown, Check, SlidersHorizontal, LayoutG
 import TaskList from "./TaskList";
 import TaskPanelContent from "./TaskPanelContent";
 import TaskViewModal from "./TaskViewModal";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { prototypeTasks, prototypePeople, getCoaches, getAthletes } from "@/data/prototypeData";
 
 // Filter Dropdown Component
 const FilterDropdown = ({ 
@@ -130,11 +129,10 @@ export default function TaskManager() {
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch tasks from API
-  const { data: tasks = [], isLoading, error } = useQuery({
-    queryKey: ['/api/tasks'],
-    queryFn: () => fetch('/api/tasks').then(res => res.json()),
-  });
+  // Use prototype data for tasks
+  const [tasks, setTasks] = useState<Task[]>(prototypeTasks);
+  const isLoading = false;
+  const error = null;
 
 
 
@@ -146,17 +144,9 @@ export default function TaskManager() {
       .replace(/\b\w/g, str => str.toUpperCase()); // Capitalize each word
   };
 
-  // Fetch users from API
-  const { data: users = [] } = useQuery({
-    queryKey: ['/api/users'],
-    queryFn: () => fetch('/api/users').then(res => res.json()),
-  });
-
-  // Fetch athletes from API
-  const { data: athletes = [] } = useQuery({
-    queryKey: ['/api/athletes'],
-    queryFn: () => fetch('/api/athletes').then(res => res.json()),
-  });
+  // Use prototype data for users and athletes
+  const users = getCoaches(); // Coaches act as users/assignees
+  const athletes = getAthletes(); // Athletes for task relationships
 
   // Get unique assignees from current tasks
   const availableAssignees = Array.from(new Set(tasks.map((task: Task) => task.assigneeId)))
@@ -193,40 +183,31 @@ export default function TaskManager() {
     return 0;
   });
 
-  // Update task status mutation
-  const updateTaskMutation = useMutation({
-    mutationFn: async ({ taskId, status }: { taskId: string; status: Task['status'] }) => {
-      return await apiRequest('PUT', `/api/tasks/${taskId}`, { status });
-    },
-    onSuccess: () => {
-
-      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
-      toast({
-        title: "Success",
-        description: "Task status updated successfully",
-      });
-    },
-    onError: (error) => {
-
-      toast({
-        title: "Error",
-        description: "Failed to update task status",
-        variant: "destructive",
-      });
-    },
-  });
+  // Update task status (prototype version)
+  const updateTaskStatus = ({ taskId, status }: { taskId: string; status: Task['status'] }) => {
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task.id === taskId 
+          ? { ...task, status, updatedAt: new Date() }
+          : task
+      )
+    );
+    toast({
+      title: "Success",
+      description: "Task status updated successfully",
+    });
+  };
 
 
-  // Delete task mutation
-  const deleteTaskMutation = useMutation({
-    mutationFn: async (taskId: string) => {
-      return apiRequest('DELETE', `/api/tasks/${taskId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
-      setSelectedTask(null);
-    },
-  });
+  // Delete task (prototype version)
+  const deleteTask = (taskId: string) => {
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+    setSelectedTask(null);
+    toast({
+      title: "Success", 
+      description: "Task deleted successfully",
+    });
+  };
 
   const handleTaskClick = (task: Task) => {
     setViewTask(task);
@@ -234,42 +215,48 @@ export default function TaskManager() {
   };
 
   const handleAddTask = () => {
-    // Get first user as default assignee
-    const defaultAssignee = users?.[0]?.id;
+    // Get first coach as default assignee
+    const defaultAssignee = users?.[0]?.id || 'coach1';
     
-    // Create a default new task with required fields pre-filled
+    // Create a new task with prototype data structure
     const newTask: Task = {
-      id: 'new-' + Date.now(), // Temporary ID
-      name: 'New Task', // Pre-filled required field
-      description: 'Task description', // Pre-filled required field
-      type: 'injury', // Use working type temporarily
+      id: 'task_' + Date.now(), // Generate unique ID
+      name: 'New Task',
+      description: 'Task description',
+      type: 'general',
       status: 'new',
       priority: 'medium',
-      deadline: null, // Optional field - should show en-dash when empty
-      assigneeId: defaultAssignee, // Default to first user
-      creatorId: defaultAssignee, // Default to first user
+      deadline: null,
+      assigneeId: defaultAssignee,
+      creatorId: defaultAssignee,
       createdAt: new Date(),
-      updatedAt: new Date()
-    } as any;
+      updatedAt: new Date(),
+      relatedAthleteIds: []
+    };
     
-    // Add relatedAthleteIds to the task object
-    (newTask as any).relatedAthleteIds = [];
+    // Add to tasks list immediately
+    setTasks(prevTasks => [newTask, ...prevTasks]);
     
+    // Open the modal to edit details
     setViewTask(newTask);
     setIsViewModalOpen(true);
+    
+    toast({
+      title: "Success",
+      description: "New task created! Edit the details below.",
+    });
   };
 
 
   const handleStatusUpdate = (taskId: string, newStatus: Task['status']) => {
-
-    updateTaskMutation.mutate({ taskId, status: newStatus });
+    updateTaskStatus({ taskId, status: newStatus });
   };
 
 
 
 
   const handleDeleteTask = (taskId: string) => {
-    deleteTaskMutation.mutate(taskId);
+    deleteTask(taskId);
   };
 
 
