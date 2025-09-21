@@ -15,7 +15,7 @@ const db = drizzle({ client: sql, schema });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    console.log('Tasks API - Method:', req.method);
+    console.log('Tasks API - Method:', req.method, 'Body:', req.body);
     
     if (req.method === 'GET') {
       // Get all tasks
