@@ -231,7 +231,7 @@ const SortableTaskRow = React.memo(function SortableTaskRow({ task, users, athle
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{...style, position: 'relative'}}
       className={`group flex items-center border-b border-[#292928] h-12 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer ${
         isDragging ? 'z-50 shadow-2xl' : ''
       }`}
@@ -239,7 +239,10 @@ const SortableTaskRow = React.memo(function SortableTaskRow({ task, users, athle
     >
 
       {/* Fixed Task Name Column */}
-      <div className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
+      <div 
+        className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928] bg-[#1C1C1B] group-hover:bg-[#2C2C2B] z-20"
+        style={{ position: 'sticky', left: 0 }}
+      >
         <div 
           {...attributes}
           {...listeners}
@@ -273,7 +276,7 @@ const SortableTaskRow = React.memo(function SortableTaskRow({ task, users, athle
 
       {/* Scrollable Columns Container */}
       <div className="flex-1 overflow-x-auto relative h-12 scrollbar-thin">
-        <div className="flex items-center h-full" style={{ minWidth: '1240px' }}>
+        <div className="flex items-center h-full" style={{ minWidth: '1280px' }}>
           {/* Type */}
           <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
         <TypeBadge type={task.type} />
@@ -751,12 +754,15 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
       onDragEnd={handleDragEnd}
     >
       <div className="w-full overflow-x-auto">
-        <div className="bg-[#121210] rounded-2xl overflow-hidden" style={{ minWidth: '1600px' }}>
+        <div className="bg-[#121210] rounded-2xl overflow-hidden relative" style={{ minWidth: '1640px' }}>
           {/* Table Header - Hidden on mobile list view */}
           {!isMobile && (
-            <div className="flex h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium">
+            <div className="flex h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium relative">
                 {/* Fixed Task Name Column */}
-                <div className="flex items-center pl-[8px] pr-[16px] w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
+                <div 
+                  className="flex items-center pl-[8px] pr-[16px] w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928] bg-[#121210] z-20"
+                  style={{ position: 'sticky', left: 0 }}
+                >
                 {/* List Icon */}
                 <div className="flex items-center justify-between pl-[12px] pr-0 py-0 relative shrink-0 size-[40px]">
                   <TooltipProvider>
@@ -804,7 +810,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
               
               {/* Scrollable Columns Header */}
               <div className="flex-1 relative h-10">
-                <div className="flex items-center h-full" style={{ minWidth: '1240px' }}>
+                <div className="flex items-center h-full" style={{ minWidth: '1280px' }}>
               
                   {/* Type */}
                   <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">

@@ -372,7 +372,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                     placeholder="Click to add a title..."
                     className="text-lg font-medium"
                     maxLength={100}
-                    showCharacterCount={true}
+                    showCharacterCount={false}
                   />
                 </div>
               </div>
@@ -386,7 +386,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
                   placeholder="Click to add a description..."
                   className="text-sm font-normal"
                   maxLength={500}
-                  showCharacterCount={true}
+                  showCharacterCount={false}
                 />
               </div>
             </div>

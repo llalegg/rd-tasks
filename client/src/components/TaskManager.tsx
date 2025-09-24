@@ -414,7 +414,7 @@ export default function TaskManager() {
   return (
     <div className="min-h-screen bg-transparent flex md:ml-[80px] pb-[80px] md:pb-0">
       {/* Main Content Area */}
-      <div className={`flex-1 transition-all duration-300 ease-in-out ${
+      <div className={`flex-1 transition-all duration-300 ease-in-out min-w-0 ${
         selectedTask && !isMobile ? 'md:pr-[500px]' : ''
       }`}>
         {/* Header */}
@@ -560,7 +560,7 @@ export default function TaskManager() {
 
         </header>
         {/* Main Content */}
-        <main className="w-full p-4 md:p-5 pt-[120px] md:pt-[88px]">
+        <main className="w-full p-4 md:p-5 pt-[120px] md:pt-[88px] overflow-x-auto">
           {isLoading ? (
             <div className="flex justify-center items-center min-h-[50vh]">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
