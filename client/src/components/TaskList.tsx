@@ -747,12 +747,11 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="w-full">
-        <div className="bg-[#121210] rounded-2xl overflow-hidden w-full">
+      <div className="w-full overflow-x-auto">
+        <div className="bg-[#121210] rounded-2xl overflow-hidden" style={{ minWidth: '1600px' }}>
           {/* Table Header - Hidden on mobile list view */}
           {!isMobile && (
-            <div className="overflow-x-auto">
-              <div className="flex h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium" style={{ minWidth: '1600px' }}>
+            <div className="flex h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium">
                 {/* Fixed Task Name Column */}
                 <div className="flex items-center pl-[8px] pr-[16px] w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
                 {/* List Icon */}
@@ -862,8 +861,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
           )}
 
           {/* Table Body */}
-          <div className="overflow-x-auto">
-            <div style={{ minWidth: '1600px' }}>
+          <div>
               <SortableContext 
                 items={isManualOrdering ? orderedTasks.map(t => t.id) : sortedTasks.map(t => t.id)}
                 strategy={verticalListSortingStrategy}
@@ -947,7 +945,6 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                 )
               ))}
               </SortableContext>
-            </div>
           </div>
         {tasks.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
