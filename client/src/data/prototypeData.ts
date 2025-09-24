@@ -1,9 +1,9 @@
 // Prototype data matching what's in your Neon database
 export const prototypePeople = [
   // Coaches (can be assignees)
-  { id: "coach1", name: "Coach Sarah Johnson", type: "coach", sport: "General", position: "Head Coach", role: "coach" },
-  { id: "coach2", name: "Coach Mike Davis", type: "coach", sport: "Strength", position: "Strength Coach", role: "coach" },
-  { id: "coach3", name: "Dr. Emily Rodriguez", type: "coach", sport: "Medical", position: "Sports Medicine", role: "coach" },
+  { id: "coach1", name: "Sarah Johnson", type: "coach", sport: "General", position: "Head Coach", role: "coach" },
+  { id: "coach2", name: "Mike Davis", type: "coach", sport: "Strength", position: "Strength Coach", role: "coach" },
+  { id: "coach3", name: "Emily Rodriguez", type: "coach", sport: "Medical", position: "Sports Medicine", role: "coach" },
   
   // Athletes (can be related to tasks)
   { id: "athlete1", name: "John Smith", type: "athlete", sport: "Football", position: "Quarterback" },
@@ -14,6 +14,64 @@ export const prototypePeople = [
 ];
 
 export const prototypeTasks = [
+  // Automatic Tasks
+  {
+    id: "auto_task1",
+    name: "Schedule Injury Call",
+    description: "Schedule call with athlete regarding injury recovery progress",
+    type: "injury_call",
+    status: "new",
+    priority: "high",
+    deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    assigneeId: "coach3",
+    creatorId: "coach3",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    relatedAthleteIds: ["athlete1"]
+  },
+  {
+    id: "auto_task2",
+    name: "Schedule Onboarding Call",
+    description: "Schedule initial onboarding call with new athlete",
+    type: "onboarding_call",
+    status: "in_progress",
+    priority: "medium",
+    deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    assigneeId: "coach1",
+    creatorId: "coach1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    relatedAthleteIds: ["athlete2"]
+  },
+  {
+    id: "auto_task3",
+    name: "Coach Assignment Document",
+    description: "Review and complete coach assignment documentation for new athlete",
+    type: "coach_assignment",
+    status: "new",
+    priority: "high",
+    deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    assigneeId: "coach2",
+    creatorId: "coach2",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    relatedAthleteIds: ["athlete3"]
+  },
+  {
+    id: "auto_task4",
+    name: "Assessment Review",
+    description: "Review assessment results that require attention",
+    type: "assessment_review",
+    status: "blocked",
+    priority: "medium",
+    deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    assigneeId: "coach3",
+    creatorId: "coach3",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    relatedAthleteIds: ["athlete1", "athlete2"]
+  },
+  // Regular Tasks
   {
     id: "task1",
     name: "Knee Injury Assessment",

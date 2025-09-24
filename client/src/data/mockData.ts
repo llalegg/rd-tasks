@@ -57,9 +57,9 @@ export const mockTasks: TaskWithRelations[] = [
   },
   {
     id: '2',
-    name: 'Schedule Follow-up Call',
-    description: 'Arrange follow-up call with athlete regarding training plan adjustments',
-    type: 'schedulecall',
+    name: 'Schedule Injury Call',
+    description: 'Schedule call with athlete regarding injury recovery progress',
+    type: 'injury_call',
     assigneeId: '2',
     deadline: yesterday,
     priority: 'medium',
@@ -87,9 +87,9 @@ export const mockTasks: TaskWithRelations[] = [
   },
   {
     id: '4',
-    name: 'Complete Onboarding Process',
-    description: 'Finish setting up new athlete profile and initial assessments',
-    type: 'coachassignment',
+    name: 'Schedule Onboarding Call',
+    description: 'Schedule initial onboarding call with new athlete',
+    type: 'onboarding_call',
     assigneeId: '4',
     deadline: inTwoDays,
     priority: 'medium',
@@ -119,7 +119,7 @@ export const mockTasks: TaskWithRelations[] = [
     id: '6',
     name: 'Review Flagged Assessment',
     description: 'Investigate assessment results that were automatically flagged by the system',
-    type: 'assessmentreview',
+    type: 'assessment_review',
     assigneeId: '1',
     deadline: threeDaysAgo,
     priority: 'medium',
@@ -144,6 +144,21 @@ export const mockTasks: TaskWithRelations[] = [
     creatorId: '2',
     comment: null,
     relatedAthleteIds: ['1']
+  },
+  {
+    id: '8',
+    name: 'Coach Assignment Document',
+    description: 'Review and complete coach assignment documentation for new athlete',
+    type: 'coach_assignment',
+    assigneeId: '1',
+    deadline: tomorrow,
+    priority: 'high',
+    status: 'new',
+    createdAt: new Date('2024-01-19T09:00:00Z'),
+    updatedAt: new Date('2024-01-19T09:00:00Z'),
+    creatorId: '4',
+    comment: null,
+    relatedAthleteIds: ['7']
   }
 ];
 
@@ -297,8 +312,8 @@ export const taskTypes = [
   { value: 'datareporting', label: 'Data Reporting' },
   { value: 'injury', label: 'Injury' },
   { value: 'generaltodo', label: 'General Task' },
-  { value: 'schedulecall', label: 'Schedule Call' },
-  { value: 'coachassignment', label: 'Coach Assignment' },
-  { value: 'createprogram', label: 'Create Program' },
-  { value: 'assessmentreview', label: 'Assessment Review' }
+  { value: 'injury_call', label: 'Injury Call' },
+  { value: 'onboarding_call', label: 'Onboarding Call' },
+  { value: 'coach_assignment', label: 'Coach Assignment' },
+  { value: 'assessment_review', label: 'Assessment Review' }
 ];

@@ -1,17 +1,10 @@
 import { Task } from "@shared/schema";
 import { prototypeTasks, getCoaches, getAthletes } from "@/data/prototypeData";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Edit, Trash2, Circle, Clock, AlertCircle, CheckCircle, GripVertical, MoreHorizontal, List, ChevronUp, ChevronDown, Minus, ChevronRight, X, List as ListIcon } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { ArrowUpDown, ArrowUp, ArrowDown, GripVertical, List as ListIcon } from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
 import React from "react";
 import DeadlineBadge from "./DeadlineBadge";
 import {
@@ -36,21 +29,9 @@ import { CSS } from '@dnd-kit/utilities';
 import UserAvatar from "./UserAvatar";
 import { TypeBadge } from "@/components/ui/type-badge";
 import { PriorityBadge } from "@/components/ui/priority-badge";
-
-// Helper function to format task types
-const formatTaskType = (type: string | undefined) => {
-  if (!type) return '';
-  
-  // Handle specific cases to replace "todo" with "task"
-  if (type === 'generaltodo') return 'General Task';
-  
-  // Handle camelCase words by splitting on capital letters
-  return type
-    .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
-    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-    .replace(/\b\w/g, str => str.toUpperCase()) // Capitalize each word
-    .replace(/\btodo\b/gi, 'Task'); // Replace "todo" with "Task" (case insensitive)
-};
+import { ActionButton } from "@/components/ui/action-button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { getPriorityColor, getStatusColor, formatDeadline, getPriorityOrder } from "@/lib/statusUtils";
 
 interface TaskListProps {
   tasks: Task[];
@@ -58,6 +39,7 @@ interface TaskListProps {
   onStatusUpdate?: (taskId: string, newStatus: Task['status']) => void;
   onDeleteTask?: (taskId: string) => void;
   onManualOrderChange?: (taskIds: string[]) => void;
+  onActionClick?: (task: Task, actionType: string) => void;
   viewMode?: 'list' | 'cards';
   isMobile?: boolean;
 }
@@ -65,13 +47,13 @@ interface TaskListProps {
 type SortField = 'deadline' | 'type' | 'name' | 'status' | 'priority';
 type SortDirection = 'asc' | 'desc';
 
-// Priority Indicator Component - Icon Only for Table
+// Priority Indicator Component - Icon and Text for Table
 const PriorityIndicator = ({ priority }: { priority: string }) => {
-  return <PriorityBadge priority={priority as Task['priority']} showText={false} />;
+  return <PriorityBadge priority={priority as Task['priority']} showText={true} />;
 };
 
 // Mobile Task Card Component
-const MobileTaskCard = ({ task, users, athletes, onTaskClick }: { 
+const MobileTaskCard = React.memo(({ task, users, athletes, onTaskClick }: { 
   task: Task; 
   users: any[]; 
   athletes: any[]; 
@@ -81,39 +63,6 @@ const MobileTaskCard = ({ task, users, athletes, onTaskClick }: {
   const relatedAthletes = (task as any).relatedAthleteIds ? 
     (task as any).relatedAthleteIds.map((id: string) => athletes.find((a: any) => a.id === id)).filter(Boolean) : [];
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority?.toLowerCase()) {
-      case 'high': return '#f87171';
-      case 'medium': return '#3f83f8';
-      case 'low': return '#979795';
-      default: return '#979795';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'new': return '#ff8254';
-      case 'in_progress': return '#3f83f8';
-      case 'blocked': return '#f87171';
-      case 'completed': return '#4ade80';
-      default: return '#ff8254';
-    }
-  };
-
-  const formatDeadline = (deadline: string | Date | undefined) => {
-    if (!deadline) return null;
-    const date = new Date(deadline);
-    const today = new Date();
-    const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    if (diffDays === -1) return 'Yesterday';
-    if (diffDays < 0) return `${Math.abs(diffDays)}d ago`;
-    if (diffDays <= 7) return `${diffDays}d`;
-    
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
 
   return (
     <div 
@@ -189,80 +138,8 @@ const MobileTaskCard = ({ task, users, athletes, onTaskClick }: {
       </div>
     </div>
   );
-};
+});
 
-// Status Badge Component
-const StatusBadge = ({ status }: { status: string }) => {
-  const getStatusConfig = () => {
-    switch (status.toLowerCase()) {
-      case 'new':
-        return {
-          bgColor: '#31180f',
-          textColor: '#ff8254',
-          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff8254' stroke-width='1.5' fill='none' d='M9 1v18M1 9l8-8 8 8'/%3E%3C/svg%3E\")",
-          text: 'New'
-        };
-      case 'in_progress':
-        return {
-          bgColor: '#162949',
-          textColor: '#3f83f8',
-          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='9' cy='9' r='7' stroke='%233f83f8' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%233f83f8' stroke-width='1.5' fill='none' d='M9 5v4l3 3'/%3E%3C/svg%3E\")",
-          text: 'In progress'
-        };
-      case 'blocked':
-        return {
-          bgColor: '#321a1a',
-          textColor: '#f87171',
-          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='8' stroke='%23f87171' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%23f87171' stroke-width='1.5' d='M6 6l8 8M14 6l-8 8'/%3E%3C/svg%3E\")",
-          text: 'Blocked'
-        };
-      case 'completed':
-        return {
-          bgColor: '#072a15',
-          textColor: '#4ade80',
-          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 16 11' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%234ade80' stroke-width='1.5' fill='none' d='M1 5l4 4 9-9'/%3E%3C/svg%3E\")",
-          text: 'Completed'
-        };
-      default:
-        return {
-          bgColor: '#31180f',
-          textColor: '#ff8254',
-          icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff8254' stroke-width='1.5' fill='none' d='M9 1v18M1 9l8-8 8 8'/%3E%3C/svg%3E\")",
-          text: 'New'
-        };
-    }
-  };
-
-  const config = getStatusConfig();
-
-  return (
-    <span 
-      className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
-      style={{ 
-        backgroundColor: config.bgColor, 
-        color: config.textColor,
-        fontFamily: 'Montserrat',
-        fontWeight: 500,
-        fontSize: '12px',
-        lineHeight: '1.32'
-      }}
-    >
-      <div 
-        className="w-4 h-4 flex-shrink-0"
-        style={{
-          background: config.textColor,
-          maskImage: config.icon,
-          maskRepeat: 'no-repeat',
-          maskPosition: 'center',
-          maskSize: 'contain',
-          width: '16px',
-          height: '16px'
-        }}
-      />
-      <span>{config.text}</span>
-    </span>
-  );
-};
 
 // Sortable Task Row Component
 interface SortableTaskRowProps {
@@ -276,9 +153,34 @@ interface SortableTaskRowProps {
   onUpdateStatus: (taskId: string, status: Task['status']) => void;
   onUpdateDeadline: (taskId: string, deadline: Date | null | undefined) => void;
   onUpdateAssignee: (taskId: string, assigneeId: string) => void;
+  onActionClick?: (task: Task, actionType: string) => void;
 }
 
-function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, onToggleDropdown, onUpdatePriority, onUpdateStatus, onUpdateDeadline, onUpdateAssignee }: SortableTaskRowProps) {
+const SortableTaskRow = React.memo(function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, onToggleDropdown, onUpdatePriority, onUpdateStatus, onUpdateDeadline, onUpdateAssignee, onActionClick }: SortableTaskRowProps) {
+  // Default action handler for automatic task types
+  const handleDefaultAction = (task: Task) => {
+    switch (task.type) {
+      case 'injury_call':
+      case 'onboarding_call':
+        console.log(`Scheduling call for task: ${task.name}`);
+        // In a real app, this would open a call scheduling modal or redirect to scheduling page
+        alert(`Scheduling call for: ${task.name}`);
+        break;
+      case 'coach_assignment':
+        console.log(`Opening coach assignment document for task: ${task.name}`);
+        // In a real app, this would open the assignment document or redirect to assignment page
+        alert(`Opening coach assignment document for: ${task.name}`);
+        break;
+      case 'assessment_review':
+        console.log(`Opening assessment review for task: ${task.name}`);
+        // In a real app, this would open the assessment review or redirect to assessment page
+        alert(`Opening assessment review for: ${task.name}`);
+        break;
+      default:
+        console.log(`No action defined for task type: ${task.type}`);
+    }
+  };
+
   // Function to get comment count for a task
   const getCommentCount = (task: Task) => {
     // For prototype data, return mock comment counts based on task ID
@@ -329,18 +231,15 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
   return (
     <div
       ref={setNodeRef}
-      style={{
-        ...style,
-        gridTemplateColumns: "1fr 200px 196px 120px 88px 120px 140px"
-      }}
-      className={`group grid items-center border-b border-[#292928] h-12 px-0 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer ${
+      style={style}
+      className={`group flex items-center border-b border-[#292928] h-12 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer ${
         isDragging ? 'z-50 shadow-2xl' : ''
       }`}
       onClick={() => onTaskClick(task)}
     >
 
-      {/* Task Name */}
-      <div className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 flex-1">
+      {/* Fixed Task Name Column */}
+      <div className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
         <div 
           {...attributes}
           {...listeners}
@@ -372,36 +271,16 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
         )}
       </div>
 
-      {/* Type */}
-      <div className="flex items-center pl-4 pr-0 w-[200px]">
+      {/* Scrollable Columns Container */}
+      <div className="flex-1 overflow-x-auto relative h-12 scrollbar-thin">
+        <div className="flex items-center h-full" style={{ minWidth: '1240px' }}>
+          {/* Type */}
+          <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
         <TypeBadge type={task.type} />
       </div>
 
-      {/* Related Athletes */}
-      <div className="flex items-center pl-4 pr-0 w-[196px]">
-        <div className="flex items-center">
-          {relatedAthletes.length > 0 ? (
-            <div className="flex">
-              {relatedAthletes.slice(0, 4).map((athlete: any, avatarIndex: number) => (
-                <div
-                  key={athlete?.id}
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-black border-opacity-70 ${avatarIndex > 0 ? '-ml-2' : ''}`}
-                  style={{
-                    backgroundColor: ['#4ade80', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'][avatarIndex % 5]
-                  }}
-                >
-                  {athlete?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <span className="text-[#979795] text-sm">–</span>
-          )}
-        </div>
-      </div>
-
       {/* Assignee */}
-      <div className="flex items-center pl-4 pr-0 w-[120px]">
+      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
         <DropdownMenu 
           open={openDropdowns[task.id] === 'assignee'} 
           onOpenChange={(open) => !open && onToggleDropdown(task.id, 'assignee')}
@@ -412,10 +291,13 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
                 e.stopPropagation();
                 onToggleDropdown(task.id, 'assignee');
               }}
-              className="hover:bg-[rgba(255,255,255,0.05)] rounded p-1 transition-colors flex items-center"
+              className="hover:bg-[rgba(255,255,255,0.05)] rounded p-1 transition-colors flex items-center gap-2"
             >
               {assignee ? (
-                <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
+                <>
+                  <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
+                  <span className="text-[#f7f6f2] text-sm truncate">{assignee.name}</span>
+                </>
               ) : (
                 <span className="text-[#979795] text-sm">Unassigned</span>
               )}
@@ -456,7 +338,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       </div>
 
       {/* Priority */}
-      <div className="flex items-center pl-4 pr-0 w-[88px]">
+      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
         <DropdownMenu 
           open={openDropdowns[task.id] === 'priority'} 
           onOpenChange={(open) => !open && onToggleDropdown(task.id, 'priority')}
@@ -510,8 +392,31 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
         </DropdownMenu>
       </div>
 
+      {/* Related Athletes */}
+      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+        <div className="flex items-center">
+          {relatedAthletes.length > 0 ? (
+            <div className="flex">
+              {relatedAthletes.slice(0, 4).map((athlete: any, avatarIndex: number) => (
+                <div
+                  key={athlete?.id}
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-black border-opacity-70 ${avatarIndex > 0 ? '-ml-2' : ''}`}
+                  style={{
+                    backgroundColor: ['#4ade80', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'][avatarIndex % 5]
+                  }}
+                >
+                  {athlete?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span className="text-[#979795] text-sm">–</span>
+          )}
+        </div>
+      </div>
+
       {/* Deadline */}
-      <div className="flex items-center pl-4 pr-0 w-[120px]">
+      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
         <div
           onClick={(e) => e.stopPropagation()}
         >
@@ -527,7 +432,7 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
       </div>
 
       {/* Status */}
-      <div className="flex items-center pl-4 pr-0 w-[140px]">
+      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
         <DropdownMenu 
           open={openDropdowns[task.id] === 'status'} 
           onOpenChange={(open) => !open && onToggleDropdown(task.id, 'status')}
@@ -591,11 +496,30 @@ function SortableTaskRow({ task, users, athletes, onTaskClick, openDropdowns, on
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Actions */}
+      <div className="flex items-center justify-center pl-4 pr-0 w-[80px] min-w-[80px]">
+        <div onClick={(e) => e.stopPropagation()}>
+          <ActionButton
+            taskType={task.type}
+            onClick={() => {
+              if (onActionClick) {
+                onActionClick(task, task.type);
+              } else {
+                // Default action handling
+                handleDefaultAction(task);
+              }
+            }}
+          />
+        </div>
+      </div>
+        </div>
+      </div>
     </div>
   );
-}
+});
 
-export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteTask, onManualOrderChange, viewMode = 'list', isMobile = false }: TaskListProps) {
+export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteTask, onManualOrderChange, onActionClick, viewMode = 'list', isMobile = false }: TaskListProps) {
   const [sortField, setSortField] = useState<SortField>('deadline');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [orderedTasks, setOrderedTasks] = useState<Task[]>(tasks);
@@ -676,15 +600,15 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
     }
   };
 
-  // Use prototype data
-  const users = getCoaches(); // Coaches act as users/assignees
-  const athletes = getAthletes(); // Athletes for task relationships
+  // Use prototype data - memoized to prevent unnecessary re-computation
+  const users = useMemo(() => getCoaches(), []); // Coaches act as users/assignees
+  const athletes = useMemo(() => getAthletes(), []); // Athletes for task relationships
 
-  // Simple update functions for prototype
-  const updateTask = (taskId: string, updates: Partial<Task>) => {
+  // Simple update functions for prototype - memoized to prevent unnecessary re-creation
+  const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
     // In prototype mode, just console log the update
     console.log('Task update:', taskId, updates);
-  };
+  }, []);
 
 
   const formatStatus = (status: string) => {
@@ -703,36 +627,36 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
     }
   };
 
-  // Inline update handlers
-  const handleUpdatePriority = (taskId: string, priority: 'low' | 'medium' | 'high') => {
+  // Inline update handlers - memoized to prevent unnecessary re-creation
+  const handleUpdatePriority = useCallback((taskId: string, priority: 'low' | 'medium' | 'high') => {
     updateTask(taskId, { priority });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
-  };
+  }, [updateTask]);
 
-  const handleUpdateStatus = (taskId: string, status: Task['status']) => {
+  const handleUpdateStatus = useCallback((taskId: string, status: Task['status']) => {
     updateTask(taskId, { status });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
     if (onStatusUpdate) {
       onStatusUpdate(taskId, status);
     }
-  };
+  }, [updateTask, onStatusUpdate]);
 
-  const handleUpdateDeadline = (taskId: string, deadline: Date | null | undefined) => {
+  const handleUpdateDeadline = useCallback((taskId: string, deadline: Date | null | undefined) => {
     updateTask(taskId, { deadline });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
-  };
+  }, [updateTask]);
 
-  const handleUpdateAssignee = (taskId: string, assigneeId: string) => {
+  const handleUpdateAssignee = useCallback((taskId: string, assigneeId: string) => {
     updateTask(taskId, { assigneeId });
     setOpenDropdowns(prev => ({ ...prev, [taskId]: null }));
-  };
+  }, [updateTask]);
 
-  const toggleDropdown = (taskId: string, type: 'priority' | 'status' | 'deadline' | 'assignee') => {
+  const toggleDropdown = useCallback((taskId: string, type: 'priority' | 'status' | 'deadline' | 'assignee') => {
     setOpenDropdowns(prev => ({
       ...prev,
       [taskId]: prev[taskId] === type ? null : type
     }));
-  };
+  }, []);
 
   const handleSort = (field: SortField) => {
     // Reset manual ordering when using column sorting
@@ -756,40 +680,40 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
   };
 
 
-  const sortedTasks = [...orderedTasks].sort((a, b) => {
-    let aValue: any, bValue: any;
-    
-    switch (sortField) {
-      case 'deadline':
-        aValue = a.deadline ? new Date(a.deadline).getTime() : 0;
-        bValue = b.deadline ? new Date(b.deadline).getTime() : 0;
-        break;
-      case 'name':
-        aValue = a.name.toLowerCase();
-        bValue = b.name.toLowerCase();
-        break;
-      case 'type':
-        aValue = a.type?.toLowerCase() || '';
-        bValue = b.type?.toLowerCase() || '';
-        break;
-      case 'status':
-        aValue = a.status.toLowerCase();
-        bValue = b.status.toLowerCase();
-        break;
-      case 'priority':
-        // Define priority order: high = 3, medium = 2, low = 1
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        aValue = priorityOrder[a.priority?.toLowerCase() as keyof typeof priorityOrder] || 0;
-        bValue = priorityOrder[b.priority?.toLowerCase() as keyof typeof priorityOrder] || 0;
-        break;
-      default:
-        return 0;
-    }
-    
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
+  const sortedTasks = useMemo(() => {
+    return [...orderedTasks].sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (sortField) {
+        case 'deadline':
+          aValue = a.deadline ? new Date(a.deadline).getTime() : 0;
+          bValue = b.deadline ? new Date(b.deadline).getTime() : 0;
+          break;
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'type':
+          aValue = a.type?.toLowerCase() || '';
+          bValue = b.type?.toLowerCase() || '';
+          break;
+        case 'status':
+          aValue = a.status.toLowerCase();
+          bValue = b.status.toLowerCase();
+          break;
+        case 'priority':
+          aValue = getPriorityOrder(a.priority);
+          bValue = getPriorityOrder(b.priority);
+          break;
+        default:
+          return 0;
+      }
+      
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [orderedTasks, sortField, sortDirection]);
 
   // Mobile card view
   if (isMobile && viewMode === 'cards') {
@@ -827,18 +751,10 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
         <div className="bg-[#121210] rounded-2xl overflow-hidden w-full">
           {/* Table Header - Hidden on mobile list view */}
           {!isMobile && (
-            <div 
-              className="table-header grid items-center w-full h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium" 
-              style={{
-                fontFamily: 'Montserrat', 
-                fontSize: '12px', 
-                fontWeight: 500, 
-                lineHeight: '132%',
-                gridTemplateColumns: "1fr 200px 196px 120px 88px 120px 140px"
-              }}
-            >
-              {/* Task Name */}
-              <div className="flex items-center pl-[8px] pr-[16px]">
+            <div className="overflow-x-auto">
+              <div className="flex h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium" style={{ minWidth: '1600px' }}>
+                {/* Fixed Task Name Column */}
+                <div className="flex items-center pl-[8px] pr-[16px] w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
                 {/* List Icon */}
                 <div className="flex items-center justify-between pl-[12px] pr-0 py-0 relative shrink-0 size-[40px]">
                   <TooltipProvider>
@@ -878,69 +794,81 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                 </div>
               </div>
               
-              {/* Type */}
-              <div className="flex items-center pl-4 pr-0">
-                <button 
-                  onClick={() => handleSort('type')}
-                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
-                >
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Type</span>
-                  {getSortIcon('type')}
-                </button>
-              </div>
+              {/* Scrollable Columns Header */}
+              <div className="flex-1 overflow-x-auto relative h-10 scrollbar-thin">
+                <div className="flex items-center h-full" style={{ minWidth: '1240px' }}>
               
-              {/* Related Athletes */}
-              <div className="flex items-center pl-4 pr-0">
-                <span className="whitespace-nowrap overflow-hidden text-ellipsis">Related athlete(s)</span>
-              </div>
-              
-              {/* Assignee */}
-              <div className="flex items-center pl-4 pr-0">
-                <span className="whitespace-nowrap overflow-hidden text-ellipsis">Assignee</span>
-              </div>
-              
-              {/* Priority */}
-              <div className="flex items-center pl-4 pr-0">
-                <button 
-                  onClick={() => handleSort('priority')}
-                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
-                >
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Priority</span>
-                  {getSortIcon('priority')}
-                </button>
-              </div>
-              
-              {/* Deadline */}
-              <div className="flex items-center pl-4 pr-0">
-                <button 
-                  onClick={() => handleSort('deadline')}
-                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
-                >
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Deadline</span>
-                  {getSortIcon('deadline')}
-                </button>
-              </div>
-              
-              {/* Status */}
-              <div className="flex items-center pl-4 pr-0">
-                <button 
-                  onClick={() => handleSort('status')}
-                  className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
-                >
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">Status</span>
-                  {getSortIcon('status')}
-                </button>
+                  {/* Type */}
+                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                    <button 
+                      onClick={() => handleSort('type')}
+                      className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                    >
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">Type</span>
+                      {getSortIcon('type')}
+                    </button>
+                  </div>
+                  
+                  {/* Assignee */}
+                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                    <span className="whitespace-nowrap overflow-hidden text-ellipsis">Assignee</span>
+                  </div>
+                  
+                  {/* Priority */}
+                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                    <button 
+                      onClick={() => handleSort('priority')}
+                      className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                    >
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">Priority</span>
+                      {getSortIcon('priority')}
+                    </button>
+                  </div>
+                  
+                  {/* Related Athletes */}
+                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                    <span className="whitespace-nowrap overflow-hidden text-ellipsis">Related athlete(s)</span>
+                  </div>
+                  
+                  {/* Deadline */}
+                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                    <button 
+                      onClick={() => handleSort('deadline')}
+                      className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                    >
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">Deadline</span>
+                      {getSortIcon('deadline')}
+                    </button>
+                  </div>
+                  
+                  {/* Status */}
+                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                    <button 
+                      onClick={() => handleSort('status')}
+                      className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                    >
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">Status</span>
+                      {getSortIcon('status')}
+                    </button>
+                  </div>
+                  
+                  {/* Actions */}
+                  <div className="flex items-center justify-center pl-4 pr-0 w-[80px] min-w-[80px]">
+                    <span className="whitespace-nowrap overflow-hidden text-ellipsis">Actions</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {/* Table Body */}
-          <div>
-            <SortableContext 
-              items={isManualOrdering ? orderedTasks.map(t => t.id) : sortedTasks.map(t => t.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {(isManualOrdering ? orderedTasks : sortedTasks).map((task) => (
+          <div className="overflow-x-auto">
+            <div style={{ minWidth: '1600px' }}>
+              <SortableContext 
+                items={isManualOrdering ? orderedTasks.map(t => t.id) : sortedTasks.map(t => t.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {(isManualOrdering ? orderedTasks : sortedTasks).map((task) => (
                 isMobile ? (
                   // Mobile simplified row
                   <div
@@ -1014,18 +942,20 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                     onUpdateStatus={handleUpdateStatus}
                     onUpdateDeadline={handleUpdateDeadline}
                     onUpdateAssignee={handleUpdateAssignee}
+                    onActionClick={onActionClick}
                   />
                 )
               ))}
-            </SortableContext>
+              </SortableContext>
+            </div>
           </div>
-        </div>
         {tasks.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="text-[#979795] text-sm mb-2">No tasks found</div>
             <div className="text-[#585856] text-xs">Create a new task to get started</div>
           </div>
         )}
+        </div>
       </div>
     </DndContext>
   );

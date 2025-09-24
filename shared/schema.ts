@@ -11,10 +11,10 @@ export const taskTypeEnum = pgEnum('task_type', [
   'injury', 
   'generaltodo',
   // Automatic tasks (system-generated)
-  'schedulecall', // Combined injury_call + onboarding_call
-  'coachassignment',
-  'createprogram',
-  'assessmentreview'
+  'injury_call',
+  'onboarding_call',
+  'coach_assignment',
+  'assessment_review'
 ]);
 export const taskStatusEnum = pgEnum('task_status', ['new', 'in_progress', 'blocked', 'completed']);
 export const taskPriorityEnum = pgEnum('task_priority', ['low', 'medium', 'high']);

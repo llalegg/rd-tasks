@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Task } from "@shared/schema";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Send, Edit3, Check, Trash2, Search, Paperclip, Circle, ChevronRight } from "lucide-react";
+import { X, Plus, Send, Trash2, Search, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getCoaches, getAthletes, getPerson } from "@/data/prototypeData";
 import { InteractiveRow } from "@/components/ui/interactive-row";
 import { TypeBadge } from "@/components/ui/type-badge";
 import { PriorityBadge } from "@/components/ui/priority-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { InlineTextEdit, InlineTextareaEdit } from "@/components/ui/inline-edit";
 import UserAvatar from "./UserAvatar";
 
 interface TaskViewModalProps {
@@ -47,8 +47,6 @@ interface HistoryEntry {
 export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, onDeleteTask }: TaskViewModalProps) {
   const [activeTab, setActiveTab] = useState<'comments' | 'history'>('comments');
   const [commentText, setCommentText] = useState('');
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [editedDescription, setEditedDescription] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
@@ -154,9 +152,11 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
   // Handle prototype data structure - relatedAthleteIds is added for prototyping
   const relatedAthletes = (localTask as any).relatedAthleteIds?.map((id: string) => getPerson(id)).filter(Boolean) || [];
 
-  const handleSaveTitle = () => {
-      setIsEditingTitle(false);
-    if (editedTitle.trim() !== localTask.name) {
+  const handleSaveTitle = (newTitle: string) => {
+    if (newTitle.trim() !== localTask?.name) {
+      // Update local task state
+      setLocalTask(prev => prev ? { ...prev, name: newTitle.trim() } : null);
+      
       toast({
         title: "Success",
         description: "Task title updated successfully"
@@ -164,9 +164,11 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     }
   };
 
-  const handleSaveDescription = () => {
-      setIsEditingDescription(false);
-    if (editedDescription !== (localTask.description || '')) {
+  const handleSaveDescription = (newDescription: string) => {
+    if (newDescription !== (localTask?.description || '')) {
+      // Update local task state
+      setLocalTask(prev => prev ? { ...prev, description: newDescription } : null);
+      
       toast({
         title: "Success", 
         description: "Task description updated successfully"
@@ -174,15 +176,6 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     }
   };
 
-  const handleCancelEdit = (field: 'title' | 'description') => {
-    if (field === 'title') {
-      setEditedTitle(localTask.name);
-      setIsEditingTitle(false);
-    } else {
-      setEditedDescription(localTask.description || '');
-      setIsEditingDescription(false);
-    }
-  };
 
   const handleStatusChange = (newStatus: Task['status']) => {
     if (onStatusUpdate) {
@@ -222,8 +215,7 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
 
   const hasUnsavedChanges = () => {
     if (!localTask) return false;
-    return isEditingTitle || isEditingDescription || 
-           (localTask.name !== editedTitle) || 
+    return (localTask.name !== editedTitle) || 
            (localTask.description !== editedDescription);
   };
 
@@ -311,78 +303,6 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
     });
   };
 
-  // StatusBadge component matching TaskList implementation
-  const StatusBadge = ({ status }: { status: string }) => {
-    const getStatusConfig = () => {
-      switch (status.toLowerCase()) {
-        case 'new':
-          return {
-            bgColor: '#31180f',
-            textColor: '#ff8254',
-            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff8254' stroke-width='1.5' fill='none' d='M9 1v18M1 9l8-8 8 8'/%3E%3C/svg%3E\")",
-            text: 'New'
-          };
-        case 'in_progress':
-          return {
-            bgColor: '#162949',
-            textColor: '#3f83f8',
-            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='9' cy='9' r='7' stroke='%233f83f8' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%233f83f8' stroke-width='1.5' fill='none' d='M9 5v4l3 3'/%3E%3C/svg%3E\")",
-            text: 'In progress'
-          };
-        case 'blocked':
-          return {
-            bgColor: '#321a1a',
-            textColor: '#f87171',
-            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='8' stroke='%23f87171' stroke-width='1.5' fill='none'/%3E%3Cpath stroke='%23f87171' stroke-width='1.5' d='M6 6l8 8M14 6l-8 8'/%3E%3C/svg%3E\")",
-            text: 'Blocked'
-          };
-        case 'completed':
-          return {
-            bgColor: '#072a15',
-            textColor: '#4ade80',
-            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 16 11' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%234ade80' stroke-width='1.5' fill='none' d='M1 5l4 4 9-9'/%3E%3C/svg%3E\")",
-            text: 'Completed'
-          };
-        default:
-          return {
-            bgColor: '#31180f',
-            textColor: '#ff8254',
-            icon: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 18 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff8254' stroke-width='1.5' fill='none' d='M9 1v18M1 9l8-8 8 8'/%3E%3C/svg%3E\")",
-            text: 'New'
-          };
-      }
-    };
-
-    const config = getStatusConfig();
-
-    return (
-      <span 
-        className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
-        style={{ 
-          backgroundColor: config.bgColor, 
-          color: config.textColor,
-          fontFamily: 'Montserrat',
-          fontWeight: 500,
-          fontSize: '12px',
-          lineHeight: '1.32'
-        }}
-      >
-        <div 
-          className="w-4 h-4 flex-shrink-0"
-          style={{
-            background: config.textColor,
-            maskImage: config.icon,
-            maskRepeat: 'no-repeat',
-            maskPosition: 'center',
-            maskSize: 'contain',
-            width: '16px',
-            height: '16px'
-          }}
-        />
-        <span>{config.text}</span>
-      </span>
-    );
-  };
 
   const getPriorityBadge = (priority: string) => {
     return <PriorityBadge priority={priority as Task['priority']} />;
@@ -444,101 +364,30 @@ export default function TaskViewModal({ task, isOpen, onClose, onStatusUpdate, o
         {/* Header */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between h-8">
-                {isEditingTitle ? (
-                  <div className="flex items-center gap-2 flex-1">
-                    <Input
-                      value={editedTitle}
-                      onChange={(e) => setEditedTitle(e.target.value)}
-                      className="text-lg font-medium text-[#f7f6f2] bg-[#292928] border-[#3d3d3c] flex-1 rounded-lg"
-                      onBlur={handleSaveTitle}
-                      autoFocus
-                    />
-                    <Button
-                      size="sm"
-                      onClick={handleSaveTitle}
-                      className="h-8 w-8 p-0 bg-[#e5e4e1] hover:bg-[#d5d4d1] text-black"
-                    >
-                      <Check className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleCancelEdit('title')}
-                      className="h-8 w-8 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)]"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 flex-1 group">
-                    <DialogTitle className="text-lg font-medium text-[#f7f6f2] leading-[1.54]">
-                      {editedTitle || localTask.name || "New task"}
-                    </DialogTitle>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        setEditedTitle(editedTitle || localTask.name || "New task");
-                        setIsEditingTitle(true);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] transition-opacity"
-                    >
-                      <Edit3 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex-1">
+                  <InlineTextEdit
+                    value={localTask?.name || ""}
+                    onChange={(value) => setEditedTitle(value)}
+                    onSave={handleSaveTitle}
+                    placeholder="Click to add a title..."
+                    className="text-lg font-medium"
+                    maxLength={100}
+                    showCharacterCount={true}
+                  />
+                </div>
               </div>
               
               <div className="flex flex-col gap-2">
                 <div className="text-xs font-medium text-[#585856] leading-[1.32]">Description</div>
-                {isEditingDescription ? (
-                  <div className="flex flex-col gap-2">
-                    <div className="relative">
-                      <Textarea
-                        value={editedDescription}
-                        onChange={(e) => setEditedDescription(e.target.value)}
-                        className="text-sm font-normal text-[#f7f6f2] bg-[#292928] border-[#3d3d3c] min-h-[60px] pr-10"
-                        placeholder="Add a description..."
-                        onBlur={handleSaveDescription}
-                      />
-                      <button
-                        onClick={() => {}}
-                        className="absolute bottom-2 right-2 w-6 h-6 bg-transparent border-none rounded cursor-pointer flex items-center justify-center text-[#979795] hover:text-[#f7f6f2] transition-colors"
-                      >
-                        <Paperclip className="w-4 h-4" />
-                      </button>
-                    </div>
-                <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        onClick={handleSaveDescription}
-                        className="h-8 px-3 bg-[#e5e4e1] hover:bg-[#d5d4d1] text-black text-xs"
-                      >
-                        <Check className="w-3 h-3 mr-1" />
-                        Done
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleCancelEdit('description')}
-                        className="h-8 px-3 text-[#979795] hover:bg-[rgba(151,151,149,0.1)] text-xs"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className="text-sm font-normal text-[#f7f6f2] leading-[1.46] cursor-pointer group p-2 rounded hover:bg-[#292928] transition-colors"
-                    onClick={() => {
-                      setEditedDescription(editedDescription || localTask.description || "");
-                      setIsEditingDescription(true);
-                    }}
-                  >
-                    {editedDescription || 'Click to add a description...'}
-                    <Edit3 className="w-3 h-3 ml-2 inline opacity-0 group-hover:opacity-100 transition-opacity text-[#979795]" />
-                </div>
-                )}
+                <InlineTextareaEdit
+                  value={localTask?.description || ""}
+                  onChange={(value) => setEditedDescription(value)}
+                  onSave={handleSaveDescription}
+                  placeholder="Click to add a description..."
+                  className="text-sm font-normal"
+                  maxLength={500}
+                  showCharacterCount={true}
+                />
               </div>
             </div>
 
