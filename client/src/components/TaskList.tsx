@@ -526,6 +526,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
   const [isManualOrdering, setIsManualOrdering] = useState<boolean>(false);
   const [manualOrderIds, setManualOrderIds] = useState<string[]>([]);
   const [openDropdowns, setOpenDropdowns] = useState<{[key: string]: 'priority' | 'status' | 'deadline' | 'assignee' | null}>({});
+  const [hoveredSortField, setHoveredSortField] = useState<SortField | null>(null);
 
   // Sensors for drag and drop
   const sensors = useSensors(
@@ -670,13 +671,15 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
     }
   };
 
-  const getSortIcon = (field: SortField) => {
+  const getSortIcon = (field: SortField, isHovered: boolean = false) => {
+    if (!isHovered) return null;
+    
     if (sortField !== field) {
-      return <ArrowUpDown className="w-4 h-4 ml-1 text-[#3D3D3C]" />;
+      return <ArrowUpDown className="w-4 h-4 ml-1 text-[#bcbbb7]" />;
     }
     return sortDirection === 'asc' ? 
-      <ArrowUp className="w-4 h-4 ml-1 text-[#3D3D3C]" /> : 
-      <ArrowDown className="w-4 h-4 ml-1 text-[#3D3D3C]" />;
+      <ArrowUp className="w-4 h-4 ml-1 text-[#bcbbb7]" /> : 
+      <ArrowDown className="w-4 h-4 ml-1 text-[#bcbbb7]" />;
   };
 
 
@@ -784,27 +787,35 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                 
                 {/* Name Header */}
                 <div className="flex items-center justify-between pl-[16px] pr-0 flex-1">
-                  <div className="flex gap-[4px] items-center flex-1">
+                  <button 
+                    onClick={() => !isManualOrdering && handleSort('name')}
+                    onMouseEnter={() => !isManualOrdering && setHoveredSortField('name')}
+                    onMouseLeave={() => !isManualOrdering && setHoveredSortField(null)}
+                    className="flex gap-[4px] items-center flex-1 hover:text-[#f7f6f2] transition-colors"
+                    disabled={isManualOrdering}
+                  >
                     <span className="font-['Montserrat:Medium',_sans-serif] text-[12px] leading-[1.32] text-[#bcbbb7] whitespace-nowrap overflow-hidden text-ellipsis">
                       Name
                     </span>
-                    {!isManualOrdering && getSortIcon('name')}
-                  </div>
+                    {!isManualOrdering && getSortIcon('name', hoveredSortField === 'name')}
+                  </button>
                 </div>
               </div>
               
               {/* Scrollable Columns Header */}
-              <div className="flex-1 overflow-x-auto relative h-10 scrollbar-thin">
+              <div className="flex-1 relative h-10">
                 <div className="flex items-center h-full" style={{ minWidth: '1240px' }}>
               
                   {/* Type */}
                   <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
                     <button 
                       onClick={() => handleSort('type')}
+                      onMouseEnter={() => setHoveredSortField('type')}
+                      onMouseLeave={() => setHoveredSortField(null)}
                       className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                     >
                       <span className="whitespace-nowrap overflow-hidden text-ellipsis">Type</span>
-                      {getSortIcon('type')}
+                      {getSortIcon('type', hoveredSortField === 'type')}
                     </button>
                   </div>
                   
@@ -817,10 +828,12 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                   <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
                     <button 
                       onClick={() => handleSort('priority')}
+                      onMouseEnter={() => setHoveredSortField('priority')}
+                      onMouseLeave={() => setHoveredSortField(null)}
                       className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                     >
                       <span className="whitespace-nowrap overflow-hidden text-ellipsis">Priority</span>
-                      {getSortIcon('priority')}
+                      {getSortIcon('priority', hoveredSortField === 'priority')}
                     </button>
                   </div>
                   
@@ -833,10 +846,12 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                   <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
                     <button 
                       onClick={() => handleSort('deadline')}
+                      onMouseEnter={() => setHoveredSortField('deadline')}
+                      onMouseLeave={() => setHoveredSortField(null)}
                       className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                     >
                       <span className="whitespace-nowrap overflow-hidden text-ellipsis">Deadline</span>
-                      {getSortIcon('deadline')}
+                      {getSortIcon('deadline', hoveredSortField === 'deadline')}
                     </button>
                   </div>
                   
@@ -844,10 +859,12 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                   <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
                     <button 
                       onClick={() => handleSort('status')}
+                      onMouseEnter={() => setHoveredSortField('status')}
+                      onMouseLeave={() => setHoveredSortField(null)}
                       className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
                     >
                       <span className="whitespace-nowrap overflow-hidden text-ellipsis">Status</span>
-                      {getSortIcon('status')}
+                      {getSortIcon('status', hoveredSortField === 'status')}
                     </button>
                   </div>
                   
