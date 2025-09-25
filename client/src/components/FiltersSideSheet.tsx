@@ -335,6 +335,32 @@ export default function FiltersSideSheet({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-[20px] py-[20px] space-y-[20px]">
+          {/* Assignee */}
+          {availableAssignees.length > 0 && (
+            <AthleteSelectionDropdown
+              label="Assignee"
+              options={availableAssignees.map((user: any) => ({ 
+                value: user.id, 
+                label: user.name,
+                avatar: user.avatar || user.profileImage
+              }))}
+              selectedValues={assigneeFilter}
+              onChange={onAssigneeFilterChange}
+            />
+          )}
+
+          {/* Priority */}
+          <MultiSelectDropdown
+            label="Priority"
+            options={[
+              { value: 'low', label: 'Low' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'high', label: 'High' }
+            ]}
+            selectedValues={priorityFilter}
+            onChange={onPriorityFilterChange}
+          />
+
           {/* Status */}
           <MultiSelectDropdown
             label="Status"
@@ -362,32 +388,6 @@ export default function FiltersSideSheet({
             onChange={onTypeFilterChange}
           />
 
-          {/* Priority */}
-          <MultiSelectDropdown
-            label="Priority"
-            options={[
-              { value: 'low', label: 'Low' },
-              { value: 'medium', label: 'Medium' },
-              { value: 'high', label: 'High' }
-            ]}
-            selectedValues={priorityFilter}
-            onChange={onPriorityFilterChange}
-          />
-
-          {/* Assignee */}
-          {availableAssignees.length > 0 && (
-            <AthleteSelectionDropdown
-              label="Assignee"
-              options={availableAssignees.map((user: any) => ({ 
-                value: user.id, 
-                label: user.name,
-                avatar: user.avatar || user.profileImage
-              }))}
-              selectedValues={assigneeFilter}
-              onChange={onAssigneeFilterChange}
-            />
-          )}
-
           {/* Related athletes */}
           {availableAthletes.length > 0 && (
             <AthleteSelectionDropdown
@@ -405,6 +405,9 @@ export default function FiltersSideSheet({
           {/* Deadline */}
           <DateInput label="Deadline" />
 
+          {/* Created on */}
+          <DateInput label="Created on" />
+
           {/* Created by */}
           {availableCreators.length > 0 && (
             <AthleteSelectionDropdown
@@ -418,9 +421,6 @@ export default function FiltersSideSheet({
               onChange={onCreatorFilterChange}
             />
           )}
-
-          {/* Created on */}
-          <DateInput label="Created on" />
         </div>
 
         {/* Bottom bar */}

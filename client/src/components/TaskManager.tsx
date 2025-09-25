@@ -124,10 +124,10 @@ export default function TaskManager() {
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [creatorFilters, setCreatorFilters] = useState<string[]>([]);
   const [athleteFilters, setAthleteFilters] = useState<string[]>([]);
-  const [hideCompleted, setHideCompleted] = useState(false);
+  const [hideCompleted, setHideCompleted] = useState(true);
   const [assigneeFilter, setAssigneeFilter] = useState<string[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string[]>(['new', 'in_progress', 'blocked', 'completed']);
+  const [statusFilter, setStatusFilter] = useState<string[]>(['new', 'in_progress', 'blocked']);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
   const [showFilters, setShowFilters] = useState(false);
@@ -418,7 +418,7 @@ export default function TaskManager() {
         selectedTask && !isMobile ? 'md:pr-[500px]' : ''
       }`}>
         {/* Header */}
-        <header className={`fixed top-0 left-0 right-0 z-40 md:left-[80px] transition-all duration-300 ${selectedTask && !isMobile ? 'md:right-[500px]' : 'right-0'} ${isMobile ? 'bg-[#0d0d0c] backdrop-blur-sm border-b border-[#292928]' : 'bg-[#0d0d0c]'}`}>
+        <header className={`fixed top-0 left-0 right-0 z-40 md:left-[80px] transition-all duration-300 ${selectedTask && !isMobile ? 'md:right-[500px]' : 'right-0'} ${isMobile ? 'bg-background backdrop-blur-sm border-b border-[#292928]' : 'bg-background'}`}>
           {/* Mobile Header */}
           {isMobile ? (
             <>
@@ -484,7 +484,7 @@ export default function TaskManager() {
             </>
           ) : (
             /* Desktop Header - Original Style */
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-5 py-4 md:py-5 bg-[#0d0d0c] min-h-[72px] gap-4 md:gap-0">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-5 py-4 md:py-5 bg-background min-h-[72px] gap-4 md:gap-0">
               <div className="flex items-center">
                 <h1 className="text-2xl font-semibold text-[#f7f6f2] font-montserrat leading-[1.32]">Tasks</h1>
               </div>

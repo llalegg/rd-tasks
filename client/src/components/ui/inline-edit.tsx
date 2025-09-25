@@ -59,6 +59,13 @@ export function InlineEdit({
     setEditValue(newValue);
     onChange(newValue);
     debouncedSave();
+    
+    // Auto-resize textarea
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
   };
 
   // Handle focus (enter edit mode)
@@ -102,9 +109,14 @@ export function InlineEdit({
       // Select all text for easy replacement
       if (inputRef.current instanceof HTMLInputElement) {
         inputRef.current.select();
+      } else if (multiline && inputRef.current instanceof HTMLTextAreaElement) {
+        // Auto-resize textarea when entering edit mode
+        const textarea = inputRef.current;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
       }
     }
-  }, [isEditing]);
+  }, [isEditing, multiline]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -131,16 +143,16 @@ export function InlineEdit({
           onKeyDown={handleKeyDown}
           maxLength={maxLength}
           className={cn(
-            "w-full bg-transparent border-none outline-none resize-none",
+            "w-full bg-transparent border-none outline-none",
             "text-[#f7f6f2] placeholder:text-[#979795]",
             "focus:ring-0 focus:outline-none",
-            multiline ? "min-h-[60px]" : "h-auto",
+            multiline ? "min-h-[40px] resize-none overflow-hidden" : "h-auto",
             className
           )}
           placeholder={placeholder}
           style={{
             background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '6px',
+            borderRadius: '8px',
             padding: '8px 12px',
             transition: 'all 0.2s ease',
           }}
@@ -178,25 +190,6 @@ export function InlineEdit({
             <span className="text-[#f7f6f2] whitespace-pre-wrap">{displayValue}</span>
           )}
         </div>
-        {!disabled && (
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              className="text-[#979795]"
-            >
-              <path
-                d="M8.5 3.5L3.5 8.5M3.5 3.5H8.5V8.5"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-        )}
       </div>
       {isSaving && (
         <div className="absolute top-2 right-2">
@@ -297,23 +290,6 @@ export function InlineDropdown({
             <span className="text-[#f7f6f2]">
               {selectedOption?.label || placeholder}
             </span>
-          </div>
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              className="text-[#979795]"
-            >
-              <path
-                d="M3 4.5L6 7.5L9 4.5"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
           </div>
         </div>
       </div>

@@ -100,7 +100,7 @@ export function PortalTooltip({ userId, user, displayName, children }: PortalToo
         position: 'fixed',
         left: Math.max(10, Math.min(window.innerWidth - 210, position.x - 100)), // Center the 200px tooltip with bounds
         top: Math.max(10, position.y - 120), // Position above the trigger with bounds
-        zIndex: 999999, // High z-index but not maximum
+        zIndex: 9999999, // Maximum z-index to ensure it appears above all content
         pointerEvents: 'auto', // Allow interaction with chat button
         fontFamily: 'Montserrat, sans-serif',
       }}

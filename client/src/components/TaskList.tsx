@@ -241,15 +241,21 @@ const SortableTaskRow = React.memo(function SortableTaskRow({ task, users, athle
       {/* Fixed Task Name Column */}
       <div 
         className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928] bg-[#1C1C1B] group-hover:bg-[#2C2C2B] z-20"
-        style={{ position: 'sticky', left: 0 }}
+        style={{ 
+          position: 'sticky', 
+          left: 0,
+          backgroundColor: '#1C1C1B',
+          zIndex: 20,
+          boxShadow: '2px 0 4px rgba(0, 0, 0, 0.1)'
+        }}
       >
         <div 
           {...attributes}
           {...listeners}
-          className="overflow-clip relative shrink-0 size-[24px] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          className="overflow-clip relative shrink-0 size-[24px] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing flex items-center justify-center"
           onClick={(e) => e.stopPropagation()}
         >
-          <GripVertical className="w-4 h-4 text-[#585856]" />
+          <GripVertical className="w-4 h-4 text-[#979795]" />
         </div>
         <div className="basis-0 font-['Montserrat:SemiBold',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic overflow-ellipsis overflow-hidden relative shrink-0 text-[#f7f6f2] text-[14px] text-nowrap">
           <p className="[white-space-collapse:collapse] leading-[1.46] overflow-ellipsis overflow-hidden">{task.name}</p>
@@ -761,7 +767,13 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                 {/* Fixed Task Name Column */}
                 <div 
                   className="flex items-center pl-[8px] pr-[16px] w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928] bg-[#121210] z-20"
-                  style={{ position: 'sticky', left: 0 }}
+                  style={{ 
+                    position: 'sticky', 
+                    left: 0,
+                    backgroundColor: '#121210',
+                    zIndex: 20,
+                    boxShadow: '2px 0 4px rgba(0, 0, 0, 0.1)'
+                  }}
                 >
                 {/* List Icon */}
                 <div className="flex items-center justify-between pl-[12px] pr-0 py-0 relative shrink-0 size-[40px]">
