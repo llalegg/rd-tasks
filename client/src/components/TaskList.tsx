@@ -32,6 +32,7 @@ import { PriorityBadge } from "@/components/ui/priority-badge";
 import { ActionButton } from "@/components/ui/action-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getPriorityColor, getStatusColor, formatDeadline, getPriorityOrder } from "@/lib/statusUtils";
+import { useFixedColumn } from "@/hooks/use-fixed-column";
 
 interface TaskListProps {
   tasks: Task[];
@@ -238,17 +239,8 @@ const SortableTaskRow = React.memo(function SortableTaskRow({ task, users, athle
       onClick={() => onTaskClick(task)}
     >
 
-      {/* Fixed Task Name Column */}
-      <div 
-        className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928] bg-[#1C1C1B] group-hover:bg-[#2C2C2B] z-20"
-        style={{ 
-          position: 'sticky', 
-          left: 0,
-          backgroundColor: '#1C1C1B',
-          zIndex: 20,
-          boxShadow: '2px 0 4px rgba(0, 0, 0, 0.1)'
-        }}
-      >
+      {/* Task Name Column */}
+      <div className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
         <div 
           {...attributes}
           {...listeners}
@@ -281,8 +273,7 @@ const SortableTaskRow = React.memo(function SortableTaskRow({ task, users, athle
       </div>
 
       {/* Scrollable Columns Container */}
-      <div className="flex-1 overflow-x-auto relative h-12 scrollbar-thin">
-        <div className="flex items-center h-full" style={{ minWidth: '1280px' }}>
+      <div className="flex items-center h-full" style={{ minWidth: '1280px' }}>
           {/* Type */}
           <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
         <TypeBadge type={task.type} />
@@ -522,7 +513,6 @@ const SortableTaskRow = React.memo(function SortableTaskRow({ task, users, athle
           />
         </div>
       </div>
-        </div>
       </div>
     </div>
   );
@@ -536,6 +526,17 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
   const [manualOrderIds, setManualOrderIds] = useState<string[]>([]);
   const [openDropdowns, setOpenDropdowns] = useState<{[key: string]: 'priority' | 'status' | 'deadline' | 'assignee' | null}>({});
   const [hoveredSortField, setHoveredSortField] = useState<SortField | null>(null);
+
+  // Fixed column hook
+  const { 
+    scrollContainerRef, 
+    isScrolled, 
+    getFixedColumnStyle, 
+    getScrollableContentStyle 
+  } = useFixedColumn({ 
+    columnWidth: 360, 
+    enabled: !isMobile 
+  });
 
   // Sensors for drag and drop
   const sensors = useSensors(
@@ -759,234 +760,300 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="w-full overflow-x-auto">
-        <div className="bg-[#121210] rounded-2xl overflow-hidden relative" style={{ minWidth: '1640px' }}>
-          {/* Table Header - Hidden on mobile list view */}
-          {!isMobile && (
-            <div className="flex h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium relative">
-                {/* Fixed Task Name Column */}
-                <div 
-                  className="flex items-center pl-[8px] pr-[16px] w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928] bg-[#121210] z-20"
-                  style={{ 
-                    position: 'sticky', 
-                    left: 0,
-                    backgroundColor: '#121210',
-                    zIndex: 20,
-                    boxShadow: '2px 0 4px rgba(0, 0, 0, 0.1)'
-                  }}
-                >
-                {/* List Icon */}
-                <div className="flex items-center justify-between pl-[12px] pr-0 py-0 relative shrink-0 size-[40px]">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleManualOrderingToggle();
-                          }}
-                          className="overflow-clip relative shrink-0 size-[16px] hover:bg-[#3a3a38] rounded transition-colors"
-                        >
-                          <ListIcon 
-                            className="w-4 h-4" 
-                            style={{ 
-                              color: isManualOrdering ? '#f7f6f2' : '#585856' 
-                            }} 
-                          />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{isManualOrdering ? 'Disable manual ordering' : 'Enable manual ordering'}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <div className="bg-[#292928] h-[20px] shrink-0 w-px" />
+      <div className="w-full relative">
+        <div 
+          ref={scrollContainerRef}
+          className="overflow-x-auto scrollbar-thin"
+        >
+          <div className="bg-[#121210] rounded-2xl overflow-hidden relative" style={{ minWidth: '1640px' }}>
+            {/* Fixed Column Overlay - Only visible when scrolled */}
+            {isScrolled && (
+              <div 
+                className="fixed-column-overlay"
+                style={getFixedColumnStyle('#121210')}
+              >
+                {/* Fixed Header Content */}
+                <div className="flex items-center pl-[8px] pr-[16px] w-[360px] h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium border-r border-[#292928]">
+                  {/* List Icon */}
+                  <div className="flex items-center justify-between pl-[12px] pr-0 py-0 relative shrink-0 size-[40px]">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleManualOrderingToggle();
+                            }}
+                            className="overflow-clip relative shrink-0 size-[16px] hover:bg-[#3a3a38] rounded transition-colors"
+                          >
+                            <ListIcon 
+                              className="w-4 h-4" 
+                              style={{ 
+                                color: isManualOrdering ? '#f7f6f2' : '#585856' 
+                              }} 
+                            />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{isManualOrdering ? 'Disable manual ordering' : 'Enable manual ordering'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <div className="bg-[#292928] h-[20px] shrink-0 w-px" />
+                  </div>
+                  
+                  {/* Name Header */}
+                  <div className="flex items-center justify-between pl-[16px] pr-0 flex-1">
+                    <button 
+                      onClick={() => !isManualOrdering && handleSort('name')}
+                      onMouseEnter={() => !isManualOrdering && setHoveredSortField('name')}
+                      onMouseLeave={() => !isManualOrdering && setHoveredSortField(null)}
+                      className="flex gap-[4px] items-center flex-1 hover:text-[#f7f6f2] transition-colors"
+                      disabled={isManualOrdering}
+                    >
+                      <span className="font-['Montserrat:Medium',_sans-serif] text-[12px] leading-[1.32] text-[#bcbbb7] whitespace-nowrap overflow-hidden text-ellipsis">
+                        Name
+                      </span>
+                      {!isManualOrdering && getSortIcon('name', hoveredSortField === 'name')}
+                    </button>
+                  </div>
                 </div>
                 
-                {/* Name Header */}
-                <div className="flex items-center justify-between pl-[16px] pr-0 flex-1">
-                  <button 
-                    onClick={() => !isManualOrdering && handleSort('name')}
-                    onMouseEnter={() => !isManualOrdering && setHoveredSortField('name')}
-                    onMouseLeave={() => !isManualOrdering && setHoveredSortField(null)}
-                    className="flex gap-[4px] items-center flex-1 hover:text-[#f7f6f2] transition-colors"
-                    disabled={isManualOrdering}
-                  >
-                    <span className="font-['Montserrat:Medium',_sans-serif] text-[12px] leading-[1.32] text-[#bcbbb7] whitespace-nowrap overflow-hidden text-ellipsis">
-                      Name
-                    </span>
-                    {!isManualOrdering && getSortIcon('name', hoveredSortField === 'name')}
-                  </button>
-                </div>
-              </div>
-              
-              {/* Scrollable Columns Header */}
-              <div className="flex-1 relative h-10">
-                <div className="flex items-center h-full" style={{ minWidth: '1280px' }}>
-              
-                  {/* Type */}
-                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
-                    <button 
-                      onClick={() => handleSort('type')}
-                      onMouseEnter={() => setHoveredSortField('type')}
-                      onMouseLeave={() => setHoveredSortField(null)}
-                      className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                {/* Fixed Body Content */}
+                <div className="fixed-body-content">
+                  {(isManualOrdering ? orderedTasks : sortedTasks).map((task, index) => (
+                    <div
+                      key={task.id}
+                      className="flex items-center border-b border-[#292928] h-12 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer"
+                      onClick={() => onTaskClick(task)}
                     >
-                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">Type</span>
-                      {getSortIcon('type', hoveredSortField === 'type')}
-                    </button>
-                  </div>
-                  
-                  {/* Assignee */}
-                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
-                    <span className="whitespace-nowrap overflow-hidden text-ellipsis">Assignee</span>
-                  </div>
-                  
-                  {/* Priority */}
-                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
-                    <button 
-                      onClick={() => handleSort('priority')}
-                      onMouseEnter={() => setHoveredSortField('priority')}
-                      onMouseLeave={() => setHoveredSortField(null)}
-                      className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
-                    >
-                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">Priority</span>
-                      {getSortIcon('priority', hoveredSortField === 'priority')}
-                    </button>
-                  </div>
-                  
-                  {/* Related Athletes */}
-                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
-                    <span className="whitespace-nowrap overflow-hidden text-ellipsis">Related athlete(s)</span>
-                  </div>
-                  
-                  {/* Deadline */}
-                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
-                    <button 
-                      onClick={() => handleSort('deadline')}
-                      onMouseEnter={() => setHoveredSortField('deadline')}
-                      onMouseLeave={() => setHoveredSortField(null)}
-                      className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
-                    >
-                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">Deadline</span>
-                      {getSortIcon('deadline', hoveredSortField === 'deadline')}
-                    </button>
-                  </div>
-                  
-                  {/* Status */}
-                  <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
-                    <button 
-                      onClick={() => handleSort('status')}
-                      onMouseEnter={() => setHoveredSortField('status')}
-                      onMouseLeave={() => setHoveredSortField(null)}
-                      className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
-                    >
-                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">Status</span>
-                      {getSortIcon('status', hoveredSortField === 'status')}
-                    </button>
-                  </div>
-                  
-                  {/* Actions */}
-                  <div className="flex items-center justify-center pl-4 pr-0 w-[80px] min-w-[80px]">
-                    <span className="whitespace-nowrap overflow-hidden text-ellipsis">Actions</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Table Body */}
-          <div>
-              <SortableContext 
-                items={isManualOrdering ? orderedTasks.map(t => t.id) : sortedTasks.map(t => t.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {(isManualOrdering ? orderedTasks : sortedTasks).map((task) => (
-                isMobile ? (
-                  // Mobile simplified row
-                  <div
-                    key={task.id}
-                    onClick={() => onTaskClick(task)}
-                    className="flex items-center justify-between p-4 border-b border-[#292928] bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer"
-                  >
-                    <div className="flex-1">
-                      <div className="text-[#F7F6F2] text-sm font-semibold mb-1">{task.name}</div>
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-2 h-2 rounded-full"
-                          style={{ 
-                            backgroundColor: task.status === 'new' ? '#ff8254' : 
-                                           task.status === 'in_progress' ? '#3f83f8' : 
-                                           task.status === 'blocked' ? '#f87171' : 
-                                           task.status === 'completed' ? '#4ade80' : '#ff8254'
-                          }}
-                        />
-                        <span className="text-xs text-[#979795] capitalize">
-                          {task.status.replace('_', ' ')}
-                        </span>
-                        {task.deadline && (
-                          <>
-                            <span className="text-xs text-[#585856]">•</span>
-                            <span className="text-xs text-[#979795]">
-                              {(() => {
-                                const date = new Date(task.deadline);
-                                const today = new Date();
-                                const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                                
-                                if (diffDays === 0) return 'Today';
-                                if (diffDays === 1) return 'Tomorrow';
-                                if (diffDays === -1) return 'Yesterday';
-                                if (diffDays < 0) return `${Math.abs(diffDays)}d ago`;
-                                if (diffDays <= 7) return `${diffDays}d`;
-                                
-                                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                              })()}
-                            </span>
-                          </>
-                        )}
+                      <div className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
+                        <div className="overflow-clip relative shrink-0 size-[24px] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing flex items-center justify-center">
+                          <GripVertical className="w-4 h-4 text-[#979795]" />
+                        </div>
+                        <div className="basis-0 font-['Montserrat:SemiBold',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic overflow-ellipsis overflow-hidden relative shrink-0 text-[#f7f6f2] text-[14px] text-nowrap">
+                          <p className="[white-space-collapse:collapse] leading-[1.46] overflow-ellipsis overflow-hidden">{task.name}</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {(() => {
-                        const assignee = users.find((u: any) => u.id === task.assigneeId);
-                        return assignee ? (
-                          <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
-                        ) : null;
-                      })()}
-                      <div 
-                        className="w-3 h-3 rounded-full"
-                        style={{ 
-                          backgroundColor: task.priority === 'high' ? '#f87171' : 
-                                         task.priority === 'medium' ? '#3f83f8' : '#979795'
-                        }}
-                      />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Main Table Content */}
+            <div style={getScrollableContentStyle()}>
+              {/* Table Header - Hidden on mobile list view */}
+              {!isMobile && (
+                <div className="flex h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium relative">
+                    {/* Task Name Column */}
+                    <div className="flex items-center pl-[8px] pr-[16px] w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
+                    {/* List Icon */}
+                    <div className="flex items-center justify-between pl-[12px] pr-0 py-0 relative shrink-0 size-[40px]">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleManualOrderingToggle();
+                              }}
+                              className="overflow-clip relative shrink-0 size-[16px] hover:bg-[#3a3a38] rounded transition-colors"
+                            >
+                              <ListIcon 
+                                className="w-4 h-4" 
+                                style={{ 
+                                  color: isManualOrdering ? '#f7f6f2' : '#585856' 
+                                }} 
+                              />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{isManualOrdering ? 'Disable manual ordering' : 'Enable manual ordering'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <div className="bg-[#292928] h-[20px] shrink-0 w-px" />
+                    </div>
+                    
+                    {/* Name Header */}
+                    <div className="flex items-center justify-between pl-[16px] pr-0 flex-1">
+                      <button 
+                        onClick={() => !isManualOrdering && handleSort('name')}
+                        onMouseEnter={() => !isManualOrdering && setHoveredSortField('name')}
+                        onMouseLeave={() => !isManualOrdering && setHoveredSortField(null)}
+                        className="flex gap-[4px] items-center flex-1 hover:text-[#f7f6f2] transition-colors"
+                        disabled={isManualOrdering}
+                      >
+                        <span className="font-['Montserrat:Medium',_sans-serif] text-[12px] leading-[1.32] text-[#bcbbb7] whitespace-nowrap overflow-hidden text-ellipsis">
+                          Name
+                        </span>
+                        {!isManualOrdering && getSortIcon('name', hoveredSortField === 'name')}
+                      </button>
                     </div>
                   </div>
-                ) : (
-                  <SortableTaskRow
-                    key={task.id}
-                    task={task}
-                    users={users}
-                    athletes={athletes}
-                    onTaskClick={onTaskClick}
-                    openDropdowns={openDropdowns}
-                    onToggleDropdown={toggleDropdown}
-                    onUpdatePriority={handleUpdatePriority}
-                    onUpdateStatus={handleUpdateStatus}
-                    onUpdateDeadline={handleUpdateDeadline}
-                    onUpdateAssignee={handleUpdateAssignee}
-                    onActionClick={onActionClick}
-                  />
-                )
-              ))}
-              </SortableContext>
+              
+                  {/* Scrollable Columns Header */}
+                  <div className="flex items-center h-full" style={{ minWidth: '1280px' }}>
+                  
+                      {/* Type */}
+                      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                        <button 
+                          onClick={() => handleSort('type')}
+                          onMouseEnter={() => setHoveredSortField('type')}
+                          onMouseLeave={() => setHoveredSortField(null)}
+                          className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                        >
+                          <span className="whitespace-nowrap overflow-hidden text-ellipsis">Type</span>
+                          {getSortIcon('type', hoveredSortField === 'type')}
+                        </button>
+                      </div>
+                      
+                      {/* Assignee */}
+                      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                        <span className="whitespace-nowrap overflow-hidden text-ellipsis">Assignee</span>
+                      </div>
+                      
+                      {/* Priority */}
+                      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                        <button 
+                          onClick={() => handleSort('priority')}
+                          onMouseEnter={() => setHoveredSortField('priority')}
+                          onMouseLeave={() => setHoveredSortField(null)}
+                          className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                        >
+                          <span className="whitespace-nowrap overflow-hidden text-ellipsis">Priority</span>
+                          {getSortIcon('priority', hoveredSortField === 'priority')}
+                        </button>
+                      </div>
+                      
+                      {/* Related Athletes */}
+                      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                        <span className="whitespace-nowrap overflow-hidden text-ellipsis">Related athlete(s)</span>
+                      </div>
+                      
+                      {/* Deadline */}
+                      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                        <button 
+                          onClick={() => handleSort('deadline')}
+                          onMouseEnter={() => setHoveredSortField('deadline')}
+                          onMouseLeave={() => setHoveredSortField(null)}
+                          className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                        >
+                          <span className="whitespace-nowrap overflow-hidden text-ellipsis">Deadline</span>
+                          {getSortIcon('deadline', hoveredSortField === 'deadline')}
+                        </button>
+                      </div>
+                      
+                      {/* Status */}
+                      <div className="flex items-center pl-4 pr-0 w-[200px] min-w-[200px]">
+                        <button 
+                          onClick={() => handleSort('status')}
+                          onMouseEnter={() => setHoveredSortField('status')}
+                          onMouseLeave={() => setHoveredSortField(null)}
+                          className="flex items-center gap-1 hover:text-[#f7f6f2] transition-colors"
+                        >
+                          <span className="whitespace-nowrap overflow-hidden text-ellipsis">Status</span>
+                          {getSortIcon('status', hoveredSortField === 'status')}
+                        </button>
+                      </div>
+                      
+                      {/* Actions */}
+                      <div className="flex items-center justify-center pl-4 pr-0 w-[80px] min-w-[80px]">
+                        <span className="whitespace-nowrap overflow-hidden text-ellipsis">Actions</span>
+                      </div>
+                    </div>
+                </div>
+              )}
+
+              {/* Table Body */}
+              <div>
+                  <SortableContext 
+                    items={isManualOrdering ? orderedTasks.map(t => t.id) : sortedTasks.map(t => t.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {(isManualOrdering ? orderedTasks : sortedTasks).map((task) => (
+                    isMobile ? (
+                      // Mobile simplified row
+                      <div
+                        key={task.id}
+                        onClick={() => onTaskClick(task)}
+                        className="flex items-center justify-between p-4 border-b border-[#292928] bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer"
+                      >
+                        <div className="flex-1">
+                          <div className="text-[#F7F6F2] text-sm font-semibold mb-1">{task.name}</div>
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-2 h-2 rounded-full"
+                              style={{ 
+                                backgroundColor: task.status === 'new' ? '#ff8254' : 
+                                               task.status === 'in_progress' ? '#3f83f8' : 
+                                               task.status === 'blocked' ? '#f87171' : 
+                                               task.status === 'completed' ? '#4ade80' : '#ff8254'
+                              }}
+                            />
+                            <span className="text-xs text-[#979795] capitalize">
+                              {task.status.replace('_', ' ')}
+                            </span>
+                            {task.deadline && (
+                              <>
+                                <span className="text-xs text-[#585856]">•</span>
+                                <span className="text-xs text-[#979795]">
+                                  {(() => {
+                                    const date = new Date(task.deadline);
+                                    const today = new Date();
+                                    const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                                    
+                                    if (diffDays === 0) return 'Today';
+                                    if (diffDays === 1) return 'Tomorrow';
+                                    if (diffDays === -1) return 'Yesterday';
+                                    if (diffDays < 0) return `${Math.abs(diffDays)}d ago`;
+                                    if (diffDays <= 7) return `${diffDays}d`;
+                                    
+                                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                                  })()}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {(() => {
+                            const assignee = users.find((u: any) => u.id === task.assigneeId);
+                            return assignee ? (
+                              <UserAvatar userId={assignee.id} name={assignee.name} size="xs" />
+                            ) : null;
+                          })()}
+                          <div 
+                            className="w-3 h-3 rounded-full"
+                            style={{ 
+                              backgroundColor: task.priority === 'high' ? '#f87171' : 
+                                             task.priority === 'medium' ? '#3f83f8' : '#979795'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <SortableTaskRow
+                        key={task.id}
+                        task={task}
+                        users={users}
+                        athletes={athletes}
+                        onTaskClick={onTaskClick}
+                        openDropdowns={openDropdowns}
+                        onToggleDropdown={toggleDropdown}
+                        onUpdatePriority={handleUpdatePriority}
+                        onUpdateStatus={handleUpdateStatus}
+                        onUpdateDeadline={handleUpdateDeadline}
+                        onUpdateAssignee={handleUpdateAssignee}
+                        onActionClick={onActionClick}
+                      />
+                    )
+                  ))}
+                  </SortableContext>
+              </div>
+            </div>
           </div>
-        {tasks.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="text-[#979795] text-sm mb-2">No tasks found</div>
-            <div className="text-[#585856] text-xs">Create a new task to get started</div>
-          </div>
-        )}
         </div>
       </div>
     </DndContext>

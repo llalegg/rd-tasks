@@ -231,4 +231,24 @@
   .safe-area-pb {
     padding-bottom: env(safe-area-inset-bottom);
   }
+
+  /* Fixed column sticky positioning */
+  .sticky-column {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 30 !important;
+    background-color: inherit !important;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Ensure table structure supports sticky positioning */
+  .table-scroll-container {
+    overflow-x: auto !important;
+    position: relative !important;
+  }
+
+  .table-scroll-container * {
+    /* Prevent creating new stacking contexts that break sticky */
+    transform: none !important;
+  }
 }
