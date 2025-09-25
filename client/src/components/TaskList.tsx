@@ -961,10 +961,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                   ))}
                   </SortableContext>
               </div>
-              </div>              </div>
           </div>
         </div>
-      </div>
     </DndContext>
   );
 }
