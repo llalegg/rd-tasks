@@ -18,7 +18,16 @@ export function useFixedColumn({ columnWidth, enabled = true }: UseFixedColumnOp
     const handleScroll = () => {
       const newScrollLeft = container.scrollLeft;
       setScrollLeft(newScrollLeft);
-      setIsScrolled(newScrollLeft > 0);
+      const scrolled = newScrollLeft > 0;
+      setIsScrolled(scrolled);
+      
+      // Debug logging
+      console.log('Scroll detected:', {
+        scrollLeft: newScrollLeft,
+        isScrolled: scrolled,
+        containerWidth: container.clientWidth,
+        scrollWidth: container.scrollWidth
+      });
     };
 
     const handleResize = () => {
@@ -49,12 +58,16 @@ export function useFixedColumn({ columnWidth, enabled = true }: UseFixedColumnOp
     zIndex: 30,
     boxShadow: '2px 0 4px rgba(0, 0, 0, 0.1)',
     borderRight: '1px solid #292928',
-    display: isScrolled ? 'block' : 'none', // Only show when scrolled
+    display: 'block', // Always show for now to test positioning
   });
 
   const getScrollableContentStyle = () => ({
-    marginLeft: isScrolled ? `${columnWidth}px` : '0',
+    marginLeft: `${columnWidth}px`, // Always apply margin for testing
     transition: 'margin-left 0.1s ease-out',
+  });
+
+  const getOriginalColumnStyle = () => ({
+    display: 'none', // Always hide original for testing
   });
 
   return {
@@ -63,5 +76,6 @@ export function useFixedColumn({ columnWidth, enabled = true }: UseFixedColumnOp
     isScrolled,
     getFixedColumnStyle,
     getScrollableContentStyle,
+    getOriginalColumnStyle,
   };
 }

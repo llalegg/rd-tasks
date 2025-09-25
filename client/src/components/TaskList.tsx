@@ -32,7 +32,6 @@ import { PriorityBadge } from "@/components/ui/priority-badge";
 import { ActionButton } from "@/components/ui/action-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getPriorityColor, getStatusColor, formatDeadline, getPriorityOrder } from "@/lib/statusUtils";
-import { useFixedColumn } from "@/hooks/use-fixed-column";
 
 interface TaskListProps {
   tasks: Task[];
@@ -527,16 +526,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
   const [openDropdowns, setOpenDropdowns] = useState<{[key: string]: 'priority' | 'status' | 'deadline' | 'assignee' | null}>({});
   const [hoveredSortField, setHoveredSortField] = useState<SortField | null>(null);
 
-  // Fixed column hook
-  const { 
-    scrollContainerRef, 
-    isScrolled, 
-    getFixedColumnStyle, 
-    getScrollableContentStyle 
-  } = useFixedColumn({ 
-    columnWidth: 360, 
-    enabled: !isMobile 
-  });
+  // Removed fixed column functionality
 
   // Sensors for drag and drop
   const sensors = useSensors(
@@ -760,89 +750,8 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="w-full relative">
-        <div 
-          ref={scrollContainerRef}
-          className="overflow-x-auto scrollbar-thin"
-        >
-          <div className="bg-[#121210] rounded-2xl overflow-hidden relative" style={{ minWidth: '1640px' }}>
-            {/* Fixed Column Overlay - Only visible when scrolled */}
-            {isScrolled && (
-              <div 
-                className="fixed-column-overlay"
-                style={getFixedColumnStyle('#121210')}
-              >
-                {/* Fixed Header Content */}
-                <div className="flex items-center pl-[8px] pr-[16px] w-[360px] h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium border-r border-[#292928]">
-                  {/* List Icon */}
-                  <div className="flex items-center justify-between pl-[12px] pr-0 py-0 relative shrink-0 size-[40px]">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleManualOrderingToggle();
-                            }}
-                            className="overflow-clip relative shrink-0 size-[16px] hover:bg-[#3a3a38] rounded transition-colors"
-                          >
-                            <ListIcon 
-                              className="w-4 h-4" 
-                              style={{ 
-                                color: isManualOrdering ? '#f7f6f2' : '#585856' 
-                              }} 
-                            />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{isManualOrdering ? 'Disable manual ordering' : 'Enable manual ordering'}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                    <div className="bg-[#292928] h-[20px] shrink-0 w-px" />
-                  </div>
-                  
-                  {/* Name Header */}
-                  <div className="flex items-center justify-between pl-[16px] pr-0 flex-1">
-                    <button 
-                      onClick={() => !isManualOrdering && handleSort('name')}
-                      onMouseEnter={() => !isManualOrdering && setHoveredSortField('name')}
-                      onMouseLeave={() => !isManualOrdering && setHoveredSortField(null)}
-                      className="flex gap-[4px] items-center flex-1 hover:text-[#f7f6f2] transition-colors"
-                      disabled={isManualOrdering}
-                    >
-                      <span className="font-['Montserrat:Medium',_sans-serif] text-[12px] leading-[1.32] text-[#bcbbb7] whitespace-nowrap overflow-hidden text-ellipsis">
-                        Name
-                      </span>
-                      {!isManualOrdering && getSortIcon('name', hoveredSortField === 'name')}
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Fixed Body Content */}
-                <div className="fixed-body-content">
-                  {(isManualOrdering ? orderedTasks : sortedTasks).map((task, index) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center border-b border-[#292928] h-12 bg-[#1C1C1B] hover:bg-[#2C2C2B] transition-colors cursor-pointer"
-                      onClick={() => onTaskClick(task)}
-                    >
-                      <div className="flex gap-[8px] items-center pl-[8px] pr-[16px] py-0 w-[360px] min-w-[360px] flex-shrink-0 border-r border-[#292928]">
-                        <div className="overflow-clip relative shrink-0 size-[24px] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing flex items-center justify-center">
-                          <GripVertical className="w-4 h-4 text-[#979795]" />
-                        </div>
-                        <div className="basis-0 font-['Montserrat:SemiBold',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic overflow-ellipsis overflow-hidden relative shrink-0 text-[#f7f6f2] text-[14px] text-nowrap">
-                          <p className="[white-space-collapse:collapse] leading-[1.46] overflow-ellipsis overflow-hidden">{task.name}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Main Table Content */}
-            <div style={getScrollableContentStyle()}>
+      <div className="w-full overflow-x-auto scrollbar-thin">
+        <div className="bg-[#121210] rounded-2xl overflow-hidden relative" style={{ minWidth: '1640px' }}>
               {/* Table Header - Hidden on mobile list view */}
               {!isMobile && (
                 <div className="flex h-10 bg-[#121210] text-[#bcbbb7] text-xs font-medium relative">
@@ -1052,7 +961,7 @@ export default function TaskList({ tasks, onTaskClick, onStatusUpdate, onDeleteT
                   ))}
                   </SortableContext>
               </div>
-            </div>
+              </div>              </div>
           </div>
         </div>
       </div>
